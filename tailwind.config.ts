@@ -57,6 +57,13 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        toolbar: "hsl(var(--toolbar-background))",
+        editor: "hsl(var(--editor-background))",
+        "status-bar": "hsl(var(--status-bar-background))",
+      },
+      fontFamily: {
+        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+        mono: ['JetBrains Mono', 'Fira Code', 'Consolas', 'monospace'],
       },
       borderRadius: {
         lg: "var(--radius)",
