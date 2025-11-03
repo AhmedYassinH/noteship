@@ -429,6 +429,261 @@ Worth trying if you need a knowledge base.`
   },
   {
     id: "a3",
+    noteId: "n1",
+    platform: "Hashnode",
+    status: "draft",
+    lastUpdated: "4 hours ago",
+    versions: [
+      {
+        id: "v7",
+        version: 2,
+        createdAt: "4 hours ago",
+        wordCount: 1334,
+        content: `# Quartz: The Static Site Generator That Changed How I Share Knowledge
+
+I've tried countless note-taking apps and site generators. Notion, Obsidian, Jekyll, Hugo—the list goes on. But when I discovered Quartz, something clicked. This wasn't just another tool; it was exactly what I needed for my digital garden.
+
+## The Digital Garden Philosophy
+
+Before diving into the technical details, let's talk about why Quartz exists. Traditional blogs are chronological and polished. Digital gardens are different—they're living, evolving spaces where ideas grow and connect organically.
+
+Quartz embraces this philosophy completely. It's designed for networked thought, where every note can link to others, creating a web of interconnected knowledge.
+
+## What Makes Quartz Special?
+
+### 1. Markdown Native
+Write in plain text. No proprietary formats, no vendor lock-in. Your notes are yours forever.
+
+### 2. Incredibly Fast
+Built on modern web technologies, Quartz generates sites in seconds, not minutes. Incremental compilation means changes appear almost instantly.
+
+### 3. Beautiful by Default
+The default theme is stunning. Dark mode, responsive design, elegant typography—it all just works.
+
+### 4. Powerful Search
+Full-text search is built in. No external services, no privacy concerns. Everything runs client-side.
+
+### 5. Graph Visualization
+See how your notes connect. The interactive graph view reveals patterns you might have missed.
+
+## Getting Started Is Easy
+
+Installation takes less than 5 minutes:
+
+\`\`\`bash
+npm install -g @quartzjs/cli
+quartz create my-digital-garden
+cd my-digital-garden
+\`\`\`
+
+The CLI walks you through setup. Choose your theme, configure plugins, and you're ready to write.
+
+## Customization Without Complexity
+
+The \`quartz.config.ts\` file is your control center. Here's what you can customize:
+
+**Theme Colors**: Match your personal brand  
+**Navigation**: Organize your content hierarchy  
+**Plugins**: Add features like comments, analytics, or custom components  
+**Content Processing**: Control how markdown is transformed
+
+## Publishing Your Garden
+
+When you're ready to share with the world, deployment is straightforward:
+
+**Vercel**: One-click deployment, perfect for beginners  
+**Netlify**: Excellent Git integration  
+**GitHub Pages**: Free hosting for open-source projects  
+**Cloudflare Pages**: Lightning-fast global CDN
+
+All of these platforms offer free tiers that are more than sufficient for most digital gardens.
+
+## My Workflow
+
+Here's how I use Quartz daily:
+
+1. Write notes in my favorite editor (VS Code with Markdown extensions)
+2. Preview changes locally with \`quartz serve\`
+3. Commit to Git when satisfied
+4. Automatic deployment to Vercel
+
+The entire process, from idea to published note, takes minutes.
+
+## Tips for Success
+
+**Start Small**: Begin with a few well-crafted notes rather than dumping everything at once.
+
+**Use Backlinks**: Reference other notes liberally. The graph view becomes more valuable as connections grow.
+
+**Update Regularly**: Digital gardens thrive on consistent cultivation. Even small updates keep the garden alive.
+
+**Share Imperfect Notes**: Don't wait for perfection. Publish works-in-progress and refine over time.
+
+## Conclusion
+
+Quartz has transformed how I think about knowledge management. It's not just a tool—it's a mindset shift. If you've been looking for a way to share your learning journey authentically, give Quartz a try.
+
+Your digital garden awaits. 🌱
+
+---
+
+*Have you tried Quartz? I'd love to hear about your experience. Drop a comment below!*`
+      },
+      {
+        id: "v8",
+        version: 1,
+        createdAt: "1 day ago",
+        wordCount: 892,
+        content: `# My Experience with Quartz
+
+I recently started using Quartz and wanted to share my thoughts.
+
+## What is Quartz?
+
+Quartz is a static site generator for building digital gardens from Markdown files.
+
+## Installation
+
+Pretty straightforward. Just run npm commands and you're set up.
+
+## Features I Like
+
+- Fast builds
+- Nice themes
+- Search functionality
+- Graph view is cool
+
+## Conclusion
+
+Worth checking out if you want to publish your notes online.`
+      }
+    ]
+  },
+  {
+    id: "a4",
+    noteId: "n1",
+    platform: "Substack",
+    status: "draft",
+    lastUpdated: "6 hours ago",
+    versions: [
+      {
+        id: "v9",
+        version: 1,
+        createdAt: "6 hours ago",
+        wordCount: 987,
+        content: `# Tutorial: Deploy Your Quartz Digital Garden in 10 Minutes ⚡
+
+Want to turn your Markdown notes into a live website? This tutorial will have you up and running with Quartz in under 10 minutes.
+
+## What You'll Build
+
+By the end of this tutorial, you'll have:
+- A fully functional digital garden
+- Beautiful, responsive design
+- Full-text search
+- Graph visualization of your notes
+- Live on the internet!
+
+## Prerequisites
+
+You'll need:
+- Node.js 18 or higher
+- A code editor (VS Code recommended)
+- Basic terminal knowledge
+
+## Step 1: Install Quartz CLI (1 minute)
+
+Open your terminal and run:
+
+\`\`\`bash
+npm install -g @quartzjs/cli
+\`\`\`
+
+This installs the Quartz command-line tool globally.
+
+## Step 2: Create Your Project (2 minutes)
+
+\`\`\`bash
+quartz create my-digital-garden
+\`\`\`
+
+The CLI will ask a few questions:
+- **Template**: Choose "Default" for your first garden
+- **Content**: Start with "Empty" (you'll add notes later)
+- **Theme**: Pick your favorite—they're all gorgeous!
+
+Then navigate into your new project:
+
+\`\`\`bash
+cd my-digital-garden
+\`\`\`
+
+## Step 3: Add Your First Note (2 minutes)
+
+Create a file in the \`content\` folder:
+
+\`\`\`bash
+echo "# My First Note\n\nWelcome to my digital garden!" > content/first-note.md
+\`\`\`
+
+Or use your editor to create \`content/first-note.md\` with any content you like.
+
+## Step 4: Preview Locally (1 minute)
+
+Start the development server:
+
+\`\`\`bash
+npx quartz serve
+\`\`\`
+
+Open your browser to \`localhost:8080\`. You should see your note, beautifully rendered!
+
+## Step 5: Deploy to Vercel (4 minutes)
+
+First, push your project to GitHub:
+
+\`\`\`bash
+git init
+git add .
+git commit -m "Initial commit"
+git branch -M main
+git remote add origin YOUR_GITHUB_REPO_URL
+git push -u origin main
+\`\`\`
+
+Then:
+1. Go to [vercel.com](https://vercel.com)
+2. Click "Import Project"
+3. Select your GitHub repository
+4. Click "Deploy"
+
+That's it! Vercel will automatically build and deploy your site. You'll get a live URL in about 30 seconds.
+
+## Bonus Tips
+
+**Custom Domain**: Add your own domain in Vercel settings  
+**Auto Deploy**: Every Git push automatically updates your site  
+**Dark Mode**: Toggle works out of the box  
+**Backlinks**: Use \`[[note-name]]\` syntax to link notes
+
+## What's Next?
+
+Now that your garden is live:
+- Add more notes
+- Experiment with the graph view
+- Customize your \`quartz.config.ts\`
+- Share your garden with the world!
+
+Happy gardening! 🌱
+
+---
+
+*Questions? Drop them in the comments!*`
+      }
+    ]
+  },
+  {
+    id: "a5",
     noteId: "n2",
     platform: "Hashnode",
     status: "draft",
@@ -547,6 +802,18 @@ export const mockLinkedInBlurbs: LinkedInBlurb[] = [
   },
   {
     id: "l3",
+    noteId: "n1",
+    text: "Deployed my first digital garden with Quartz this week. The combination of Markdown simplicity and beautiful output is 🤌 No more wrestling with CMS platforms! #DigitalGarden #KnowledgeManagement",
+    createdAt: "3 days ago"
+  },
+  {
+    id: "l4",
+    noteId: "n1",
+    text: "For anyone building a personal knowledge base: Quartz + Vercel = free, fast, and beautiful. Took me 10 minutes to go from local notes to live site. Game changer. #DevTools #LearningInPublic",
+    createdAt: "5 days ago"
+  },
+  {
+    id: "l5",
     noteId: "n2",
     text: "The CoreStack pattern in AWS CDK has been a game-changer for our team. 70% faster infrastructure setup and much better consistency across projects. Highly recommend for any team using CDK. #AWS #CloudInfrastructure",
     createdAt: "3 days ago"
