@@ -13,62 +13,15 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { mockWorkspaces, Workspace } from "@/data/mockData";
 
-interface Note {
-  id: string;
-  name: string;
+interface SidebarTreeProps {
+  selectedNoteId: string;
+  onNoteSelect: (noteId: string) => void;
 }
 
-interface FolderItem {
-  id: string;
-  name: string;
-  notes: Note[];
-  expanded?: boolean;
-}
-
-interface Workspace {
-  id: string;
-  name: string;
-  folders: FolderItem[];
-  expanded?: boolean;
-}
-
-const mockData: Workspace[] = [
-  {
-    id: "1",
-    name: "Personal",
-    expanded: true,
-    folders: [
-      {
-        id: "f1",
-        name: "AWS Notes",
-        expanded: true,
-        notes: [
-          { id: "n1", name: "Quartz setup.md" },
-          { id: "n2", name: "CDK CoreStack.md" }
-        ]
-      }
-    ]
-  },
-  {
-    id: "2",
-    name: "Tech Writing",
-    expanded: false,
-    folders: [
-      {
-        id: "f2",
-        name: "AI Prompts",
-        notes: [
-          { id: "n3", name: "GPT-4 Tips.md" }
-        ]
-      }
-    ]
-  }
-];
-
-export const SidebarTree = () => {
-  const [workspaces, setWorkspaces] = useState(mockData);
-  const [selectedNote, setSelectedNote] = useState("n1");
+export const SidebarTree = ({ selectedNoteId, onNoteSelect }: SidebarTreeProps) => {
+  const [workspaces, setWorkspaces] = useState<Workspace[]>(mockWorkspaces);
 
   const toggleWorkspace = (id: string) => {
     setWorkspaces(prev =>
@@ -168,9 +121,9 @@ export const SidebarTree = () => {
                           {folder.notes.map(note => (
                             <button
                               key={note.id}
-                              onClick={() => setSelectedNote(note.id)}
+                              onClick={() => onNoteSelect(note.id)}
                               className={`w-full flex items-center gap-2 px-2 py-1.5 rounded text-sm transition-smooth ${
-                                selectedNote === note.id
+                                selectedNoteId === note.id
                                   ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
                                   : "hover:bg-sidebar-accent/50"
                               }`}

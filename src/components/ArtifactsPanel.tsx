@@ -2,7 +2,6 @@ import { useState } from "react";
 import {
   ExternalLink,
   Copy,
-  Edit,
   ChevronRight,
   ChevronDown,
   Sparkles
@@ -11,26 +10,30 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { mockArtifacts, mockLinkedInBlurbs, Artifact } from "@/data/mockData";
+import { ArtifactDialog } from "./ArtifactDialog";
+import { toast } from "sonner";
 
-interface BlogDraft {
-  id: string;
-  platform: string;
-  status: "draft" | "published";
-  lastUpdated: string;
+interface ArtifactsPanelProps {
+  selectedNoteId: string;
 }
 
-const blogDrafts: BlogDraft[] = [
-  { id: "1", platform: "Medium", status: "draft", lastUpdated: "2 hours ago" },
-  { id: "2", platform: "DEV.to", status: "published", lastUpdated: "1 day ago" },
-  { id: "3", platform: "Hashnode", status: "draft", lastUpdated: "3 days ago" }
-];
+export const ArtifactsPanel = ({ selectedNoteId }: ArtifactsPanelProps) => {
+  const [selectedArtifact, setSelectedArtifact] = useState<Artifact | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
-const linkedInBlurbs = [
-  { id: "1", text: "Just finished setting up Quartz for my notes. The build speed is incredible! 🚀" },
-  { id: "2", text: "Static site generators have come so far. Quartz makes publishing seamless." }
-];
+  const noteArtifacts = mockArtifacts.filter(a => a.noteId === selectedNoteId);
+  const noteBlurbs = mockLinkedInBlurbs.filter(b => b.noteId === selectedNoteId);
 
-export const ArtifactsPanel = () => {
+  const handleOpenArtifact = (artifact: Artifact) => {
+    setSelectedArtifact(artifact);
+    setDialogOpen(true);
+  };
+
+  const handleCopyBlurb = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast.success("Copied to clipboard!");
+  };
   const [expandedSections, setExpandedSections] = useState({
     drafts: true,
     linkedin: true,
@@ -66,34 +69,45 @@ export const ArtifactsPanel = () => {
 
             {expandedSections.drafts && (
               <div className="mt-2 space-y-2">
-                {blogDrafts.map(draft => (
-                  <div
-                    key={draft.id}
-                    className="p-3 rounded-lg border bg-card hover:bg-muted/50 transition-smooth"
-                  >
-                    <div className="flex items-start justify-between mb-2">
-                      <span className="text-sm font-medium">{draft.platform}</span>
-                      <Badge
-                        variant={draft.status === "published" ? "default" : "secondary"}
-                        className="text-xs"
-                      >
-                        {draft.status}
-                      </Badge>
+                {noteArtifacts.length > 0 ? (
+                  noteArtifacts.map(artifact => (
+                    <div
+                      key={artifact.id}
+                      className="p-3 rounded-lg border bg-card hover:bg-muted/50 transition-smooth"
+                    >
+                      <div className="flex items-start justify-between mb-2">
+                        <span className="text-sm font-medium">{artifact.platform}</span>
+                        <Badge
+                          variant={artifact.status === "published" ? "default" : "secondary"}
+                          className="text-xs"
+                        >
+                          {artifact.status}
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground mb-1">
+                        Updated {artifact.lastUpdated}
+                      </p>
+                      <p className="text-xs text-muted-foreground mb-3">
+                        {artifact.versions.length} version{artifact.versions.length !== 1 ? "s" : ""}
+                      </p>
+                      <div className="flex gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="h-7 flex-1"
+                          onClick={() => handleOpenArtifact(artifact)}
+                        >
+                          <ExternalLink className="h-3 w-3 mr-1" />
+                          Open
+                        </Button>
+                      </div>
                     </div>
-                    <p className="text-xs text-muted-foreground mb-3">
-                      Updated {draft.lastUpdated}
-                    </p>
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="sm" className="h-7 flex-1">
-                        <ExternalLink className="h-3 w-3 mr-1" />
-                        Open
-                      </Button>
-                      <Button variant="outline" size="sm" className="h-7">
-                        <Edit className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  </div>
-                ))}
+                  ))
+                ) : (
+                  <p className="text-xs text-muted-foreground text-center py-4">
+                    No drafts for this note yet
+                  </p>
+                )}
               </div>
             )}
           </div>
@@ -116,23 +130,35 @@ export const ArtifactsPanel = () => {
 
             {expandedSections.linkedin && (
               <div className="mt-2 space-y-2">
-                {linkedInBlurbs.map(blurb => (
-                  <div
-                    key={blurb.id}
-                    className="p-3 rounded-lg border bg-card hover:bg-muted/50 transition-smooth"
-                  >
-                    <p className="text-xs mb-3 line-clamp-2">{blurb.text}</p>
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="sm" className="h-7 flex-1">
-                        <Copy className="h-3 w-3 mr-1" />
-                        Copy
-                      </Button>
-                      <Button variant="outline" size="sm" className="h-7 flex-1">
-                        Publish
-                      </Button>
+                {noteBlurbs.length > 0 ? (
+                  noteBlurbs.map(blurb => (
+                    <div
+                      key={blurb.id}
+                      className="p-3 rounded-lg border bg-card hover:bg-muted/50 transition-smooth"
+                    >
+                      <p className="text-xs mb-1 text-muted-foreground">{blurb.createdAt}</p>
+                      <p className="text-xs mb-3 line-clamp-2">{blurb.text}</p>
+                      <div className="flex gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="h-7 flex-1"
+                          onClick={() => handleCopyBlurb(blurb.text)}
+                        >
+                          <Copy className="h-3 w-3 mr-1" />
+                          Copy
+                        </Button>
+                        <Button variant="outline" size="sm" className="h-7 flex-1">
+                          Publish
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                ) : (
+                  <p className="text-xs text-muted-foreground text-center py-4">
+                    No LinkedIn blurbs for this note yet
+                  </p>
+                )}
               </div>
             )}
           </div>
@@ -176,6 +202,12 @@ export const ArtifactsPanel = () => {
           </div>
         </div>
       </ScrollArea>
+
+      <ArtifactDialog 
+        artifact={selectedArtifact}
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+      />
     </aside>
   );
 };
