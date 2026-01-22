@@ -1,0 +1,37 @@
+@import url("https://fonts.googleapis.com/css2?family=Instrument+Serif:ital,wght@0,400;0,500;1,400&family=Space+Grotesk:wght@400;500;600;700&display=swap");
+
+:root {
+  --bg: #f2f6f4;
+  --ink: #0b0f14;
+  --muted: #4b5563;
+  --accent: #0f766e;
+  --accent-strong: #0b4c4a;
+  --card: #ffffff;
+  --shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
+  --radius: 24px;
+  --font-sans: "Space Grotesk", "Helvetica Neue", "Segoe UI", sans-serif;
+  --font-serif: "Instrument Serif", "Georgia", serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  line-height: 1.5;
+}
+
+button {
+  font-family: inherit;
+}
