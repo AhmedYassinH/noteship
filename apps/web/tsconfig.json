@@ -5,10 +5,27 @@
     "incremental": true,
     "baseUrl": ".",
     "paths": {
-      "@noteship/domain": ["../../packages/domain/src"],
-      "@noteship/utils": ["../../packages/utils/src"]
-    }
+      "@noteship/domain": [
+        "../../packages/domain/src"
+      ],
+      "@noteship/utils": [
+        "../../packages/utils/src"
+      ]
+    },
+    "allowJs": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
-  "exclude": ["node_modules"]
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }
