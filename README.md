@@ -18,6 +18,9 @@ Read `AGENTS.md` and the docs in `docs/` before making changes.
 - `pnpm lint`
 - `pnpm test`
 
+## Deployment docs
+- See `docs/deployment.md` for CDK commands, env conventions, and app deployment notes.
+
 ## Infra (CDK)
 - Synthesize: `pnpm --filter @noteship/infra synth` (uses `env` context, default `dev`)
 - Context example: `cd packages/infra && cdk synth -c env=dev -c region=us-east-1`
