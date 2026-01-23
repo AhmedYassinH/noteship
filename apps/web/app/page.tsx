@@ -1,66 +1,263 @@
-import type { CSSProperties } from "react";
+"use client";
+
+import { useMemo, useState } from "react";
 import styles from "./page.module.css";
 
-const cards = [
-  {
-    title: "Semantic recall",
-    copy: "Search your notes by meaning and surface the exact idea you need."
+type Lang = "en" | "ar";
+
+type Content = {
+  kicker: string;
+  heroTitle: string;
+  heroSub: string;
+  primaryCta: string;
+  secondaryCta: string;
+  pillars: { title: string; copy: string }[];
+  steps: { label: string; title: string; copy: string }[];
+  pricing: { name: string; price: string; items: string[] }[];
+  faq: { q: string; a: string }[];
+  howTitle: string;
+  howLead: string;
+  featureTitle: string;
+  featureLead: string;
+  pricingTitle: string;
+  pricingLead: string;
+  faqTitle: string;
+  faqLead: string;
+  finalTitle: string;
+  finalLead: string;
+  videoPlaceholder: string;
+  screenshotPlaceholder: string;
+};
+
+const copy: Record<Lang, Content> = {
+  en: {
+    kicker: "noteship",
+    heroTitle: "Find any idea by meaning. Publish without starting over.",
+    heroSub:
+      "Noteship helps consultants and coaches turn notes into LinkedIn/Medium posts with semantic recall, tone control, and reliable scheduling.",
+    primaryCta: "Start drafting",
+    secondaryCta: "See how it works",
+    pillars: [
+      { title: "Semantic recall", copy: "Search by meaning to surface the right note and snippet instantly." },
+      { title: "Draft generation", copy: "Create on-brand drafts from notes with tone controls and refinements." },
+      { title: "Publish + schedule", copy: "Ship now or schedule to LinkedIn/Medium with retries and status." }
+    ],
+    steps: [
+      { label: "01", title: "Capture once", copy: "Write in TipTap, autosave to Markdown, attach artifacts." },
+      { label: "02", title: "Index by meaning", copy: "Background embeddings keep search fresh after every edit." },
+      { label: "03", title: "Draft + publish", copy: "Generate posts, adjust tone, publish or schedule with one click." }
+    ],
+    pricing: [
+      {
+        name: "Free",
+        price: "Starter",
+        items: [
+          "Semantic search",
+          "Limited notes & storage",
+          "AI drafts: low monthly quota",
+          "Manual publish"
+        ]
+      },
+      {
+        name: "Pro",
+        price: "$18/mo",
+        items: [
+          "Higher notes & storage",
+          "AI drafts: higher quota",
+          "Publish + scheduling",
+          "Retries + status tracking"
+        ]
+      }
+    ],
+    faq: [
+      { q: "Can I export my notes?", a: "Yes, notes are Markdown-first and can be exported anytime." },
+      { q: "Which platforms are supported?", a: "LinkedIn and Medium at launch; more connectors later." },
+      { q: "Is scheduling paid only?", a: "Scheduling is Pro-only; manual publishing is available on Free." }
+    ],
+    howTitle: "How it works",
+    howLead: "Capture once, find by meaning, publish where you need.",
+    featureTitle: "Made for consistent publishing",
+    featureLead: "Everything stays portable: Markdown storage, semantic search, drafts in your voice.",
+    pricingTitle: "Pricing",
+    pricingLead: "Start free. Upgrade for scheduling and higher AI limits.",
+    faqTitle: "FAQs",
+    faqLead: "Key answers on portability, platforms, and plans.",
+    finalTitle: "Ready to ship your ideas?",
+    finalLead: "Start with semantic recall and publish in minutes.",
+    videoPlaceholder: "Placeholder: short explainer video showing Arabic UI mirrored and LinkedIn publish flow",
+    screenshotPlaceholder: "Placeholder: hero product shot showing semantic search results and draft editor"
   },
-  {
-    title: "Draft generation",
-    copy: "Convert a note into a LinkedIn or Medium draft with tone control."
-  },
-  {
-    title: "Publish + schedule",
-    copy: "Ship immediately or queue posts to keep a steady cadence."
+  ar: {
+    kicker: "??????",
+    heroTitle: "???? ??? ?? ???? ???????. ???? ??? ????? ??????? ?? ?????.",
+    heroSub:
+      "?????? ????? ?????????? ????????? ??? ????? ????????? ??? ??????? ???????/?????? ?? ??? ????? ????? ?? ?????? ?????? ??????.",
+    primaryCta: "???? ????????",
+    secondaryCta: "???? ????? ?????",
+    pillars: [
+      { title: "??????? ?????", copy: "???? ??????? ???? ??? ???????? ??????? ??????? ?????." },
+      { title: "????? ??????", copy: "???? ?????? ??????? ?? ?????? ?? ??????? ??? ??????." },
+      { title: "??? ??????", copy: "???? ???? ?? ????? ??? ???????/?????? ?? ??????? ????? ???????? ????." }
+    ],
+    steps: [
+      { label: "??", title: "????? ???", copy: "???? ?? TipTap? ???? ?????? ??? Markdown ?? ????????." },
+      { label: "??", title: "????? ???????", copy: "????? ??????? ???????? ??? ?? ????? ????? ??? ??? ?????." },
+      { label: "??", title: "????? ????", copy: "???? ???????? ???? ??????? ????? ?? ????? ????? ?????." }
+    ],
+    pricing: [
+      {
+        name: "?????",
+        price: "?????",
+        items: [
+          "??? ?????",
+          "??? ????? ?? ????????? ????????",
+          "??? ?????? ??????? ??????",
+          "??? ????"
+        ]
+      },
+      {
+        name: "???",
+        price: "$18 / ???",
+        items: [
+          "???? ???? ????????? ????????",
+          "??? ???? ?????? ????????",
+          "??? ??????",
+          "??????? ????? ????? ??????"
+        ]
+      }
+    ],
+    faq: [
+      { q: "?? ?????? ????? ??????????", a: "???? ????????? ????? Markdown ????? ??????? ?? ?? ???." },
+      { q: "?? ??????? ?????????", a: "??????? ??????? ??? ???????? ?????? ?????? ??????." },
+      { q: "?? ??????? ?????? ????", a: "??????? ??? ??? ???? ????? ?????? ???? ?? ???????." }
+    ],
+    howTitle: "??? ????",
+    howLead: "????? ???? ???? ???????? ????? ?? ?????? ??????.",
+    featureTitle: "???? ????? ???????",
+    featureLead: "?? ??? ???? ?????: ????? Markdown? ??? ?????? ??????? ???????.",
+    pricingTitle: "???????",
+    pricingLead: "???? ??????. ???? ??????? ???? ???? ????.",
+    faqTitle: "??????? ???????",
+    faqLead: "??? ???????? ??? ???????? ????? ???????? ??????.",
+    finalTitle: "???? ???? ???????",
+    finalLead: "???? ???? ????? ????? ?? ?????.",
+    videoPlaceholder: "???? ????: ????? ?????? ???? ???? ????? ????? ?? ???? ??? ???????",
+    screenshotPlaceholder: "???? ????: ???? ???? ???? ????? ????? ??????? ????? ????????"
   }
-];
+};
+
+const formatDirectionClass = (lang: Lang) => (lang === "ar" ? styles.rtl : styles.ltr);
+const titleClass = (lang: Lang) => (lang === "ar" ? styles.titleAr : "");
+const leadClass = (lang: Lang) => (lang === "ar" ? styles.subheadAr : styles.subhead);
+const sectionTitleClass = (lang: Lang) => (lang === "ar" ? styles.sectionTitleAr : "");
+const sectionLeadClass = (lang: Lang) => (lang === "ar" ? styles.sectionLeadAr : styles.sectionLead);
 
 const HomePage = () => {
+  const [lang, setLang] = useState<Lang>("en");
+  const t = useMemo(() => copy[lang], [lang]);
+
   return (
-    <main className={styles.page}>
-      <section className={styles.container}>
-        <header
-          className={`${styles.hero} ${styles.reveal}`}
-          style={{ "--delay": "0.05s" } as CSSProperties}
-        >
-          <p className={styles.kicker}>Noteship</p>
-          <h1 className={styles.title}>Find any idea by meaning and ship it fast.</h1>
-          <p className={styles.subcopy}>
-            Noteship helps solo consultants and coaches capture knowledge once, search semantically, and
-            publish to LinkedIn or Medium in minutes.
-          </p>
-          <div className={styles.actions}>
-            <button className={styles.primaryButton}>Create a note</button>
-            <button className={styles.secondaryButton}>See the workflow</button>
+    <main className={`${styles.page} ${formatDirectionClass(lang)}`} lang={lang} dir={lang === "ar" ? "rtl" : "ltr"}>
+      <section className={styles.shell}>
+        <header className={styles.hero}>
+          <div>
+            <div className={styles.heroHeader}>
+              <p className={styles.kicker}>{t.kicker}</p>
+              <div className={styles.langToggle}>
+                {(["en", "ar"] as Lang[]).map(code => (
+                  <button
+                    key={code}
+                    type="button"
+                    className={`${styles.langButton} ${lang === code ? styles.langButtonActive : ""}`}
+                    onClick={() => setLang(code)}
+                    aria-pressed={lang === code}
+                  >
+                    {code === "en" ? "English" : "???????"}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <h1 className={`${styles.title} ${titleClass(lang)}`}>{t.heroTitle}</h1>
+            <p className={leadClass(lang)}>{t.heroSub}</p>
+            <div className={styles.ctaRow}>
+              <button className={styles.primaryButton}>{t.primaryCta}</button>
+              <button className={styles.secondaryButton}>{t.secondaryCta}</button>
+            </div>
           </div>
+          <div className={styles.heroMedia}>{t.screenshotPlaceholder}</div>
         </header>
 
-        <div className={styles.cards}>
-          {cards.map((card, index) => (
-            <article
-              key={card.title}
-              className={`${styles.card} ${styles.reveal}`}
-              style={{ "--delay": `${0.12 + index * 0.08}s` } as CSSProperties}
-            >
-              <h3 className={styles.cardTitle}>{card.title}</h3>
-              <p className={styles.cardCopy}>{card.copy}</p>
-            </article>
-          ))}
-        </div>
+        <div className={styles.sections}>
+          <section className={styles.section}>
+            <h2 className={`${styles.sectionTitle} ${sectionTitleClass(lang)}`}>{t.featureTitle}</h2>
+            <p className={sectionLeadClass(lang)}>{t.featureLead}</p>
+            <div className={styles.pillars}>
+              {t.pillars.map(item => (
+                <div key={item.title} className={styles.pillar}>
+                  <div className={styles.pillarTitle}>{item.title}</div>
+                  <div className={styles.pillarCopy}>{item.copy}</div>
+                </div>
+              ))}
+            </div>
+          </section>
 
-        <section
-          className={`${styles.panel} ${styles.reveal}`}
-          style={{ "--delay": "0.42s" } as CSSProperties}
-        >
-          <div>
-            <h2 className={styles.panelTitle}>Building the MVP foundation</h2>
-            <p className={styles.panelCopy}>
-              Architecture and execution align to the product vision, HLD, and LLD in `docs/`.
-            </p>
-          </div>
-          <div className={styles.panelMeta}>Next: Notes + embeddings + scheduling pipeline</div>
-        </section>
+          <section className={styles.section}>
+            <h2 className={`${styles.sectionTitle} ${sectionTitleClass(lang)}`}>{t.howTitle}</h2>
+            <p className={sectionLeadClass(lang)}>{t.howLead}</p>
+            <div className={styles.steps}>
+              {t.steps.map(step => (
+                <div key={step.title} className={styles.step}>
+                  <div className={styles.stepLabel}>{step.label}</div>
+                  <div className={styles.stepTitle}>{step.title}</div>
+                  <p className={styles.stepCopy}>{step.copy}</p>
+                </div>
+              ))}
+            </div>
+            <div className={styles.placeholder}>{t.videoPlaceholder}</div>
+          </section>
+
+          <section className={styles.section}>
+            <h2 className={`${styles.sectionTitle} ${sectionTitleClass(lang)}`}>{t.pricingTitle}</h2>
+            <p className={sectionLeadClass(lang)}>{t.pricingLead}</p>
+            <div className={styles.pricing}>
+              {t.pricing.map(plan => (
+                <article key={plan.name} className={styles.priceCard}>
+                  <div className={styles.priceHeader}>
+                    <span className={styles.priceName}>{plan.name}</span>
+                    <span className={styles.priceValue}>{plan.price}</span>
+                  </div>
+                  <ul className={styles.priceList}>
+                    {plan.items.map(item => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                </article>
+              ))}
+            </div>
+          </section>
+
+          <section className={styles.section}>
+            <h2 className={`${styles.sectionTitle} ${sectionTitleClass(lang)}`}>{t.faqTitle}</h2>
+            <p className={sectionLeadClass(lang)}>{t.faqLead}</p>
+            <div className={styles.faq}>
+              {t.faq.map(item => (
+                <div key={item.q} className={styles.faqItem}>
+                  <div className={styles.faqQ}>{item.q}</div>
+                  <p className={styles.faqA}>{item.a}</p>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section className={styles.ctaFinal}>
+            <h3 className={styles.ctaTitle}>{t.finalTitle}</h3>
+            <p className={styles.ctaCopy}>{t.finalLead}</p>
+            <div className={styles.ctaActions}>
+              <button className={styles.primaryButton}>{t.primaryCta}</button>
+              <button className={styles.secondaryButton}>{t.secondaryCta}</button>
+            </div>
+          </section>
+        </div>
       </section>
     </main>
   );
