@@ -1,0 +1,50 @@
+# Noteship — API Design & Contracts
+
+## Purpose
+Define the MVP API surface and request/response shapes (conceptual).
+
+## Conventions
+- Auth: JWT (Cognito/Auth0 later), `userId` from token
+- Validation: zod schemas in shared package
+- Errors: consistent `{code, message}`
+
+## Endpoints (MVP)
+### Notes
+- `POST /notes` create note
+- `GET /notes` list notes (pagination)
+- `GET /notes/{noteId}` get note (metadata + presigned S3 URL)
+- `PUT /notes/{noteId}` update note
+- `DELETE /notes/{noteId}` delete note
+
+### Attachments
+- `POST /notes/{noteId}/uploads` get presigned upload URL
+
+### Search
+- `POST /search` semantic search
+Body: `{ query: string, limit?: number }`
+Response: `{ results: [{ noteId, score, preview }] }`
+
+### AI generation
+- `POST /notes/{noteId}/drafts` generate draft(s)
+Body: `{ provider: "linkedin"|"medium", tone?: string }`
+Response: `{ draftId, content }` (or stored in S3)
+
+### Posts
+- `POST /posts` create post from draft
+- `POST /posts/{postId}/publish` publish now
+- `POST /posts/{postId}/schedule` schedule
+- `POST /posts/{postId}/cancel` cancel scheduled
+- `GET /posts` list posts and statuses
+
+### Integrations
+- `GET /integrations` list connected providers
+- `POST /integrations/{provider}/connect` start OAuth
+- `POST /integrations/{provider}/disconnect` revoke
+
+### Billing
+- `POST /billing/checkout` create Stripe checkout session
+- `POST /billing/webhook` Stripe webhook endpoint
+
+## Idempotency
+- Publish/schedule endpoints accept `Idempotency-Key` header (recommended)
+- Worker jobs enforce idempotency using `postId` + `provider` + `action`
