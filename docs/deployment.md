@@ -45,6 +45,7 @@ Backend/API & workers expect (examples):
 - Preferred: Vercel (fastest) — set env vars: `NEXT_PUBLIC_API_BASE_URL`, `NEXT_PUBLIC_ENV=dev|prod`.
 - AWS option: `next build && next export` for landing pages to S3+CloudFront; dashboard as SPA served from same distribution pointing to built `.next` output via Next-on-AWS pattern (not yet scaffolded).
 - Static assets are fine on CloudFront/S3; SSR is not required for MVP.
+- Fonts/brand: serve IBM Plex Sans/Arabic (app) and Lora/Noto Naskh (marketing headlines) per `docs/brand/noteship-typography.md`; ensure Arabic locale builds set `dir="rtl"` on rendered pages.
 
 ## API & workers deployment (not yet wired)
 - CDK currently provisions data/queue only. Add Lambda/API Gateway and worker stacks before shipping.

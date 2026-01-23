@@ -129,6 +129,11 @@ These are intentionally out of scope to keep the build lean and cost-efficient:
 - In-note semantic highlighting/jump-to-paragraph (nice-to-have later)
 - Dozens of integrations at launch (architecture supports growth, but ship 2 first)
 
+## 6.1 Languages (MVP requirement)
+- Product must support **Arabic and English** with a user toggle.
+- Arabic is first-class (native RTL, mirrored layouts); English remains LTR.
+- Voice/tone follows brand guidelines (`docs/brand/noteship-language-guidelines.md`).
+
 ---
 
 ## 7) Differentiators (what makes it worth switching)

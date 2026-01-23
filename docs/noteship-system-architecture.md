@@ -85,6 +85,7 @@ flowchart LR
 - Calling API endpoints for notes, search, posts, scheduling
 - Client-side feature gating (hide/disable) based on entitlements snapshot
 - Showing async job statuses (scheduled/published/failed)
+- Bilingual UX (EN/AR) with RTL/LTR layout mirroring per brand docs (`docs/brand/noteship-language-guidelines.md`, `docs/brand/noteship-layout-rtl-ltr.md`, `docs/brand/noteship-typography.md`)
 
 ### Frontend non-responsibilities
 - Never enforce security/plan gates solely in UI

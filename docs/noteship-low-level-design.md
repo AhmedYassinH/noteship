@@ -435,7 +435,21 @@ Cover only business-critical flows:
 
 ---
 
-## 13) Appendix: DI pattern (no library)
+## 13) Bilingual and RTL/LTR support (EN + AR)
+- Languages: English (LTR) and Arabic (RTL) with user toggle; default from browser language, persist per user profile.
+- Apply brand rules: see `docs/brand/noteship-language-guidelines.md`, `docs/brand/noteship-layout-rtl-ltr.md`, `docs/brand/noteship-typography.md` for tone, mirroring, and font stacks (IBM Plex Sans + IBM Plex Sans Arabic for app UI; Lora/Noto Naskh for marketing headlines).
+- Layout: use CSS logical properties (`padding-inline`, `text-align: start|end`) and set `lang`/`dir` at the root per locale; mirror nav and directional icons for RTL.
+- TipTap/editor:
+  - Support per-block `dir` (RTL/LTR) and text alignment; keep code blocks and inline code LTR with monospace Latin fonts.
+  - Preserve language metadata on notes/posts (`language: ar|en`) and render containers with `lang`/`dir`.
+  - On export (Markdown) include language in frontmatter; on render keep direction attributes.
+- Search/embeddings/AI: use multilingual embeddings and generation models; store language with embeddings to allow language-aware ranking; normalize Arabic text (diacritics optional) for search robustness; prompts respect selected language.
+- Publishing: render body/title with correct direction; keep platform names (LinkedIn/Medium) in English inside Arabic UI.
+- Testing: add E2E cases for RTL layout, mixed-language content in editor, and search/publish flows in Arabic UI.
+
+---
+
+## 14) Appendix: DI pattern (no library)
 - Create AWS SDK clients at module scope (warm reuse)
 - Build `deps` once at module scope per Lambda runtime
 - Pass `deps` to use-cases explicitly

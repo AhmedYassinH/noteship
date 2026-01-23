@@ -9,6 +9,7 @@ Define the Next.js structure, state management, and integration points.
 - Component library: shadcn/ui or similar
 - Data fetching: TanStack Query
 - Validation: zod schemas shared with backend
+- i18n: English + Arabic (RTL/LTR) following brand rules (`docs/brand/noteship-language-guidelines.md`, `docs/brand/noteship-layout-rtl-ltr.md`, `docs/brand/noteship-typography.md`)
 
 ## App structure (suggested)
 - `app/` routes 
@@ -29,6 +30,7 @@ Define the Next.js structure, state management, and integration points.
 - TipTap document in memory
 - Serialize to Markdown for saving/export
 - Attachments upload to S3 via backend-signed URL (recommended)
+- Support per-block RTL/LTR direction; code blocks stay LTR; persist `language` on note/post metadata.
 
 ## Mermaid: UI modules
 ```mermaid
