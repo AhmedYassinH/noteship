@@ -17,3 +17,8 @@ Read `AGENTS.md` and the docs in `docs/` before making changes.
 - `pnpm build`
 - `pnpm lint`
 - `pnpm test`
+
+## Infra (CDK)
+- Synthesize: `pnpm --filter @noteship/infra synth` (uses `env` context, default `dev`)
+- Context example: `cd packages/infra && cdk synth -c env=dev -c region=us-east-1`
+- Stacks: content bucket, DynamoDB tables (users, notes, posts, integrations, usage, jobs), jobs queue + DLQ.

@@ -1,0 +1,6 @@
+{
+  "app": "npx ts-node --project tsconfig.json src/app.ts",
+  "context": {
+    "defaultEnv": "dev"
+  }
+}
