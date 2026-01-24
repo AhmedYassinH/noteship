@@ -1,22 +1,27 @@
 # Noteship — Connector & Integration Architecture
 
 ## Purpose
+
 Enable increasing number of export/import vendors over time without spaghetti.
 
 ## Core decision
+
 Use a **connector interface** + **async job pipeline**.
 Connectors are modules inside the monorepo initially; can become separate services later.
 
 ## Connector interface (conceptual)
+
 Export (publish):
+
 - `publishPost(input): output`
 - `validateConnection()`
 - `refreshTokenIfNeeded()`
-Import:
+  Import:
 - `ingest(payload)` OR `poll()`
 - `normalizeToInternal()`
 
 ## Job pipeline
+
 - API enqueues commands to SQS:
   - `PUBLISH_POST`
   - `IMPORT_ITEM`
@@ -24,7 +29,9 @@ Import:
 - Provider rate limits handled centrally per connector
 
 ## Integration accounts
+
 Store per-user provider account state:
+
 - provider
 - token set (encrypted)
 - scopes
@@ -32,6 +39,7 @@ Store per-user provider account state:
 - status
 
 ## Mermaid: publish job flow
+
 ```mermaid
 sequenceDiagram
   participant UI as Web App
@@ -51,5 +59,6 @@ sequenceDiagram
 ```
 
 ## Extension strategy
+
 - Keep vendor-specific fields inside connector modules, not domain entities
 - Use internal normalized models for notes/posts

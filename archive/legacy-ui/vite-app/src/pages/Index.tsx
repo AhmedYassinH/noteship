@@ -13,7 +13,7 @@ const Index = () => {
     // Find initial note content
     for (const workspace of mockWorkspaces) {
       for (const folder of workspace.folders) {
-        const note = folder.notes.find(n => n.id === "n1");
+        const note = folder.notes.find((n) => n.id === "n1");
         if (note) return note.content;
       }
     }
@@ -23,7 +23,7 @@ const Index = () => {
   const getCurrentNote = () => {
     for (const workspace of mockWorkspaces) {
       for (const folder of workspace.folders) {
-        const note = folder.notes.find(n => n.id === selectedNoteId);
+        const note = folder.notes.find((n) => n.id === selectedNoteId);
         if (note) return note;
       }
     }
@@ -35,7 +35,7 @@ const Index = () => {
     // Load the note content
     for (const workspace of mockWorkspaces) {
       for (const folder of workspace.folders) {
-        const note = folder.notes.find(n => n.id === noteId);
+        const note = folder.notes.find((n) => n.id === noteId);
         if (note) {
           setNoteContent(note.content);
           return;
@@ -53,25 +53,22 @@ const Index = () => {
   return (
     <div className="h-screen w-full flex flex-col overflow-hidden">
       <TopBar />
-      
+
       <div className="flex-1 flex overflow-hidden">
-        <SidebarTree 
-          selectedNoteId={selectedNoteId}
-          onNoteSelect={handleNoteSelect}
-        />
-        
+        <SidebarTree selectedNoteId={selectedNoteId} onNoteSelect={handleNoteSelect} />
+
         <main className="flex-1 flex flex-col overflow-hidden">
           <EditorToolbar onInsert={handleInsertMarkdown} />
-          <MarkdownEditor 
+          <MarkdownEditor
             content={noteContent}
             onContentChange={setNoteContent}
             fileName={currentNote?.name || "Note.md"}
           />
         </main>
-        
+
         <ArtifactsPanel selectedNoteId={selectedNoteId} />
       </div>
-      
+
       <StatusBar />
     </div>
   );

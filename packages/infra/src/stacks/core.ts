@@ -6,7 +6,7 @@ import {
   BillingMode,
   ProjectionType,
   Table,
-  TableEncryption
+  TableEncryption,
 } from "aws-cdk-lib/aws-dynamodb";
 import { Queue } from "aws-cdk-lib/aws-sqs";
 import type { Construct } from "constructs";
@@ -22,8 +22,8 @@ export class NoteshipCoreStack extends Stack {
       ...props,
       env: {
         account: props.envConfig.account,
-        region: props.envConfig.region
-      }
+        region: props.envConfig.region,
+      },
     });
 
     const { envName } = props.envConfig;
@@ -37,65 +37,65 @@ export class NoteshipCoreStack extends Stack {
       blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
       enforceSSL: true,
       removalPolicy: RemovalPolicy.RETAIN,
-      autoDeleteObjects: false
+      autoDeleteObjects: false,
     });
 
     const usersTable = this.createTable("UsersTable", {
       tableName: `noteship-users-${envName}`,
-      partitionKey: { name: "userId", type: AttributeType.STRING }
+      partitionKey: { name: "userId", type: AttributeType.STRING },
     });
 
     const notesTable = this.createTable("NotesTable", {
       tableName: `noteship-notes-${envName}`,
       partitionKey: { name: "pk", type: AttributeType.STRING },
-      sortKey: { name: "sk", type: AttributeType.STRING }
+      sortKey: { name: "sk", type: AttributeType.STRING },
     });
     notesTable.addGlobalSecondaryIndex({
       indexName: "GSI1",
       partitionKey: { name: "GSI1PK", type: AttributeType.STRING },
       sortKey: { name: "GSI1SK", type: AttributeType.STRING },
-      projectionType: ProjectionType.ALL
+      projectionType: ProjectionType.ALL,
     });
 
     const postsTable = this.createTable("PostsTable", {
       tableName: `noteship-posts-${envName}`,
       partitionKey: { name: "pk", type: AttributeType.STRING },
-      sortKey: { name: "sk", type: AttributeType.STRING }
+      sortKey: { name: "sk", type: AttributeType.STRING },
     });
     postsTable.addGlobalSecondaryIndex({
       indexName: "GSIStatus",
       partitionKey: { name: "GSI1PK", type: AttributeType.STRING },
       sortKey: { name: "GSI1SK", type: AttributeType.STRING },
-      projectionType: ProjectionType.ALL
+      projectionType: ProjectionType.ALL,
     });
     postsTable.addGlobalSecondaryIndex({
       indexName: "GSISchedule",
       partitionKey: { name: "GSI2PK", type: AttributeType.STRING },
       sortKey: { name: "GSI2SK", type: AttributeType.STRING },
-      projectionType: ProjectionType.ALL
+      projectionType: ProjectionType.ALL,
     });
 
     const integrationsTable = this.createTable("IntegrationsTable", {
       tableName: `noteship-integrations-${envName}`,
       partitionKey: { name: "pk", type: AttributeType.STRING },
-      sortKey: { name: "sk", type: AttributeType.STRING }
+      sortKey: { name: "sk", type: AttributeType.STRING },
     });
 
     const usageTable = this.createTable("UsageTable", {
       tableName: `noteship-usage-${envName}`,
       partitionKey: { name: "pk", type: AttributeType.STRING },
-      sortKey: { name: "sk", type: AttributeType.STRING }
+      sortKey: { name: "sk", type: AttributeType.STRING },
     });
 
     const jobsTable = this.createTable("JobsTable", {
       tableName: `noteship-jobs-${envName}`,
       partitionKey: { name: "pk", type: AttributeType.STRING },
-      sortKey: { name: "sk", type: AttributeType.STRING }
+      sortKey: { name: "sk", type: AttributeType.STRING },
     });
 
     const dlq = new Queue(this, "JobsDlq", {
       queueName: `noteship-jobs-dlq-${envName}`,
-      retentionPeriod: cdk.Duration.days(14)
+      retentionPeriod: cdk.Duration.days(14),
     });
 
     const jobsQueue = new Queue(this, "JobsQueue", {
@@ -104,8 +104,8 @@ export class NoteshipCoreStack extends Stack {
       retentionPeriod: cdk.Duration.days(4),
       deadLetterQueue: {
         queue: dlq,
-        maxReceiveCount: 5
-      }
+        maxReceiveCount: 5,
+      },
     });
 
     new cdk.CfnOutput(this, "ContentBucketName", { value: contentBucket.bucketName });
@@ -125,7 +125,7 @@ export class NoteshipCoreStack extends Stack {
       tableName: string;
       partitionKey: { name: string; type: AttributeType };
       sortKey?: { name: string; type: AttributeType };
-    }
+    },
   ): Table {
     return new Table(this, id, {
       tableName: props.tableName,
@@ -134,7 +134,7 @@ export class NoteshipCoreStack extends Stack {
       billingMode: BillingMode.PAY_PER_REQUEST,
       encryption: TableEncryption.AWS_MANAGED,
       pointInTimeRecovery: true,
-      removalPolicy: RemovalPolicy.RETAIN
+      removalPolicy: RemovalPolicy.RETAIN,
     });
   }
 }

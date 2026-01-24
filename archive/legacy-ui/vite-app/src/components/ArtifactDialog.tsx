@@ -1,10 +1,5 @@
 import { useState } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -82,9 +77,7 @@ export const ArtifactDialog = ({ artifact, open, onOpenChange }: ArtifactDialogP
                       }`}
                     >
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-semibold">
-                          Version {version.version}
-                        </span>
+                        <span className="text-sm font-semibold">Version {version.version}</span>
                         {index === 0 && (
                           <Badge variant="secondary" className="text-xs">
                             Latest
@@ -110,9 +103,7 @@ export const ArtifactDialog = ({ artifact, open, onOpenChange }: ArtifactDialogP
           <div className="flex-1 overflow-hidden">
             <ScrollArea className="h-full">
               <div className="p-6 prose prose-slate dark:prose-invert max-w-none">
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                  {currentVersion.content}
-                </ReactMarkdown>
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>{currentVersion.content}</ReactMarkdown>
               </div>
             </ScrollArea>
           </div>

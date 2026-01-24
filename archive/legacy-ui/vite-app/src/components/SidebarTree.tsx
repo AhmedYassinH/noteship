@@ -1,14 +1,14 @@
 import { useState } from "react";
-import { 
-  ChevronRight, 
-  ChevronDown, 
-  FileText, 
-  Folder, 
-  Plus, 
-  FolderPlus, 
+import {
+  ChevronRight,
+  ChevronDown,
+  FileText,
+  Folder,
+  Plus,
+  FolderPlus,
   Upload,
   Settings,
-  Search
+  Search,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,23 +24,23 @@ export const SidebarTree = ({ selectedNoteId, onNoteSelect }: SidebarTreeProps) 
   const [workspaces, setWorkspaces] = useState<Workspace[]>(mockWorkspaces);
 
   const toggleWorkspace = (id: string) => {
-    setWorkspaces(prev =>
-      prev.map(ws => ws.id === id ? { ...ws, expanded: !ws.expanded } : ws)
+    setWorkspaces((prev) =>
+      prev.map((ws) => (ws.id === id ? { ...ws, expanded: !ws.expanded } : ws)),
     );
   };
 
   const toggleFolder = (workspaceId: string, folderId: string) => {
-    setWorkspaces(prev =>
-      prev.map(ws =>
+    setWorkspaces((prev) =>
+      prev.map((ws) =>
         ws.id === workspaceId
           ? {
               ...ws,
-              folders: ws.folders.map(f =>
-                f.id === folderId ? { ...f, expanded: !f.expanded } : f
-              )
+              folders: ws.folders.map((f) =>
+                f.id === folderId ? { ...f, expanded: !f.expanded } : f,
+              ),
             }
-          : ws
-      )
+          : ws,
+      ),
     );
   };
 
@@ -49,10 +49,7 @@ export const SidebarTree = ({ selectedNoteId, onNoteSelect }: SidebarTreeProps) 
       <div className="p-3 border-b space-y-3">
         <div className="relative">
           <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search..."
-            className="pl-8 h-8 bg-background"
-          />
+          <Input placeholder="Search..." className="pl-8 h-8 bg-background" />
         </div>
 
         <div className="grid grid-cols-2 gap-2">
@@ -79,7 +76,7 @@ export const SidebarTree = ({ selectedNoteId, onNoteSelect }: SidebarTreeProps) 
 
       <ScrollArea className="flex-1">
         <div className="p-2 space-y-1">
-          {workspaces.map(workspace => (
+          {workspaces.map((workspace) => (
             <div key={workspace.id}>
               <button
                 onClick={() => toggleWorkspace(workspace.id)}
@@ -98,7 +95,7 @@ export const SidebarTree = ({ selectedNoteId, onNoteSelect }: SidebarTreeProps) 
 
               {workspace.expanded && (
                 <div className="ml-2 mt-1 space-y-1">
-                  {workspace.folders.map(folder => (
+                  {workspace.folders.map((folder) => (
                     <div key={folder.id}>
                       <button
                         onClick={() => toggleFolder(workspace.id, folder.id)}
@@ -118,7 +115,7 @@ export const SidebarTree = ({ selectedNoteId, onNoteSelect }: SidebarTreeProps) 
 
                       {folder.expanded && (
                         <div className="ml-6 mt-1 space-y-0.5">
-                          {folder.notes.map(note => (
+                          {folder.notes.map((note) => (
                             <button
                               key={note.id}
                               onClick={() => onNoteSelect(note.id)}

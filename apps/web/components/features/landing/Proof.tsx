@@ -13,7 +13,7 @@ const Proof = ({ copy }: Props) => (
     </div>
     <div className={styles.proofRow}>
       <div className={styles.stats}>
-        {copy.proofStats.map(stat => (
+        {copy.proofStats.map((stat) => (
           <div key={stat.label} className={styles.stat}>
             <div className={styles.statValue}>{stat.value}</div>
             <div className={styles.statLabel}>{stat.label}</div>
@@ -21,7 +21,13 @@ const Proof = ({ copy }: Props) => (
         ))}
       </div>
       <div className={styles.placeholder}>
-        <Image src={copy.proofImage} alt={copy.proofImageAlt} width={1200} height={720} className={styles.mediaImg} />
+        <Image
+          src={copy.proofImage}
+          alt={copy.proofImageAlt}
+          width={1200}
+          height={720}
+          className={styles.mediaImg}
+        />
       </div>
     </div>
   </section>

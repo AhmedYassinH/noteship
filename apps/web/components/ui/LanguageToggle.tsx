@@ -9,7 +9,7 @@ type Props = {
 const LanguageToggle = ({ lang, onChange }: Props) => {
   return (
     <div className={styles.toggle}>
-      {(["en", "ar"] as Lang[]).map(code => (
+      {(["en", "ar"] as Lang[]).map((code) => (
         <button
           key={code}
           type="button"

@@ -38,8 +38,8 @@ export const PLANS: Record<PlanId, PlanConfig> = {
       { featureKey: "scheduled_publish", type: "boolean", limit: false },
       { featureKey: "ai_generations_per_month", type: "quota", limit: 20 },
       { featureKey: "max_notes", type: "capacity", limit: 50 },
-      { featureKey: "max_storage_mb", type: "capacity", limit: 250 }
-    ]
+      { featureKey: "max_storage_mb", type: "capacity", limit: 250 },
+    ],
   },
   pro: {
     planId: "pro",
@@ -48,7 +48,7 @@ export const PLANS: Record<PlanId, PlanConfig> = {
       { featureKey: "scheduled_publish", type: "boolean", limit: true },
       { featureKey: "ai_generations_per_month", type: "quota", limit: 200 },
       { featureKey: "max_notes", type: "capacity", limit: 2000 },
-      { featureKey: "max_storage_mb", type: "capacity", limit: 5000 }
-    ]
-  }
+      { featureKey: "max_storage_mb", type: "capacity", limit: 5000 },
+    ],
+  },
 };

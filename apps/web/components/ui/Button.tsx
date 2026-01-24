@@ -10,7 +10,7 @@ type Props = ButtonHTMLAttributes<HTMLButtonElement> & {
 const variantClass: Record<Variant, string> = {
   primary: styles.primary,
   secondary: styles.secondary,
-  ghost: styles.ghost
+  ghost: styles.ghost,
 };
 
 export const Button = ({ variant = "primary", className = "", ...rest }: Props) => {

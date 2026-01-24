@@ -1,9 +1,11 @@
 # Noteship — Backend Architecture
 
 ## Purpose
+
 Define backend modules, DI approach, async patterns, and boundaries.
 
 ## Stack
+
 - API Gateway (REST)
 - Lambda (Node.js, TypeScript)
 - DynamoDB, S3
@@ -11,19 +13,23 @@ Define backend modules, DI approach, async patterns, and boundaries.
 - External: Vector DB, Stripe, LinkedIn, Medium
 
 ## Code architecture
+
 Layers:
-1) Handlers (Lambda entrypoints)
-2) Use-cases (business logic)
-3) Adapters (DDB/S3/Vector/Stripe/LinkedIn/Medium clients)
-4) Domain (types, feature keys, entities)
-5) Runtime (dependency wiring)
+
+1. Handlers (Lambda entrypoints)
+2. Use-cases (business logic)
+3. Adapters (DDB/S3/Vector/Stripe/LinkedIn/Medium clients)
+4. Domain (types, feature keys, entities)
+5. Runtime (dependency wiring)
 
 ## DI approach (no library)
+
 - Composition root builds `deps`
 - Cache heavy clients at module scope for warm reuse
 - Pass `deps` into use-cases for testability
 
 ## Async job model
+
 - Use SQS for jobs:
   - `EMBED_NOTE`
   - `PUBLISH_POST`
@@ -32,6 +38,7 @@ Layers:
 - Idempotency keys per job (postId/noteVersion)
 
 ## Mermaid: request to job
+
 ```mermaid
 sequenceDiagram
   participant UI as Web App
@@ -52,6 +59,7 @@ sequenceDiagram
 ```
 
 ## Security boundaries
+
 - User identity from JWT authorizer
 - Per-user partitioning (userId as tenant)
 - OAuth tokens encrypted at rest

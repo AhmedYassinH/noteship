@@ -40,7 +40,7 @@ export const MarkdownEditor = ({ content, onContentChange, fileName }: MarkdownE
 
     setLocalContent(newText);
     onContentChange(newText);
-    
+
     // Update cursor position after state update
     setTimeout(() => {
       if (textarea) {
@@ -87,9 +87,7 @@ export const MarkdownEditor = ({ content, onContentChange, fileName }: MarkdownE
       <TabsContent value="preview" className="flex-1 m-0 p-0">
         <ScrollArea className="h-full">
           <div className="p-6 prose prose-slate dark:prose-invert max-w-none prose-headings:text-foreground prose-p:text-foreground prose-li:text-foreground prose-strong:text-foreground prose-code:text-foreground prose-pre:bg-muted prose-pre:text-foreground">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>
-              {localContent}
-            </ReactMarkdown>
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>{localContent}</ReactMarkdown>
           </div>
         </ScrollArea>
       </TabsContent>

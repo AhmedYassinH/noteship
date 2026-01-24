@@ -23,7 +23,13 @@ const HowItWorks = ({ copy }: Props) => (
       ))}
     </div>
     <div className={styles.placeholder}>
-      <Image src={copy.heroImage} alt={copy.heroImageAlt} width={1200} height={720} className={styles.mediaImg} />
+      <Image
+        src={copy.heroImage}
+        alt={copy.heroImageAlt}
+        width={1200}
+        height={720}
+        className={styles.mediaImg}
+      />
     </div>
   </section>
 );

@@ -13,14 +13,14 @@ const Pricing = ({ copy }: Props) => (
       <p className={styles.sectionLead}>{copy.pricingSub}</p>
     </div>
     <div className={styles.pricing}>
-      {copy.plans.map(plan => (
+      {copy.plans.map((plan) => (
         <article key={plan.name} className={styles.priceCard}>
           <div className={styles.priceHeader}>
             <div className={styles.priceName}>{plan.name}</div>
             <div className={styles.priceValue}>{plan.price}</div>
           </div>
           <ul className={styles.priceList}>
-            {plan.items.map(item => (
+            {plan.items.map((item) => (
               <li key={item}>{item}</li>
             ))}
           </ul>

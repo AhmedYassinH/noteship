@@ -11,7 +11,7 @@ const Problem = ({ copy }: Props) => (
       <h2 className={styles.sectionTitle}>{copy.problemTitle}</h2>
     </div>
     <ul className={styles.bulletList}>
-      {copy.problemBullets.map(item => (
+      {copy.problemBullets.map((item) => (
         <li key={item} className={styles.bulletItem}>
           {item}
         </li>

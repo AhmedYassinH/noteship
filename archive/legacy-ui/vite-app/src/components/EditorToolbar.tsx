@@ -11,7 +11,7 @@ import {
   SplitSquareVertical,
   Heading1,
   Heading2,
-  Heading3
+  Heading3,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -24,27 +24,27 @@ export const EditorToolbar = ({ onInsert }: EditorToolbarProps) => {
   return (
     <div className="h-12 border-b bg-toolbar flex items-center px-3 gap-1">
       <div className="flex items-center gap-0.5">
-        <Button 
-          variant="ghost" 
-          size="sm" 
+        <Button
+          variant="ghost"
+          size="sm"
           className="h-8 w-8 p-0"
           onClick={() => onInsert("# ", "")}
           title="Heading 1"
         >
           <Heading1 className="h-4 w-4" />
         </Button>
-        <Button 
-          variant="ghost" 
-          size="sm" 
+        <Button
+          variant="ghost"
+          size="sm"
           className="h-8 w-8 p-0"
           onClick={() => onInsert("## ", "")}
           title="Heading 2"
         >
           <Heading2 className="h-4 w-4" />
         </Button>
-        <Button 
-          variant="ghost" 
-          size="sm" 
+        <Button
+          variant="ghost"
+          size="sm"
           className="h-8 w-8 p-0"
           onClick={() => onInsert("### ", "")}
           title="Heading 3"
@@ -56,27 +56,27 @@ export const EditorToolbar = ({ onInsert }: EditorToolbarProps) => {
       <Separator orientation="vertical" className="h-6 mx-1" />
 
       <div className="flex items-center gap-0.5">
-        <Button 
-          variant="ghost" 
-          size="sm" 
+        <Button
+          variant="ghost"
+          size="sm"
           className="h-8 w-8 p-0"
           onClick={() => onInsert("**", "**")}
           title="Bold"
         >
           <Bold className="h-4 w-4" />
         </Button>
-        <Button 
-          variant="ghost" 
-          size="sm" 
+        <Button
+          variant="ghost"
+          size="sm"
           className="h-8 w-8 p-0"
           onClick={() => onInsert("*", "*")}
           title="Italic"
         >
           <Italic className="h-4 w-4" />
         </Button>
-        <Button 
-          variant="ghost" 
-          size="sm" 
+        <Button
+          variant="ghost"
+          size="sm"
           className="h-8 w-8 p-0"
           onClick={() => onInsert("`", "`")}
           title="Inline Code"
@@ -88,18 +88,18 @@ export const EditorToolbar = ({ onInsert }: EditorToolbarProps) => {
       <Separator orientation="vertical" className="h-6 mx-1" />
 
       <div className="flex items-center gap-0.5">
-        <Button 
-          variant="ghost" 
-          size="sm" 
+        <Button
+          variant="ghost"
+          size="sm"
           className="h-8 w-8 p-0"
           onClick={() => onInsert("[", "](url)")}
           title="Link"
         >
           <Link className="h-4 w-4" />
         </Button>
-        <Button 
-          variant="ghost" 
-          size="sm" 
+        <Button
+          variant="ghost"
+          size="sm"
           className="h-8 w-8 p-0"
           onClick={() => onInsert("> ", "")}
           title="Quote"
@@ -111,27 +111,27 @@ export const EditorToolbar = ({ onInsert }: EditorToolbarProps) => {
       <Separator orientation="vertical" className="h-6 mx-1" />
 
       <div className="flex items-center gap-0.5">
-        <Button 
-          variant="ghost" 
-          size="sm" 
+        <Button
+          variant="ghost"
+          size="sm"
           className="h-8 w-8 p-0"
           onClick={() => onInsert("- ", "")}
           title="Bullet List"
         >
           <List className="h-4 w-4" />
         </Button>
-        <Button 
-          variant="ghost" 
-          size="sm" 
+        <Button
+          variant="ghost"
+          size="sm"
           className="h-8 w-8 p-0"
           onClick={() => onInsert("1. ", "")}
           title="Numbered List"
         >
           <ListOrdered className="h-4 w-4" />
         </Button>
-        <Button 
-          variant="ghost" 
-          size="sm" 
+        <Button
+          variant="ghost"
+          size="sm"
           className="h-8 w-8 p-0"
           onClick={() => onInsert("- [ ] ", "")}
           title="Checklist"
@@ -142,9 +142,9 @@ export const EditorToolbar = ({ onInsert }: EditorToolbarProps) => {
 
       <Separator orientation="vertical" className="h-6 mx-1" />
 
-      <Button 
-        variant="ghost" 
-        size="sm" 
+      <Button
+        variant="ghost"
+        size="sm"
         className="h-8 w-8 p-0"
         onClick={() => onInsert("| Column 1 | Column 2 |\n| --- | --- |\n| ", " |")}
         title="Table"

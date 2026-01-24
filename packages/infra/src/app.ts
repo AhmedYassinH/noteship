@@ -7,9 +7,9 @@ const envName = app.node.tryGetContext("env") ?? app.node.tryGetContext("default
 const envConfig = resolveEnv({
   contextEnv: envName,
   defaultRegion: app.node.tryGetContext("region"),
-  accountEnv: process.env.CDK_DEFAULT_ACCOUNT
+  accountEnv: process.env.CDK_DEFAULT_ACCOUNT,
 });
 
 new NoteshipCoreStack(app, `NoteshipCore-${envConfig.envName}`, {
-  envConfig
+  envConfig,
 });

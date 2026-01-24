@@ -17,13 +17,7 @@ const HeaderBar = ({ lang, onLangChange, copy, isAr }: Props) => {
     <header className={`${styles.siteHeader} ${isAr ? styles.rtl : ""}`}>
       <Link href="/" className={styles.brand} aria-label="Noteship home">
         <div className={styles.brandMark}>
-          <Image
-            src="/noteship-mark.svg"
-            alt=""
-            width={58}
-            height={58}
-            priority
-          />
+          <Image src="/noteship-mark.svg" alt="" width={58} height={58} priority />
         </div>
         <div className={styles.brandText}>
           <span className={styles.brandName}>Noteship</span>
@@ -31,10 +25,7 @@ const HeaderBar = ({ lang, onLangChange, copy, isAr }: Props) => {
         </div>
       </Link>
 
-      <nav
-        className={styles.nav}
-        aria-label={isAr ? "التنقل الرئيسي" : "Main navigation"}
-      >
+      <nav className={styles.nav} aria-label={isAr ? "التنقل الرئيسي" : "Main navigation"}>
         {copy.navLinks.map((link) => (
           <a key={link.id} className={styles.navLink} href={`#${link.id}`}>
             {link.label}

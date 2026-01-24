@@ -1,9 +1,11 @@
 # Noteship — System High-Level Architecture (HLD)
 
 ## Purpose
+
 Describe major components, boundaries, and data flows.
 
 ## Components
+
 - Next.js web app (landing + dashboard)
 - API Gateway + Lambda (REST)
 - DynamoDB (metadata, posts, integration accounts, usage)
@@ -14,6 +16,7 @@ Describe major components, boundaries, and data flows.
 - OAuth providers (LinkedIn, Medium)
 
 ## High-level diagram
+
 ```mermaid
 flowchart LR
   U[User] --> W[Next.js Web App]
@@ -37,17 +40,21 @@ flowchart LR
 ```
 
 ## Key flows
+
 ### Note save
-1) Web app sends note content
-2) API stores Markdown to S3 + metadata to DynamoDB
-3) API emits embed job to SQS
+
+1. Web app sends note content
+2. API stores Markdown to S3 + metadata to DynamoDB
+3. API emits embed job to SQS
 
 ### Search
-1) Web app calls search endpoint with query
-2) API queries vector DB
-3) API returns ranked note references + previews
+
+1. Web app calls search endpoint with query
+2. API queries vector DB
+3. API returns ranked note references + previews
 
 ### Publish/schedule
-1) User creates post from note
-2) API enqueues publish job
-3) Worker calls LinkedIn/Medium, updates status, retries failures
+
+1. User creates post from note
+2. API enqueues publish job
+3. Worker calls LinkedIn/Medium, updates status, retries failures

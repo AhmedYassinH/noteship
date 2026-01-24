@@ -1,11 +1,5 @@
 import { useState } from "react";
-import {
-  ExternalLink,
-  Copy,
-  ChevronRight,
-  ChevronDown,
-  Sparkles
-} from "lucide-react";
+import { ExternalLink, Copy, ChevronRight, ChevronDown, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -22,8 +16,8 @@ export const ArtifactsPanel = ({ selectedNoteId }: ArtifactsPanelProps) => {
   const [selectedArtifact, setSelectedArtifact] = useState<Artifact | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  const noteArtifacts = mockArtifacts.filter(a => a.noteId === selectedNoteId);
-  const noteBlurbs = mockLinkedInBlurbs.filter(b => b.noteId === selectedNoteId);
+  const noteArtifacts = mockArtifacts.filter((a) => a.noteId === selectedNoteId);
+  const noteBlurbs = mockLinkedInBlurbs.filter((b) => b.noteId === selectedNoteId);
 
   const handleOpenArtifact = (artifact: Artifact) => {
     setSelectedArtifact(artifact);
@@ -38,11 +32,11 @@ export const ArtifactsPanel = ({ selectedNoteId }: ArtifactsPanelProps) => {
     drafts: true,
     linkedin: true,
     publish: false,
-    ai: true
+    ai: true,
   });
 
   const toggleSection = (section: keyof typeof expandedSections) => {
-    setExpandedSections(prev => ({ ...prev, [section]: !prev[section] }));
+    setExpandedSections((prev) => ({ ...prev, [section]: !prev[section] }));
   };
 
   return (
@@ -70,7 +64,7 @@ export const ArtifactsPanel = ({ selectedNoteId }: ArtifactsPanelProps) => {
             {expandedSections.drafts && (
               <div className="mt-2 space-y-2">
                 {noteArtifacts.length > 0 ? (
-                  noteArtifacts.map(artifact => (
+                  noteArtifacts.map((artifact) => (
                     <div
                       key={artifact.id}
                       className="p-3 rounded-lg border bg-card hover:bg-muted/50 transition-smooth"
@@ -88,12 +82,13 @@ export const ArtifactsPanel = ({ selectedNoteId }: ArtifactsPanelProps) => {
                         Updated {artifact.lastUpdated}
                       </p>
                       <p className="text-xs text-muted-foreground mb-3">
-                        {artifact.versions.length} version{artifact.versions.length !== 1 ? "s" : ""}
+                        {artifact.versions.length} version
+                        {artifact.versions.length !== 1 ? "s" : ""}
                       </p>
                       <div className="flex gap-2">
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
+                        <Button
+                          variant="outline"
+                          size="sm"
                           className="h-7 flex-1"
                           onClick={() => handleOpenArtifact(artifact)}
                         >
@@ -131,7 +126,7 @@ export const ArtifactsPanel = ({ selectedNoteId }: ArtifactsPanelProps) => {
             {expandedSections.linkedin && (
               <div className="mt-2 space-y-2">
                 {noteBlurbs.length > 0 ? (
-                  noteBlurbs.map(blurb => (
+                  noteBlurbs.map((blurb) => (
                     <div
                       key={blurb.id}
                       className="p-3 rounded-lg border bg-card hover:bg-muted/50 transition-smooth"
@@ -139,9 +134,9 @@ export const ArtifactsPanel = ({ selectedNoteId }: ArtifactsPanelProps) => {
                       <p className="text-xs mb-1 text-muted-foreground">{blurb.createdAt}</p>
                       <p className="text-xs mb-3 line-clamp-2">{blurb.text}</p>
                       <div className="flex gap-2">
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
+                        <Button
+                          variant="outline"
+                          size="sm"
                           className="h-7 flex-1"
                           onClick={() => handleCopyBlurb(blurb.text)}
                         >
@@ -203,11 +198,7 @@ export const ArtifactsPanel = ({ selectedNoteId }: ArtifactsPanelProps) => {
         </div>
       </ScrollArea>
 
-      <ArtifactDialog 
-        artifact={selectedArtifact}
-        open={dialogOpen}
-        onOpenChange={setDialogOpen}
-      />
+      <ArtifactDialog artifact={selectedArtifact} open={dialogOpen} onOpenChange={setDialogOpen} />
     </aside>
   );
 };

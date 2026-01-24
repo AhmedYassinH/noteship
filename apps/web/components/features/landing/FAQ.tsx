@@ -11,7 +11,7 @@ const FAQ = ({ copy }: Props) => (
       <h2 className={styles.sectionTitle}>{copy.faqTitle}</h2>
     </div>
     <div className={styles.faq}>
-      {copy.faq.map(item => (
+      {copy.faq.map((item) => (
         <article key={item.q} className={styles.faqItem}>
           <h3 className={styles.faqQ}>{item.q}</h3>
           <p className={styles.faqA}>{item.a}</p>

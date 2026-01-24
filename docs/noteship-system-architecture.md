@@ -1,7 +1,9 @@
 # Noteship — System Architecture (HLD)
+
 **Document purpose:** Provide the end-to-end architectural “map” of Noteship at a high level (components, boundaries, major data flows, and deployment topology) without low-level implementation details.
 
 **Architecture goals (MVP):**
+
 - AWS-first, serverless where it makes sense
 - Cost-efficient for low initial scale (solo users)
 - Modular enough to add many integrations over time (imports/exports)
@@ -13,6 +15,7 @@
 ## 1) System overview
 
 ### Core concepts
+
 - **Canonical content**: Markdown notes + artifacts stored in S3
 - **Metadata**: Note lists, statuses, user config, subscriptions in DynamoDB
 - **Derived indexes**: Vector embeddings in a managed Vector DB (e.g., Qdrant)
@@ -20,6 +23,7 @@
 - **Async-first**: SQS jobs processed by worker Lambdas with retries + DLQ
 
 ### High-level component diagram
+
 ```mermaid
 flowchart LR
   subgraph Client["Client (Browser)"]
@@ -74,12 +78,14 @@ flowchart LR
 ## 2) Frontend architecture (high level)
 
 ### Choice
+
 - **Single Next.js app** (Landing + Dashboard) for simplicity:
   - One auth integration
   - One deployment pipeline
   - Shared UI/components without duplication
 
 ### Frontend responsibilities
+
 - Auth UI and session handling
 - Rich text editing (TipTap)
 - Calling API endpoints for notes, search, posts, scheduling
@@ -88,6 +94,7 @@ flowchart LR
 - Bilingual UX (EN/AR) with RTL/LTR layout mirroring per brand docs (`docs/brand/noteship-language-guidelines.md`, `docs/brand/noteship-layout-rtl-ltr.md`, `docs/brand/noteship-typography.md`)
 
 ### Frontend non-responsibilities
+
 - Never enforce security/plan gates solely in UI
 - Never call vendor APIs directly (LinkedIn/Medium)
 - Never store secrets/tokens in the browser
@@ -97,6 +104,7 @@ flowchart LR
 ## 3) Backend architecture (high level)
 
 ### Core backend building blocks
+
 1. **API Layer (API Gateway + Lambda API)**
    - Stateless request handlers
    - Validates input, resolves user identity, calls use-cases
@@ -126,11 +134,13 @@ flowchart LR
 ## 4) Data & storage boundaries (what lives where)
 
 ### S3 (canonical content)
+
 - `note.md` stored per note
 - `artifacts/*` stored per note (images, exports, generated outputs)
 - Versioning enabled (supports history + safe re-embedding)
 
 ### DynamoDB (system of record for state/metadata)
+
 - Notes metadata: titles, tags, timestamps, s3Key, embedding status/version
 - Posts metadata: draft/scheduled/published/failed, target vendor, schedule time
 - Integration accounts: vendor connections, token references, status
@@ -138,6 +148,7 @@ flowchart LR
 - Usage counters: quotas per billing period (optional in MVP but recommended)
 
 ### Vector DB (derived index)
+
 - Chunk embeddings with metadata `{userId, noteId, chunkIndex, version}`
 - Rebuilt anytime; never treated as canonical
 
@@ -146,6 +157,7 @@ flowchart LR
 ## 5) Key flows (request + async)
 
 ### 5.1 Create / update a note
+
 **Intent:** Persist canonical content and keep semantic search index up to date.
 
 ```mermaid
@@ -176,6 +188,7 @@ sequenceDiagram
 ```
 
 ### 5.2 Semantic search
+
 **Intent:** User finds notes by meaning (not exact wording).
 
 ```mermaid
@@ -196,12 +209,13 @@ sequenceDiagram
   API->>DDB: Fetch note metadata for noteIds
   DDB-->>API: titles, timestamps, s3Key
   API-->>FE: results (notes + snippet refs)
-  FE->>S3: (optional) fetch note preview via API (preferred) 
+  FE->>S3: (optional) fetch note preview via API (preferred)
 ```
 
 > MVP returns “relevant notes/snippets.” In-note jump/highlighting is deferred but the model is compatible with later block-level mapping.
 
 ### 5.3 Generate a post from a note
+
 **Intent:** Convert a note into a LinkedIn/Medium-ready draft with tone/persona.
 
 ```mermaid
@@ -224,6 +238,7 @@ sequenceDiagram
 ```
 
 ### 5.4 Publish now vs schedule
+
 **Intent:** Use async pipeline for reliability and vendor rate limits.
 
 ```mermaid
@@ -246,14 +261,17 @@ flowchart TD
 ## 6) Integration / connector model (scales with vendors)
 
 ### Why a connector model
+
 Integrations will grow (export + import). Avoid hardcoding vendor logic into core features.
 
 ### Connector boundaries
+
 - Core emits commands/events in **internal schema**
 - Connectors map internal schema to vendor API calls and back
 - Connectors run in worker context (server-side) and use stored tokens
 
 ### Connector contract (conceptual)
+
 - `connect()` / `disconnect()` (OAuth lifecycle)
 - `export()` / `publish()` for outbound
 - `ingest()` for inbound (webhook or poll)
@@ -261,6 +279,7 @@ Integrations will grow (export + import). Avoid hardcoding vendor logic into cor
 - `validate()` for token/account health
 
 ### Integration pipeline (high level)
+
 ```mermaid
 flowchart LR
   subgraph Core["Core Noteship Domain"]
@@ -294,10 +313,12 @@ flowchart LR
 ## 7) Deployment topology (MVP)
 
 ### Environments
+
 - **dev**: fast iteration, lower limits, sandbox tokens
 - **prod**: real billing, stricter permissions, observability
 
 ### Hosting choices (recommended for MVP)
+
 - **Next.js on Vercel** for speed and simplicity (AWS backend remains core)
 - AWS hosts:
   - API Gateway + Lambda
@@ -309,6 +330,7 @@ flowchart LR
 > If AWS-only hosting is required later: move Next SSR to AWS using a known-good deployment pattern; do not hand-roll.
 
 ### Deployment diagram (topology)
+
 ```mermaid
 flowchart LR
   subgraph User["User Browser"]
@@ -364,16 +386,19 @@ flowchart LR
 ## 8) Operational principles (HLD-level)
 
 ### Security
+
 - Tokens for vendors stored server-side (encrypted)
 - Backend enforces entitlements and authorization
 - Per-user isolation in keys/partitions and access policies
 
 ### Reliability
+
 - Async jobs for vendor calls and embeddings
 - Retries + DLQ for failure visibility
 - Idempotency keys for publish jobs (avoid duplicate posts)
 
 ### Cost efficiency
+
 - Serverless compute
 - S3 for large content
 - Vector DB external to avoid OpenSearch cluster fixed costs (MVP)
@@ -382,7 +407,9 @@ flowchart LR
 ---
 
 ## 9) Future evolution (without redesign)
+
 This HLD supports adding:
+
 - Many import/export connectors (meeting AI, Notion, Google Docs)
 - In-note semantic highlighting (store block mapping in vector metadata)
 - Teams/workspaces (extend DDB schema; add permissions model)

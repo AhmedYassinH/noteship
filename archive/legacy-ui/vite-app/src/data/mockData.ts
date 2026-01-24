@@ -103,7 +103,7 @@ Deploy to platforms like:
 
 ---
 
-*Last updated: 2024*`
+*Last updated: 2024*`,
           },
           {
             id: "n2",
@@ -154,11 +154,11 @@ cdk synth
 cdk deploy CoreStack
 \`\`\`
 
-**Important**: Review the diff before deploying to production.`
-          }
-        ]
-      }
-    ]
+**Important**: Review the diff before deploying to production.`,
+          },
+        ],
+      },
+    ],
   },
   {
     id: "2",
@@ -220,12 +220,12 @@ Show the model what you want:
 
 ---
 
-*Pro tip*: Always iterate on your prompts. The first version is rarely optimal.`
-          }
-        ]
-      }
-    ]
-  }
+*Pro tip*: Always iterate on your prompts. The first version is rarely optimal.`,
+          },
+        ],
+      },
+    ],
+  },
 ];
 
 export const mockArtifacts: Artifact[] = [
@@ -278,7 +278,7 @@ The CLI will guide you through the initial setup, asking about your preferences 
 
 Once installed, explore the \`quartz.config.ts\` file to customize your site. You can adjust colors, navigation structure, and enable powerful plugins for features like backlinks and graph visualization.
 
-Ready to publish? Quartz works seamlessly with Vercel, Netlify, and GitHub Pages. Your digital garden awaits! 🌱`
+Ready to publish? Quartz works seamlessly with Vercel, Netlify, and GitHub Pages. Your digital garden awaits! 🌱`,
       },
       {
         id: "v2",
@@ -310,7 +310,7 @@ Edit the config file to set up your site's appearance and behavior. You can cust
 
 Deploy your site to Vercel, Netlify, or GitHub Pages with just a few commands.
 
-That's it! You're ready to start building your knowledge base.`
+That's it! You're ready to start building your knowledge base.`,
       },
       {
         id: "v3",
@@ -334,9 +334,9 @@ Edit config file.
 
 ## Deploy
 
-Push to GitHub and deploy.`
-      }
-    ]
+Push to GitHub and deploy.`,
+      },
+    ],
   },
   {
     id: "a2",
@@ -402,7 +402,7 @@ I deployed mine to Vercel in under 2 minutes. It also works great with Netlify a
 
 If you're looking for a way to organize and share your technical notes, give Quartz a try. It's actively maintained, well-documented, and the community is super helpful.
 
-Have you used Quartz? Share your experience in the comments! 👇`
+Have you used Quartz? Share your experience in the comments! 👇`,
       },
       {
         id: "v5",
@@ -423,9 +423,9 @@ Installation is via npm. You run a few commands and you're ready to go.
 
 ## Conclusion
 
-Worth trying if you need a knowledge base.`
-      }
-    ]
+Worth trying if you need a knowledge base.`,
+      },
+    ],
   },
   {
     id: "a3",
@@ -527,7 +527,7 @@ Your digital garden awaits. 🌱
 
 ---
 
-*Have you tried Quartz? I'd love to hear about your experience. Drop a comment below!*`
+*Have you tried Quartz? I'd love to hear about your experience. Drop a comment below!*`,
       },
       {
         id: "v8",
@@ -555,9 +555,9 @@ Pretty straightforward. Just run npm commands and you're set up.
 
 ## Conclusion
 
-Worth checking out if you want to publish your notes online.`
-      }
-    ]
+Worth checking out if you want to publish your notes online.`,
+      },
+    ],
   },
   {
     id: "a4",
@@ -678,9 +678,9 @@ Happy gardening! 🌱
 
 ---
 
-*Questions? Drop them in the comments!*`
-      }
-    ]
+*Questions? Drop them in the comments!*`,
+      },
+    ],
   },
   {
     id: "a5",
@@ -781,10 +781,10 @@ After implementing CoreStack across our organization:
 
 The CoreStack pattern transforms infrastructure from a repetitive chore into a reusable asset. Start with the basics, refine over time, and watch your productivity soar.
 
-What patterns do you use for infrastructure reusability? Let me know in the comments!`
-      }
-    ]
-  }
+What patterns do you use for infrastructure reusability? Let me know in the comments!`,
+      },
+    ],
+  },
 ];
 
 export const mockLinkedInBlurbs: LinkedInBlurb[] = [
@@ -792,30 +792,30 @@ export const mockLinkedInBlurbs: LinkedInBlurb[] = [
     id: "l1",
     noteId: "n1",
     text: "Just finished setting up Quartz for my notes. The build speed is incredible! 🚀 If you're looking for a way to turn your Markdown notes into a beautiful website, definitely check it out. #TechTools #Productivity",
-    createdAt: "2 hours ago"
+    createdAt: "2 hours ago",
   },
   {
     id: "l2",
     noteId: "n1",
     text: "Static site generators have come so far. Quartz makes publishing seamless - from local Markdown files to a live site in minutes. Perfect for digital gardens and knowledge bases. 🌱 #WebDev #StaticSites",
-    createdAt: "1 day ago"
+    createdAt: "1 day ago",
   },
   {
     id: "l3",
     noteId: "n1",
     text: "Deployed my first digital garden with Quartz this week. The combination of Markdown simplicity and beautiful output is 🤌 No more wrestling with CMS platforms! #DigitalGarden #KnowledgeManagement",
-    createdAt: "3 days ago"
+    createdAt: "3 days ago",
   },
   {
     id: "l4",
     noteId: "n1",
     text: "For anyone building a personal knowledge base: Quartz + Vercel = free, fast, and beautiful. Took me 10 minutes to go from local notes to live site. Game changer. #DevTools #LearningInPublic",
-    createdAt: "5 days ago"
+    createdAt: "5 days ago",
   },
   {
     id: "l5",
     noteId: "n2",
     text: "The CoreStack pattern in AWS CDK has been a game-changer for our team. 70% faster infrastructure setup and much better consistency across projects. Highly recommend for any team using CDK. #AWS #CloudInfrastructure",
-    createdAt: "3 days ago"
-  }
+    createdAt: "3 days ago",
+  },
 ];
