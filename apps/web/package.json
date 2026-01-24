@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "sh -c 'if [ -z \"$RUN_E2E\" ]; then echo \"Skipping E2E (set RUN_E2E=1 to enable)\"; exit 0; fi; playwright test'",
+    "test": "node -e \"if (!process.env.RUN_E2E) { console.log('Skipping E2E (set RUN_E2E=1 to enable)'); process.exit(0); } require('child_process').execSync('playwright test', { stdio: 'inherit' });\"",
     "test:e2e": "playwright test"
   },
   "dependencies": {
@@ -16,12 +16,12 @@
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
-    "@types/node": "^22.16.5",
     "@playwright/test": "^1.48.0",
+    "@types/node": "^22.16.5",
     "@types/react": "^18.3.23",
     "@types/react-dom": "^18.3.7",
     "eslint": "^8.57.0",
     "eslint-config-next": "^14.2.5",
-    "typescript": "^5.8.3"
+    "typescript": "^5.9.3"
   }
 }

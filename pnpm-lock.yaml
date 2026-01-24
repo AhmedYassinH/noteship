@@ -18,7 +18,11 @@ importers:
         specifier: ^1.6.0
         version: 1.6.1(@types/node@22.19.7)
 
-  apps/api: {}
+  apps/api:
+    devDependencies:
+      typescript:
+        specifier: ^5.8.3
+        version: 5.9.3
 
   apps/web:
     dependencies:
@@ -51,14 +55,26 @@ importers:
         specifier: ^14.2.5
         version: 14.2.35(eslint@8.57.1)(typescript@5.9.3)
       typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+
+  apps/workers:
+    devDependencies:
+      typescript:
         specifier: ^5.8.3
         version: 5.9.3
 
-  apps/workers: {}
+  packages/connectors:
+    devDependencies:
+      typescript:
+        specifier: ^5.8.3
+        version: 5.9.3
 
-  packages/connectors: {}
-
-  packages/domain: {}
+  packages/domain:
+    devDependencies:
+      typescript:
+        specifier: ^5.8.3
+        version: 5.9.3
 
   packages/infra:
     dependencies:
@@ -69,11 +85,21 @@ importers:
         specifier: ^10.3.0
         version: 10.4.5
     devDependencies:
+      '@types/node':
+        specifier: ^22.16.5
+        version: 22.19.7
       ts-node:
         specifier: ^10.9.2
         version: 10.9.2(@types/node@22.19.7)(typescript@5.9.3)
+      typescript:
+        specifier: ^5.8.3
+        version: 5.9.3
 
-  packages/utils: {}
+  packages/utils:
+    devDependencies:
+      typescript:
+        specifier: ^5.8.3
+        version: 5.9.3
 
 packages:
 
