@@ -22,3 +22,8 @@ These documents define product intent and system design. Follow them before maki
 - If a new decision is made, update the HLD/LLD in the same change set.
 - Keep dependencies minimal; add new packages only when they unlock required MVP behavior.
 - After code or doc changes, run `pnpm prettier --write .` to keep formatting consistent.
+
+## Repo skills (Codex)
+
+Skills live in `skills/` but are not automatically loaded into Codex sessions.
+Install them into `$CODEX_HOME/skills` and restart Codex to activate.

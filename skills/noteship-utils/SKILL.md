@@ -18,6 +18,14 @@ description: Maintain shared utility helpers in packages/utils (logging, ids, ti
 - Avoid new dependencies unless required by MVP behavior.
 - Run `pnpm prettier --write .` after changes.
 
+## Safe workflow + tests
+
+- Keep diffs minimal; preserve public APIs unless asked.
+- Follow `docs/contributing/TESTING-STRATEGY.md` and `docs/contributing/CHANGE-TYPES-DECISION-MATRIX.md`.
+- Backend testing: unit tests for pure helpers, integration tests only when I/O boundaries are touched.
+- Run quality gates (`pnpm lint`, `pnpm build`, `pnpm test` when available, `pnpm format`).
+- If behavior is unclear or conflicts with HLD/LLD, stop and ask.
+
 ## Typical workflow
 
 1. Verify the request fits MVP scope.

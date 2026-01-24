@@ -12,3 +12,9 @@
 - API contracts: docs/technical/detailed/11-api-design-and-contracts.md
 - Billing flows: docs/technical/detailed/14-billing-and-stripe-integration.md
 - MVP scope boundaries: docs/technical/detailed/03-mvp-scope-and-feature-definition.md
+
+## Contributing policy
+
+- docs/contributing/TESTING-STRATEGY.md
+- docs/contributing/CHANGE-TYPES-DECISION-MATRIX.md
+- docs/contributing/QUALITY-GATES.md

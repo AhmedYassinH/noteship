@@ -18,13 +18,21 @@ description: Build and maintain Noteship async worker lambdas in apps/workers fo
 - Use connectors for vendor APIs; do not bypass connector interfaces.
 - Run `pnpm prettier --write .` after changes.
 
+## Safe workflow + tests
+
+- Keep diffs minimal; preserve public APIs unless asked.
+- Follow `docs/contributing/TESTING-STRATEGY.md` and `docs/contributing/CHANGE-TYPES-DECISION-MATRIX.md`.
+- Backend testing: unit tests for job logic, integration tests for I/O boundaries.
+- Run quality gates (`pnpm lint`, `pnpm build`, `pnpm test` when available, `pnpm format`).
+- If behavior is unclear or conflicts with HLD/LLD, stop and ask.
+
 ## Typical workflow
 
 1. Verify the request fits MVP scope.
 2. Read relevant docs (see `references/doc-map.md`).
 3. Update job handlers and adapters; preserve idempotency keys.
 4. Validate retry/DLQ behavior and logging.
-5. Add tests per strategy; format.
+5. Add unit/integration tests per strategy; format.
 
 ## Key areas to watch
 

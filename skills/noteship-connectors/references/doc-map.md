@@ -13,3 +13,9 @@
 - Backend layering and DI: docs/technical/detailed/09-backend-architecture.md
 - MVP scope boundaries: docs/technical/detailed/03-mvp-scope-and-feature-definition.md
 - Non-functional requirements: docs/technical/detailed/06-non-functional-requirements.md
+
+## Contributing policy
+
+- docs/contributing/TESTING-STRATEGY.md
+- docs/contributing/CHANGE-TYPES-DECISION-MATRIX.md
+- docs/contributing/QUALITY-GATES.md
