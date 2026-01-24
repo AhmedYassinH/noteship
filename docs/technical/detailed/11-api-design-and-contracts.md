@@ -28,7 +28,7 @@ Define the MVP API surface and request/response shapes (conceptual).
 
 - `POST /search` semantic search
   Body: `{ query: string, limit?: number }`
-  Response: `{ results: [{ noteId, score, preview }] }`
+  Response: `{ results: [{ noteId, score, preview, highlights?: [{ chunkIndex }] }] }`
 
 ### AI generation
 
@@ -48,11 +48,13 @@ Define the MVP API surface and request/response shapes (conceptual).
 
 - `GET /integrations` list connected providers
 - `POST /integrations/{provider}/connect` start OAuth
+- `GET /integrations/{provider}/callback` OAuth callback
 - `POST /integrations/{provider}/disconnect` revoke
 
 ### Billing
 
 - `POST /billing/checkout` create Stripe checkout session
+- `POST /billing/portal` create customer portal session
 - `POST /billing/webhook` Stripe webhook endpoint
 
 ## Idempotency

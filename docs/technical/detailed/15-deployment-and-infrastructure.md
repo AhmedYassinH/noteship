@@ -20,7 +20,8 @@ Define deployable stacks and environment layout.
    - JWT authorizer integration
    - Stripe webhook handler
 3. `workers-stack` (to be added)
-   - Worker Lambdas for embeddings/publish/scheduling
+   - Worker Lambdas for embeddings/publish
+   - Scheduled dispatcher Lambda (EventBridge rule, every minute) to enqueue due posts
    - Permissions to S3/DDB/SQS/Secrets/Vector DB
 4. `web-stack` (if hosting on AWS)
    - Next.js landing SSG + dashboard SPA (Vercel preferred otherwise)

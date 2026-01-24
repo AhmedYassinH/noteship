@@ -214,7 +214,7 @@ sequenceDiagram
   participant S3 as S3
 
   U->>FE: Search query (natural language)
-  FE->>GW: /search?q=...
+  FE->>GW: POST /search
   GW->>API: Invoke handler
   API->>V: Vector search (topK chunks filtered by userId)
   V-->>API: chunk hits (noteId, chunkIndex, score)
@@ -239,7 +239,7 @@ sequenceDiagram
   participant LLM as LLM Provider
   participant DDB as DynamoDB
 
-  FE->>GW: /notes/{id}/generate-post (tone, target)
+  FE->>GW: /notes/{id}/drafts (tone, target)
   GW->>API: Invoke handler
   API->>S3: Read note.md
   API->>LLM: Generate draft(s)

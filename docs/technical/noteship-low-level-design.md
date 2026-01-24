@@ -103,7 +103,7 @@ Sort key: `sk = NOTE#{noteId}`
 Attributes:
 
 - `noteId`, `title`, `tags[]`
-- `s3Key` (to note.md), `updatedAt`, `createdAt`
+- `s3Key` (to note.md), `contentHash`, `updatedAt`, `createdAt`
 - `embeddingStatus` (pending|ready|failed)
 - `embeddingVersion` (hash or S3 versionId)
 - `editorFormat` (tiptap/markdown) (optional; default markdown)
@@ -120,13 +120,14 @@ Attributes:
 - `postId`, `noteId` (source)
 - `provider` (linkedin|medium)
 - `status` (draft|queued|scheduled|publishing|published|failed)
-- `scheduleAt` (ISO) nullable
+- `scheduledAt` (ISO) nullable
+- `publishedAt` (ISO) nullable
 - `contentS3Key` (draft.md)
 - `error` (lastErrorCode/message) nullable
 - `createdAt`, `updatedAt`
   Indexes:
 - GSI1: `GSI1PK = userId`, `GSI1SK = STATUS#{status}#UPDATED#{updatedAt}`
-- GSI2: `GSI2PK = provider`, `GSI2SK = SCHEDULE#{scheduleAt}` (for scheduled execution) OR use SQS delay/scheduler
+- GSI2: `GSI2PK = STATUS#scheduled`, `GSI2SK = SCHEDULE#{scheduledAt}` (for scheduler dispatcher)
 
 #### Table: `IntegrationAccounts`
 
@@ -148,7 +149,8 @@ Sort key: `sk = PERIOD#{YYYY-MM}`
 Attributes:
 
 - `aiGenerationsUsed`
-- `postsPublished`
+- `scheduledPostsUsed`
+- `postsPublished` (optional; analytics)
 - `storageUsedMb` (optional)
 - `updatedAt`
 
@@ -260,7 +262,7 @@ Endpoint receives query:
 3. Vector search (topK)
 4. Aggregate by noteId (e.g., max score per note)
 5. Fetch note metadata from DynamoDB
-6. Return list of notes + snippet references (chunkIndex), sorted by score
+6. Return list of notes + preview snippet (and optional chunkIndex), sorted by score
 
 Return shape (conceptual):
 
@@ -271,6 +273,7 @@ Return shape (conceptual):
       "noteId": "n1",
       "title": "Pricing objections",
       "score": 0.84,
+      "preview": "Snippet text...",
       "highlights": [{ "chunkIndex": 2 }]
     }
   ]
@@ -294,17 +297,21 @@ Details: `docs/technical/detailed/11-api-design-and-contracts.md`.
 
 - `GET /notes?cursor=&limit=` list notes (sorted by updatedAt)
 - `POST /notes` create note (title, content in markdown)
-- `GET /notes/{noteId}` get note metadata + content (content fetched via S3)
+- `GET /notes/{noteId}` get note metadata + content (via presigned S3 URL)
 - `PUT /notes/{noteId}` update note (markdown)
 - `DELETE /notes/{noteId}` delete note (soft delete recommended)
 
+#### Attachments
+
+- `POST /notes/{noteId}/uploads` get presigned upload URL
+
 #### Search
 
-- `GET /search?q=...` semantic search across notes
+- `POST /search` semantic search across notes (body: `{ query, limit? }`)
 
 #### Generation
 
-- `POST /notes/{noteId}/generate-post` (tone, provider) returns draft(s)
+- `POST /notes/{noteId}/drafts` (tone, provider) returns draft(s)
 
 #### Posts
 
@@ -342,8 +349,7 @@ Details: `docs/technical/detailed/09-backend-architecture.md`, `docs/technical/d
 ### 6.1 Job types
 
 - `EMBED_NOTE`
-- `PUBLISH_POST`
-- `SCHEDULED_PUBLISH` (or reuse PUBLISH_POST with schedule logic)
+- `PUBLISH_POST` (used for immediate and scheduled publishes)
 - `IMPORT_NOTE` (future)
 
 ### 6.2 Payload envelope
@@ -369,14 +375,10 @@ Standardize:
 
 ### 6.4 Scheduling approach
 
-MVP options:
+Decision (MVP):
 
-- **Option A (simple):** store `scheduleAt` in DDB and run a scheduled worker every minute to dispatch due posts
-- **Option B (clean):** EventBridge Scheduler per post (creates managed scheduled invocation)
-
-Recommendation:
-
-- Start with **Option A** for simplicity and cost predictability, then migrate to Scheduler if needed.
+- Use a scheduled dispatcher worker (every minute) that queries due posts by `scheduledAt` via GSI2 and enqueues `PUBLISH_POST`.
+- Defer per-post EventBridge Scheduler until scale warrants it.
 
 ---
 
@@ -453,8 +455,9 @@ Webhook handler rules:
 ### 8.5 Usage counters
 
 - Increment usage on success:
-  - AI generation success → `aiGenerationsUsed += 1`
-  - Publish success → `postsPublished += 1`
+  - AI generation success ? `aiGenerationsUsed += 1`
+  - Schedule creation success ? `scheduledPostsUsed += 1`
+  - Publish success ? `postsPublished += 1` (optional analytics)
 
 ---
 

@@ -19,41 +19,73 @@ Bucket settings:
 
 ## Metadata: DynamoDB (suggested tables)
 
+### Table: Users
+
+- PK: `userId`
+- Attributes:
+  - `email`, `name`, `createdAt`
+  - `planId`, `subscriptionStatus`, `currentPeriodEnd`
+  - `stripeCustomerId` (optional)
+
 ### Table: Notes
 
 - PK: `userId`
-- SK: `note#{noteId}`
-  Attributes:
-- `title`, `tags[]`, `createdAt`, `updatedAt`
-- `s3Key`, `contentHash`, `embeddingStatus`, `embeddingVersion`
+- SK: `NOTE#{noteId}`
+- Attributes:
+  - `noteId`, `title`, `tags[]`, `createdAt`, `updatedAt`
+  - `s3Key`, `contentHash`, `embeddingStatus`, `embeddingVersion`
+  - `editorFormat` (tiptap/markdown) (optional)
+- Indexes:
+  - GSI1: `GSI1PK = userId`, `GSI1SK = UPDATED#{updatedAt}`
+  - Optional tag index later (avoid premature complexity)
 
 ### Table: Posts
 
 - PK: `userId`
-- SK: `post#{postId}`
-  Attributes:
-- `provider` (linkedin/medium)
-- `status` (draft/scheduled/published/failed)
-- `scheduledAt`, `publishedAt`
-- `sourceNoteId`, `payloadRef` (S3 key)
+- SK: `POST#{postId}`
+- Attributes:
+  - `postId`, `noteId` (source)
+  - `provider` (linkedin/medium)
+  - `status` (draft|queued|scheduled|publishing|published|failed)
+  - `scheduledAt`, `publishedAt`
+  - `contentS3Key` (draft.md)
+  - `error` (lastErrorCode/message) nullable
+  - `createdAt`, `updatedAt`
+- Indexes:
+  - GSI1: `GSI1PK = userId`, `GSI1SK = STATUS#{status}#UPDATED#{updatedAt}`
+  - GSI2: `GSI2PK = STATUS#scheduled`, `GSI2SK = SCHEDULE#{scheduledAt}`
 
 ### Table: IntegrationAccounts
 
 - PK: `userId`
-- SK: `provider#{provider}` (or include accountId)
-  Attributes:
-- encrypted tokens, scopes, providerUserRef, status
+- SK: `INTEGRATION#{provider}#{accountId}`
+- Attributes:
+  - `provider`, `accountId`, `status`
+  - `scopes[]`, `connectedAt`, `updatedAt`
+  - `tokenRef` (Secrets Manager pointer) or encrypted token blob
+  - provider identifiers (URNs, usernames)
 
 ### Table: Usage
 
 - PK: `userId`
-- SK: `period#{YYYY-MM}`
-  Attributes:
-- counters: `aiGenerationsUsed`, `scheduledPostsUsed`, etc.
+- SK: `PERIOD#{YYYY-MM}`
+- Attributes:
+  - `aiGenerationsUsed`, `scheduledPostsUsed`
+  - `postsPublished` (optional; analytics)
+  - `storageUsedMb` (optional)
+
+### Table: Jobs (optional)
+
+- PK: `userId`
+- SK: `JOB#{jobId}`
+- Attributes:
+  - `type` (EMBED_NOTE|PUBLISH_POST|IMPORT_NOTE)
+  - `status` (queued|running|succeeded|failed)
+  - `payload` (small), `createdAt`, `updatedAt`
 
 ## Vector DB (Qdrant) schema (conceptual)
 
-Collection: `note_chunks`
+Collection: `noteship_notes_{env}`
 Payload per vector:
 
 - `userId`
@@ -76,5 +108,6 @@ flowchart LR
 
 ## Re-embedding rule
 
+- Compute `contentHash` on save; set `embeddingVersion` to that hash (or S3 versionId).
 - If `contentHash` changes → regenerate vectors for new `embeddingVersion`
 - Old vectors deleted or left until cleanup

@@ -27,6 +27,7 @@ Export (publish):
   - `IMPORT_ITEM`
 - Worker executes connector logic, retries, DLQ
 - Provider rate limits handled centrally per connector
+- Scheduled posts: store `scheduledAt` in DDB and a dispatcher Lambda (every minute) enqueues `PUBLISH_POST` for due items
 
 ## Integration accounts
 
