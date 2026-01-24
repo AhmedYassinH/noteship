@@ -3,3 +3,6 @@
 out
 coverage
 *.log
+pnpm-lock.yaml
+turbo.json
+.turbo
