@@ -1,0 +1,23 @@
+.toggle {
+  display: inline-flex;
+  gap: 8px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 6px;
+  background: #fff;
+}
+
+.btn {
+  border: none;
+  background: transparent;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--muted);
+}
+
+.active {
+  background: var(--accent);
+  color: #fff;
+}
