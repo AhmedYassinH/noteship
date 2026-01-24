@@ -18,6 +18,8 @@
 - **Entitlements:** Derived from internal plan config; enforced server-side
 - **Editor:** TipTap (ProseMirror) → serialize to Markdown for storage
 
+Details: `docs/technical/detailed/03-mvp-scope-and-feature-definition.md`, `docs/technical/detailed/05-functional-requirements.md`.
+
 ---
 
 ## 1) Repository structure (monorepo) + conventions
@@ -30,6 +32,8 @@
 - **Prettier command:** `pnpm prettier --write .` (run before PRs/commits; applies to apps, packages, and docs)
 - **Validation:** Zod for request/response schemas + shared types
 - **Testing:** Vitest/Jest (unit/integration), Playwright (E2E)
+
+Details: `docs/technical/detailed/08-frontend-architecture.md`, `docs/technical/detailed/09-backend-architecture.md`, `docs/technical/detailed/16-testing-and-quality-strategy.md`.
 
 ### 1.2 Suggested folder layout
 
@@ -57,6 +61,8 @@ apps/web/data          # Localized copy per surface (e.g., landing) with {en, ar
 ---
 
 ## 2) Data architecture
+
+Details: `docs/technical/detailed/10-data-architecture.md`.
 
 ### 2.1 S3 layout (canonical content)
 
@@ -163,6 +169,8 @@ Attributes:
 
 ## 3) Vector DB design (Qdrant-like model)
 
+Details: `docs/technical/detailed/13-embedding-and-semantic-search-design.md`.
+
 ### 3.1 Collection
 
 Collection name: `noteship_notes_{env}`
@@ -196,6 +204,8 @@ Always filter by `userId` (multi-tenant isolation).
 ---
 
 ## 4) Embedding + semantic search design
+
+Details: `docs/technical/detailed/13-embedding-and-semantic-search-design.md`.
 
 ### 4.1 Text extraction + normalization
 
@@ -271,6 +281,8 @@ Return shape (conceptual):
 
 ## 5) API design (REST, API Gateway)
 
+Details: `docs/technical/detailed/11-api-design-and-contracts.md`.
+
 ### 5.1 Auth
 
 - JWT-based auth (Cognito/Auth0). API Gateway authorizer injects user identity.
@@ -325,6 +337,8 @@ Return shape (conceptual):
 
 ## 6) Async jobs design (SQS)
 
+Details: `docs/technical/detailed/09-backend-architecture.md`, `docs/technical/detailed/12-connector-and-integration-architecture.md`.
+
 ### 6.1 Job types
 
 - `EMBED_NOTE`
@@ -368,6 +382,8 @@ Recommendation:
 
 ## 7) Connector / integration LLD
 
+Details: `docs/technical/detailed/12-connector-and-integration-architecture.md`.
+
 ### 7.1 Connector interface (TypeScript)
 
 Conceptual:
@@ -395,6 +411,8 @@ Conceptual:
 ---
 
 ## 8) Billing + plans + entitlements
+
+Details: `docs/technical/detailed/04-pricing-plans-and-entitlements.md`, `docs/technical/detailed/14-billing-and-stripe-integration.md`.
 
 ### 8.1 Stripe objects
 
@@ -442,6 +460,8 @@ Webhook handler rules:
 
 ## 9) Security implementation rules
 
+Details: `docs/technical/detailed/06-non-functional-requirements.md`.
+
 - Vendor tokens must never reach frontend.
 - Store tokens encrypted:
   - Secrets Manager (preferred) OR
@@ -456,6 +476,8 @@ Webhook handler rules:
 
 ## 10) Observability (practical)
 
+Details: `docs/technical/detailed/06-non-functional-requirements.md`.
+
 - Structured logs (JSON) for API and workers
 - Include: `requestId`, `userId`, `noteId/postId`, `jobId`, `provider`
 - DLQ alarms (basic)
@@ -467,6 +489,8 @@ Webhook handler rules:
 ---
 
 ## 11) Testing strategy (what to implement now)
+
+Details: `docs/technical/detailed/16-testing-and-quality-strategy.md`.
 
 ### 11.1 Backend
 
@@ -516,6 +540,8 @@ Cover only business-critical flows:
 ---
 
 ## 13) Bilingual and RTL/LTR support (EN + AR)
+
+Details: `docs/technical/detailed/08-frontend-architecture.md`.
 
 - Languages: English (LTR) and Arabic (RTL) with user toggle; default from browser language, persist per user profile.
 - Apply brand rules: see `docs/brand/noteship-language-guidelines.md`, `docs/brand/noteship-layout-rtl-ltr.md`, `docs/brand/noteship-typography.md` for tone, mirroring, and font stacks (IBM Plex Sans + IBM Plex Sans Arabic for app UI; Lora/Noto Naskh for marketing headlines).
