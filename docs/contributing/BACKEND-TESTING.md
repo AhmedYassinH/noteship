@@ -2,6 +2,8 @@
 
 Applies to `apps/api`, `apps/workers`, `packages/connectors`, `packages/domain`, and `packages/utils`.
 
+Backend tests use Vitest (`vitest run --passWithNoTests` via package scripts).
+
 ## Unit tests
 
 Use unit tests for:
@@ -43,3 +45,4 @@ Prefer local or sandboxed services. If you must mock, keep mocks shallow and val
 - `pnpm --filter @noteship/workers test`
 - `pnpm --filter @noteship/connectors test`
 - `pnpm --filter @noteship/domain test`
+- `pnpm --filter @noteship/utils test`

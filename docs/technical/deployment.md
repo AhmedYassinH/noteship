@@ -14,6 +14,11 @@ Use this as the source of truth for deploying infrastructure and apps. Update it
 - Node 18+, pnpm installed.
 - HLD/LLD followed: vector DB is external (e.g., Qdrant Cloud) and not provisioned here.
 
+## CI status
+
+- GitHub Actions runs `pnpm lint`, `pnpm build`, `pnpm test`, and `pnpm format` on PRs/merges.
+- Playwright E2E runs only when `RUN_E2E=1` is set (or via `pnpm --filter @noteship/web test:e2e`).
+
 ## CDK bootstrap (per account/region)
 
 ```sh

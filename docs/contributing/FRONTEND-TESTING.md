@@ -16,3 +16,8 @@ Use Playwright for critical user flows only (see `docs/contributing/PLAYWRIGHT-E
 
 - `pnpm test`
 - `pnpm --filter @noteship/web test:e2e`
+
+Local E2E settings:
+
+- `E2E_BASE_URL` sets the target base URL (defaults to `http://localhost:3000`).
+- `RUN_E2E=1 pnpm --filter @noteship/web test` runs E2E via the `test` script.

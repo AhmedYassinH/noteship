@@ -6,12 +6,12 @@ These are the minimum checks before merging.
 
 - Lint: `pnpm lint`
 - Build: `pnpm build`
-- Tests: `pnpm test` (backend-focused; frontend relies on Playwright only)
+- Tests: `pnpm test` (backend-focused; frontend E2E runs only when `RUN_E2E=1`)
 - Format: `pnpm format`
 
 ## Optional gates (when ready)
 
-- Playwright E2E on merge to main
+- Playwright E2E on merge to main (set `RUN_E2E=1` or use `pnpm --filter @noteship/web test:e2e`)
 - Security scans (dependency audit)
 
 ## Stop-ship rules
