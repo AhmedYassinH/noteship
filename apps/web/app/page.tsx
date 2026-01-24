@@ -1,161 +1,14 @@
-"use client";
+﻿"use client";
 
+import Image from "next/image";
+import Link from "next/link";
 import { useMemo, useState } from "react";
+import landingCopy, { Lang } from "../data/landing";
 import styles from "./page.module.css";
-
-type Lang = "en" | "ar";
-
-type SectionCopy = {
-  heroKicker: string;
-  heroTitle: string;
-  heroSub: string;
-  primaryCta: string;
-  secondaryCta: string;
-  heroPlaceholder: string;
-  problemTitle: string;
-  problemBullets: string[];
-  howTitle: string;
-  howSteps: { title: string; copy: string }[];
-  pillarsTitle: string;
-  pillars: { title: string; copy: string }[];
-  proofTitle: string;
-  proofStats: { label: string; value: string }[];
-  proofPlaceholder: string;
-  pricingTitle: string;
-  pricingSub: string;
-  plans: { name: string; price: string; items: string[]; cta: string }[];
-  faqTitle: string;
-  faq: { q: string; a: string }[];
-  finalTitle: string;
-  finalCopy: string;
-};
-
-const copy: Record<Lang, SectionCopy> = {
-  en: {
-    heroKicker: "Semantic notes to published posts",
-    heroTitle: "Find any idea by meaning. Publish in your voice�without rewrites.",
-    heroSub:
-      "Noteship helps consultants and coaches turn Markdown notes into LinkedIn and Medium posts with semantic recall, tone control, and reliable scheduling.",
-    primaryCta: "Start drafting",
-    secondaryCta: "Watch 90s overview",
-    heroPlaceholder:
-      "Placeholder: clean product hero showing semantic search results on the left and a LinkedIn draft on the right, English UI",
-    problemTitle: "Built for people who don't want to rewrite from scratch",
-    problemBullets: [
-      "You remember the idea, not the exact words.",
-      "You need LinkedIn/Medium posts that keep your tone.",
-      "You want scheduling that just works (and retries)."
-    ],
-    howTitle: "How Noteship works",
-    howSteps: [
-      { title: "Capture once", copy: "Write in TipTap, autosave to Markdown, attach artifacts." },
-      { title: "Index by meaning", copy: "Background embeddings keep search fresh after each edit." },
-      { title: "Draft + publish", copy: "Generate posts in your tone, publish now or schedule." }
-    ],
-    pillarsTitle: "Why it stays portable",
-    pillars: [
-      { title: "Markdown first", copy: "Canonical content in S3, easy export/import." },
-      { title: "Semantic search", copy: "Find notes by meaning, not exact keywords." },
-      { title: "On-brand drafts", copy: "Tone controls keep your voice consistent." },
-      { title: "Reliable scheduling", copy: "Retries and clear statuses for LinkedIn/Medium." }
-    ],
-    proofTitle: "Proof points",
-    proofStats: [
-      { label: "Minutes to first draft", value: "<5" },
-      { label: "Platforms at launch", value: "2" },
-      { label: "Export format", value: "Markdown" }
-    ],
-    proofPlaceholder: "Placeholder: annotated screenshot of Arabic UI mirrored, showing publish status timeline",
-    pricingTitle: "Pricing",
-    pricingSub: "Start free. Upgrade for scheduling and higher AI limits.",
-    plans: [
-      {
-        name: "Free",
-        price: "Starter",
-        items: ["Semantic search", "Markdown export", "AI drafts (low quota)", "Manual publish"],
-        cta: "Start free"
-      },
-      {
-        name: "Pro",
-        price: "$18/mo",
-        items: ["Higher AI drafts", "Scheduling", "Retries + status", "More notes & storage"],
-        cta: "Upgrade"
-      }
-    ],
-    faqTitle: "FAQ",
-    faq: [
-      { q: "Can I export my notes?", a: "Yes. Noteship stores Markdown; export anytime." },
-      { q: "Which platforms are supported?", a: "LinkedIn and Medium at launch, more later." },
-      { q: "Is scheduling paid?", a: "Scheduling is Pro-only; manual publish is in Free." }
-    ],
-    finalTitle: "Ready to ship your ideas?",
-    finalCopy: "Find by meaning, draft fast, publish with confidence."
-  },
-  ar: {
-    heroKicker: "??????? ?????? ??? ??????? ?????",
-    heroTitle: "???? ??? ?? ???? ???????. ???? ????? ??? ????? ?????.",
-    heroSub:
-      "?????? ????? ?????????? ????????? ??? ????? ????????? ??? ??????? ???????/?????? ?? ??? ?????? ???? ?? ??????? ?????? ??????.",
-    primaryCta: "???? ????????",
-    secondaryCta: "???? ??? ?? ?????",
-    heroPlaceholder:
-      "???? ????: ???? ????? ?????? ????? ?? ????? ??? ????? ??? ?????? ?????? ??????? ??? ?????? (RTL)",
-    problemTitle: "??? ?? ???? ????? ??????? ?? ???",
-    problemBullets: [
-      "????? ?????? ?? ??????? ??????.",
-      "????? ??????? ???????/?????? ????? ??? ??????.",
-      "???? ????? ???? ????? (???????? ?????)."
-    ],
-    howTitle: "??? ???? ??????",
-    howSteps: [
-      { title: "????? ???", copy: "???? ?? TipTap ?? ??? ?????? ??? Markdown ???????." },
-      { title: "????? ???????", copy: "????? ???????? ??? ?? ????? ????? ????? ??????." },
-      { title: "????? ????", copy: "???? ??????? ???????? ???? ???? ?? ?????." }
-    ],
-    pillarsTitle: "????? ??? ?????? ?????",
-    pillars: [
-      { title: "Markdown ?????", copy: "????? ????? ?? S3 ?? ?????/??????? ???." },
-      { title: "??? ?????", copy: "???? ??? ????????? ??????? ?? ???????? ?????????." },
-      { title: "?????? ??? ??????", copy: "???? ?? ?????? ????? ???? ??????." },
-      { title: "????? ??????", copy: "??????? ????? ?????? ????? ????????/??????." }
-    ],
-    proofTitle: "?????",
-    proofStats: [
-      { label: "????? ???? ?????", value: "<?" },
-      { label: "????? ??? ???????", value: "?" },
-      { label: "???? ???????", value: "Markdown" }
-    ],
-    proofPlaceholder: "???? ????: ???? ????? ?? ?? ???? ?????? ????? ??????? RTL",
-    pricingTitle: "???????",
-    pricingSub: "???? ??????. ???? ??????? ???? ???? ????.",
-    plans: [
-      {
-        name: "?????",
-        price: "?????",
-        items: ["??? ?????", "????? Markdown", "??? ?????? ????????", "??? ????"],
-        cta: "???? ??????"
-      },
-      {
-        name: "???",
-        price: "$18 / ???",
-        items: ["??? ???? ????????", "?????", "??????? ????? + ?????", "??????? ?????? ????"],
-        cta: "?????"
-      }
-    ],
-    faqTitle: "??????? ???????",
-    faq: [
-      { q: "?? ?????? ????? ??????????", a: "???? ?????? ???? Markdown ????? ??????? ?? ?? ???." },
-      { q: "?? ??????? ?????????", a: "??????? ??????? ??? ???????? ?????? ??????." },
-      { q: "?? ??????? ???????", a: "??????? ??? ???? ????? ?????? ???? ?? ???????." }
-    ],
-    finalTitle: "???? ???? ???????",
-    finalCopy: "???? ???????? ??? ?????? ????? ????."
-  }
-};
 
 const HomePage = () => {
   const [lang, setLang] = useState<Lang>("en");
-  const t = useMemo(() => copy[lang], [lang]);
+  const t = useMemo(() => landingCopy[lang], [lang]);
   const isAr = lang === "ar";
 
   return (
@@ -165,23 +18,52 @@ const HomePage = () => {
       dir={isAr ? "rtl" : "ltr"}
     >
       <section className={styles.shell}>
+        <header className={`${styles.siteHeader} ${isAr ? styles.rtl : ""}`}>
+          <Link href="/" className={styles.brand} aria-label="Noteship home">
+            <div className={styles.brandMark}>
+              <Image src="/noteship-mark.svg" alt="" width={50} height={50} priority />
+            </div>
+            <div className={styles.brandText}>
+              <span className={styles.brandName}>Noteship</span>
+              <span className={styles.brandTagline}>{t.brandTagline}</span>
+            </div>
+          </Link>
+
+          <nav className={styles.nav} aria-label={isAr ? "التنقل الرئيسي" : "Main navigation"}>
+            {t.navLinks.map(link => (
+              <a key={link.id} className={styles.navLink} href={`#${link.id}`}>
+                {link.label}
+              </a>
+            ))}
+          </nav>
+
+          <div className={styles.navActions}>
+            <div className={styles.langToggle}>
+              {["en", "ar"].map(code => (
+                <button
+                  key={code}
+                  type="button"
+                  className={`${styles.langButton} ${lang === code ? styles.langButtonActive : ""}`}
+                  onClick={() => setLang(code as Lang)}
+                  aria-pressed={lang === code}
+                >
+                  {code === "en" ? "English" : "العربية"}
+                </button>
+              ))}
+            </div>
+            <Link className={styles.navGhost} href="/login">
+              {t.navCtaSecondary}
+            </Link>
+            <Link className={`${styles.primaryButton} ${styles.navPrimaryButton}`} href="/signup">
+              {t.navCtaPrimary}
+            </Link>
+          </div>
+        </header>
+
         <header className={`${styles.hero} ${isAr ? styles.rtl : ""}`}>
           <div className={styles.heroText}>
             <div className={styles.heroTopRow}>
               <p className={styles.kicker}>{t.heroKicker}</p>
-              <div className={styles.langToggle}>
-                {(["en", "ar"] as Lang[]).map(code => (
-                  <button
-                    key={code}
-                    type="button"
-                    className={`${styles.langButton} ${lang === code ? styles.langButtonActive : ""}`}
-                    onClick={() => setLang(code)}
-                    aria-pressed={lang === code}
-                  >
-                    {code === "en" ? "English" : "???????"}
-                  </button>
-                ))}
-              </div>
             </div>
             <h1 className={styles.heroTitle}>{t.heroTitle}</h1>
             <p className={styles.heroSub}>{t.heroSub}</p>
@@ -190,10 +72,19 @@ const HomePage = () => {
               <button className={styles.secondaryButton}>{t.secondaryCta}</button>
             </div>
           </div>
-          <div className={styles.heroMedia}>{t.heroPlaceholder}</div>
+          <div className={styles.heroMedia}>
+            <Image
+              src={t.heroImage}
+              alt={t.heroImageAlt}
+              width={1200}
+              height={720}
+              className={styles.mediaImg}
+              priority
+            />
+          </div>
         </header>
 
-        <section className={styles.section}>
+        <section className={styles.section} id="problem">
           <div className={styles.sectionHeader}>
             <h2 className={styles.sectionTitle}>{t.problemTitle}</h2>
           </div>
@@ -206,7 +97,7 @@ const HomePage = () => {
           </ul>
         </section>
 
-        <section className={styles.section}>
+        <section className={styles.section} id="how">
           <div className={styles.sectionHeader}>
             <h2 className={styles.sectionTitle}>{t.howTitle}</h2>
           </div>
@@ -221,7 +112,15 @@ const HomePage = () => {
               </div>
             ))}
           </div>
-          <div className={styles.placeholder}>{t.heroPlaceholder}</div>
+          <div className={styles.placeholder}>
+            <Image
+              src={t.heroImage}
+              alt={t.heroImageAlt}
+              width={1200}
+              height={720}
+              className={styles.mediaImg}
+            />
+          </div>
         </section>
 
         <section className={styles.section}>
@@ -238,7 +137,7 @@ const HomePage = () => {
           </div>
         </section>
 
-        <section className={styles.section}>
+        <section className={styles.section} id="proof">
           <div className={styles.sectionHeader}>
             <h2 className={styles.sectionTitle}>{t.proofTitle}</h2>
           </div>
@@ -251,11 +150,19 @@ const HomePage = () => {
                 </div>
               ))}
             </div>
-            <div className={styles.placeholder}>{t.proofPlaceholder}</div>
+            <div className={styles.placeholder}>
+              <Image
+                src={t.proofImage}
+                alt={t.proofImageAlt}
+                width={1200}
+                height={720}
+                className={styles.mediaImg}
+              />
+            </div>
           </div>
         </section>
 
-        <section className={styles.section}>
+        <section className={styles.section} id="pricing">
           <div className={styles.sectionHeader}>
             <h2 className={styles.sectionTitle}>{t.pricingTitle}</h2>
             <p className={styles.sectionLead}>{t.pricingSub}</p>
@@ -278,11 +185,11 @@ const HomePage = () => {
           </div>
         </section>
 
-        <section className={styles.section}>
+        <section className={styles.section} id="faq">
           <div className={styles.sectionHeader}>
             <h2 className={styles.sectionTitle}>{t.faqTitle}</h2>
           </div>
-          <div className={styles.faq}> 
+          <div className={styles.faq}>
             {t.faq.map(item => (
               <article key={item.q} className={styles.faqItem}>
                 <h3 className={styles.faqQ}>{item.q}</h3>

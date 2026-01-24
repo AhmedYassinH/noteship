@@ -19,6 +19,7 @@ Define the Next.js structure, state management, and integration points.
 - `lib/auth/` auth helpers
 - `lib/entitlements/` gating helpers
 - `stores/` (only if needed; prefer Query + local state)
+- `data/` localized public-page copy (`landing.ts` etc.) exporting `{ en, ar }` payloads including locale-specific images
 
 ## Feature gating
 - Fetch entitlements on session load
@@ -31,6 +32,11 @@ Define the Next.js structure, state management, and integration points.
 - Serialize to Markdown for saving/export
 - Attachments upload to S3 via backend-signed URL (recommended)
 - Support per-block RTL/LTR direction; code blocks stay LTR; persist `language` on note/post metadata.
+
+## i18n content strategy (public pages)
+- Keep marketing copy out of components: source from `apps/web/data/<surface>.ts` with typed `{ en, ar }` objects.
+- Store locale-specific media references (hero/proof screenshots) with the text to ensure mirrored visuals for RTL.
+- Apply `lang` and `dir` on the page root; components consume pre-shaped copy to avoid conditional text in JSX.
 
 ## Mermaid: UI modules
 ```mermaid

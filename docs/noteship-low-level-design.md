@@ -38,6 +38,8 @@
   /connectors          # Vendor connectors (LinkedIn, Medium, future)
   /infra               # CDK stacks + constructs
   /utils               # cross-cutting utilities (logging, ids, time)
+  # Locale copy (public pages)
+apps/web/data          # Localized copy per surface (e.g., landing) with {en, ar} payloads
 ```
 
 ### 1.3 Code architecture rules
@@ -446,6 +448,7 @@ Cover only business-critical flows:
 - Search/embeddings/AI: use multilingual embeddings and generation models; store language with embeddings to allow language-aware ranking; normalize Arabic text (diacritics optional) for search robustness; prompts respect selected language.
 - Publishing: render body/title with correct direction; keep platform names (LinkedIn/Medium) in English inside Arabic UI.
 - Testing: add E2E cases for RTL layout, mixed-language content in editor, and search/publish flows in Arabic UI.
+- **Localized copy storage (public pages):** keep EN/AR marketing copy in `apps/web/data/<surface>.ts` exporting `{ en, ar }` objects (typed). Include locale-specific assets (hero/proof screenshots) and direction hints alongside text to keep components lean and ensure RTL-safe rendering.
 
 ---
 
