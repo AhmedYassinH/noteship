@@ -35,16 +35,20 @@
 }
 
 .brandMark {
-  width: 56px;
-  height: 56px;
-  border-radius: 16px;
-  border: 1px solid rgba(15, 118, 110, 0.18);
-  background: radial-gradient(circle at 30% 30%, rgba(15, 118, 110, 0.12), rgba(255, 255, 255, 0.95));
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
+  border: 1px solid rgba(15, 118, 110, 0.2);
+  background: radial-gradient(circle at 30% 30%, rgba(15, 118, 110, 0.12), #ffffff);
   display: grid;
   place-items: center;
   overflow: hidden;
-  padding: 3px;
-  box-shadow: 0 16px 30px rgba(15, 118, 110, 0.16);
+  padding: 6px;
+  box-shadow: 0 16px 30px rgba(15, 118, 110, 0.14);
+}
+
+.brandMark img {
+  display: block;
 }
 
 .brandText {
