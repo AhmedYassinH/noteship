@@ -1,10 +1,12 @@
 # Doc Map - noteship-api
 
 ## Always authoritative
+
 - docs/technical/noteship-system-architecture.md (HLD)
 - docs/technical/noteship-low-level-design.md (LLD)
 
 ## Open when needed
+
 - Backend layers and DI: docs/technical/detailed/09-backend-architecture.md
 - Data models and storage: docs/technical/detailed/10-data-architecture.md
 - API endpoints and contracts: docs/technical/detailed/11-api-design-and-contracts.md

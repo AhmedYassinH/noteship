@@ -6,10 +6,12 @@ description: Build and maintain the Noteship REST API lambdas in apps/api, inclu
 # Noteship API
 
 ## Overview
+
 - Build and maintain the API Gateway + Lambda handlers in `apps/api`.
 - Keep handlers thin and push logic into use-cases and adapters.
 
 ## Guardrails
+
 - Follow HLD/LLD and detailed docs; update docs first if a change conflicts.
 - Enforce entitlements server-side; UI only adapts.
 - Store canonical content in S3 and metadata in DynamoDB.
@@ -18,6 +20,7 @@ description: Build and maintain the Noteship REST API lambdas in apps/api, inclu
 - Run `pnpm prettier --write .` after changes.
 
 ## Typical workflow
+
 1. Verify the request fits MVP scope.
 2. Read relevant docs (see `references/doc-map.md`).
 3. Update handler -> use-case -> adapter layers; keep interfaces clean.
@@ -25,10 +28,12 @@ description: Build and maintain the Noteship REST API lambdas in apps/api, inclu
 5. Add tests per strategy; format.
 
 ## Key areas to watch
+
 - Auth: derive `userId` from JWT authorizer.
 - Idempotency keys on publish/schedule endpoints.
 - Stripe webhook verification and idempotent processing.
 - Presigned uploads for attachments.
 
 ## References
+
 See `references/doc-map.md` for which docs to open and when.

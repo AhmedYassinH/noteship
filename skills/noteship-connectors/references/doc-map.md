@@ -1,10 +1,12 @@
 # Doc Map - noteship-connectors
 
 ## Always authoritative
+
 - docs/technical/noteship-system-architecture.md (HLD)
 - docs/technical/noteship-low-level-design.md (LLD)
 
 ## Open when needed
+
 - Connector interface and pipeline: docs/technical/detailed/12-connector-and-integration-architecture.md
 - Integration endpoints: docs/technical/detailed/11-api-design-and-contracts.md
 - Integration accounts data model: docs/technical/detailed/10-data-architecture.md

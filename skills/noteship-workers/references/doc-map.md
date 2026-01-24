@@ -1,10 +1,12 @@
 # Doc Map - noteship-workers
 
 ## Always authoritative
+
 - docs/technical/noteship-system-architecture.md (HLD)
 - docs/technical/noteship-low-level-design.md (LLD)
 
 ## Open when needed
+
 - Backend async model: docs/technical/detailed/09-backend-architecture.md
 - Connector pipeline: docs/technical/detailed/12-connector-and-integration-architecture.md
 - Embedding/search lifecycle: docs/technical/detailed/13-embedding-and-semantic-search-design.md

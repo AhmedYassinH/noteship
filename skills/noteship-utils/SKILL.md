@@ -6,10 +6,12 @@ description: Maintain shared utility helpers in packages/utils (logging, ids, ti
 # Noteship Utils
 
 ## Overview
+
 - Maintain small, reusable utilities in `packages/utils`.
 - Keep dependencies minimal and APIs stable for all apps.
 
 ## Guardrails
+
 - Follow HLD/LLD and detailed docs; update docs first if a change conflicts.
 - Prefer pure functions and avoid app-specific logic.
 - Keep logging structured and consistent with NFRs.
@@ -17,6 +19,7 @@ description: Maintain shared utility helpers in packages/utils (logging, ids, ti
 - Run `pnpm prettier --write .` after changes.
 
 ## Typical workflow
+
 1. Verify the request fits MVP scope.
 2. Read relevant docs (see `references/doc-map.md`).
 3. Implement utility changes with tests.
@@ -24,8 +27,10 @@ description: Maintain shared utility helpers in packages/utils (logging, ids, ti
 5. Format.
 
 ## Key areas to watch
+
 - ID generation and time helpers used by API/workers.
 - Logging helpers for request/job correlation.
 
 ## References
+
 See `references/doc-map.md` for which docs to open and when.

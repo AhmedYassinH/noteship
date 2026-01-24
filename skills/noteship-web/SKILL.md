@@ -6,10 +6,12 @@ description: Build and maintain the Noteship Next.js app (landing + dashboard), 
 # Noteship Web
 
 ## Overview
+
 - Build and maintain the Next.js app in `apps/web` (landing + dashboard).
 - Keep UI aligned with MVP scope and HLD/LLD; UI never enforces security.
 
 ## Guardrails
+
 - Follow HLD/LLD and detailed docs; update docs first if a change conflicts.
 - Keep localized copy in `apps/web/data/*` as `{ en, ar }` objects.
 - Use RTL/LTR rules: set `lang`/`dir`, use logical CSS props, mirror directional icons.
@@ -17,6 +19,7 @@ description: Build and maintain the Noteship Next.js app (landing + dashboard), 
 - Run `pnpm prettier --write .` after changes.
 
 ## Typical workflow
+
 1. Verify the request fits MVP scope.
 2. Read relevant docs (see `references/doc-map.md`).
 3. Implement UI + API calls; use shared types and zod schemas.
@@ -24,10 +27,12 @@ description: Build and maintain the Noteship Next.js app (landing + dashboard), 
 5. Add minimal tests per strategy; format.
 
 ## Key areas to watch
+
 - TipTap serialization to Markdown for storage.
 - Attachment uploads via presigned URLs.
 - Entitlements: hide vs disable + upsell; backend is source of truth.
 - Locale-specific assets and copy; avoid hardcoded strings in components.
 
 ## References
+
 See `references/doc-map.md` for which docs to open and when.

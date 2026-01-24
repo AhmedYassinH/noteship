@@ -6,10 +6,12 @@ description: Build and maintain Noteship async worker lambdas in apps/workers fo
 # Noteship Workers
 
 ## Overview
+
 - Build and maintain SQS worker lambdas in `apps/workers`.
 - Execute embedding and publishing jobs reliably and idempotently.
 
 ## Guardrails
+
 - Follow HLD/LLD and detailed docs; update docs first if a change conflicts.
 - Use SQS with retries and DLQ; make every job idempotent.
 - Read/write canonical content in S3 and metadata in DynamoDB.
@@ -17,6 +19,7 @@ description: Build and maintain Noteship async worker lambdas in apps/workers fo
 - Run `pnpm prettier --write .` after changes.
 
 ## Typical workflow
+
 1. Verify the request fits MVP scope.
 2. Read relevant docs (see `references/doc-map.md`).
 3. Update job handlers and adapters; preserve idempotency keys.
@@ -24,9 +27,11 @@ description: Build and maintain Noteship async worker lambdas in apps/workers fo
 5. Add tests per strategy; format.
 
 ## Key areas to watch
+
 - EMBED_NOTE: chunking, embedding versioning, vector upsert, status updates.
 - PUBLISH_POST: connector calls, status transitions, error handling.
 - Scheduling: dispatcher enqueues due posts; avoid duplicate publishes.
 
 ## References
+
 See `references/doc-map.md` for which docs to open and when.
