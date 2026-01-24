@@ -50,9 +50,11 @@ Add or update E2E tests when a change impacts:
 - `pnpm build` (turbo build)
 - `pnpm format` (pnpm prettier --write .)
 
-Note: individual packages currently do not define test scripts. When tests are added, prefer standard names like:
+Playwright note: `pnpm test` skips E2E unless `RUN_E2E=1`. Use `pnpm --filter @noteship/web test:e2e` for explicit runs.
+Backend test scripts use Vitest (`vitest run --passWithNoTests`).
 
-- `test`, `test:unit`, `test:integration` per package
-- `test:e2e` in `apps/web` for Playwright
+## Env for tests
+
+Use `.env.example` as the local template and follow `docs/contributing/ENV-AND-SECRETS.md`.
 
 These are recommended additions, not required today.

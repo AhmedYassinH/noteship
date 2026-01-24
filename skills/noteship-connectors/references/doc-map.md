@@ -19,3 +19,4 @@
 - docs/contributing/TESTING-STRATEGY.md
 - docs/contributing/CHANGE-TYPES-DECISION-MATRIX.md
 - docs/contributing/QUALITY-GATES.md
+- docs/contributing/ENV-AND-SECRETS.md

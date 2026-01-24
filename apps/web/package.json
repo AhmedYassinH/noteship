@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "sh -c 'if [ -z \"$RUN_E2E\" ]; then echo \"Skipping E2E (set RUN_E2E=1 to enable)\"; exit 0; fi; playwright test'",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "next": "^14.2.5",
@@ -15,6 +17,7 @@
   },
   "devDependencies": {
     "@types/node": "^22.16.5",
+    "@playwright/test": "^1.48.0",
     "@types/react": "^18.3.23",
     "@types/react-dom": "^18.3.7",
     "eslint": "^9.32.0",

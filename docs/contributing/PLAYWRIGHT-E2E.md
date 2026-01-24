@@ -56,3 +56,9 @@ await page.getByTestId("publish-button").click();
 ## Suggested commands (recommended when tests exist)
 
 - `pnpm --filter @noteship/web test:e2e`
+
+## Local setup
+
+- `E2E_BASE_URL` controls the base URL (defaults to `http://localhost:3000`).
+- `pnpm --filter @noteship/web test` skips unless `RUN_E2E=1`.
+- Use `RUN_E2E=1 pnpm --filter @noteship/web test` or `pnpm --filter @noteship/web test:e2e`.

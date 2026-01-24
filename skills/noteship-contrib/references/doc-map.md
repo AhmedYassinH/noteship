@@ -6,6 +6,7 @@
 - docs/contributing/CHANGE-TYPES-DECISION-MATRIX.md
 - docs/contributing/QUALITY-GATES.md
 - docs/contributing/AI-AND-HUMAN-CONTRIBUTING.md
+- docs/contributing/ENV-AND-SECRETS.md
 
 ## Architecture source of truth
 

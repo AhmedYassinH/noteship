@@ -1,0 +1,8 @@
+# Default owners (adjust as needed)
+* @AhmedYassinH
+
+# Examples by area (uncomment and customize)
+# /apps/web/ @frontend-owner
+# /apps/api/ @backend-owner
+# /apps/workers/ @backend-owner
+# /packages/infra/ @infra-owner

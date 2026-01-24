@@ -16,6 +16,7 @@ description: Cross-cutting Noteship contribution workflow for PR/test/change hyg
 - No broad refactors while fixing a bug.
 - Avoid over-mocking; prefer real integration boundaries when feasible.
 - If behavior is unclear, stop and ask for spec.
+- Use `.env.example` and `docs/contributing/ENV-AND-SECRETS.md` for local setup.
 
 ## Workflow (enforced)
 
@@ -35,7 +36,8 @@ Plan → Tests → Code → Run → Fix → Refactor → Run again
 - `pnpm test` (when test scripts exist)
 - `pnpm format`
 
-Do not claim done without green gates.
+For frontend E2E, run `pnpm --filter @noteship/web test:e2e` or `RUN_E2E=1 pnpm --filter @noteship/web test`.
+CI uses `.github/workflows/ci.yml`. Do not claim done without green gates.
 
 ## Required outputs
 

@@ -23,8 +23,9 @@ description: Build and maintain the Noteship REST API lambdas in apps/api, inclu
 
 - Keep diffs minimal; preserve public APIs unless asked.
 - Follow `docs/contributing/TESTING-STRATEGY.md` and `docs/contributing/CHANGE-TYPES-DECISION-MATRIX.md`.
+- Use `.env.example` and `docs/contributing/ENV-AND-SECRETS.md` for local setup.
 - Backend testing: unit tests for domain/use-cases, integration tests for I/O boundaries.
-- Run quality gates (`pnpm lint`, `pnpm build`, `pnpm test` when available, `pnpm format`).
+- Run quality gates (`pnpm lint`, `pnpm build`, `pnpm test` when available, `pnpm format`); CI uses `.github/workflows/ci.yml`.
 - If behavior is unclear or conflicts with HLD/LLD, stop and ask.
 
 ## Typical workflow
