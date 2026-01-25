@@ -1,6 +1,11 @@
 import * as cdk from "aws-cdk-lib";
 import { Duration, Stack, type StackProps } from "aws-cdk-lib";
-import { HttpApi, HttpMethod, HttpNoneAuthorizer } from "aws-cdk-lib/aws-apigatewayv2";
+import {
+  CorsHttpMethod,
+  HttpApi,
+  HttpMethod,
+  HttpNoneAuthorizer,
+} from "aws-cdk-lib/aws-apigatewayv2";
 import { HttpJwtAuthorizer } from "aws-cdk-lib/aws-apigatewayv2-authorizers";
 import { HttpLambdaIntegration } from "aws-cdk-lib/aws-apigatewayv2-integrations";
 import { Table } from "aws-cdk-lib/aws-dynamodb";
@@ -95,7 +100,7 @@ export class NoteshipApiStack extends Stack {
       defaultAuthorizer: jwtAuthorizer,
       corsPreflight: {
         allowHeaders: ["authorization", "content-type"],
-        allowMethods: [HttpMethod.ANY],
+        allowMethods: [CorsHttpMethod.ANY],
         allowOrigins: ["*"],
       },
     });
