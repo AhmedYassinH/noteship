@@ -17,6 +17,12 @@ aws sso login --profile noteship-dev
 setx AWS_PROFILE "noteship-dev"
 ```
 
+For the current shell session:
+
+```sh
+$env:AWS_PROFILE="noteship-dev"
+```
+
 ## 3) CDK bootstrap (per account/region)
 
 ```sh
@@ -24,20 +30,29 @@ cd packages/infra
 pnpm --filter @noteship/infra bootstrap -- -c env=dev -c region=us-east-1
 ```
 
-## 4) Deploy core + API stacks (dev)
+## 4) Deploy infra stacks (dev)
 
 ```sh
 cd packages/infra
 pnpm --filter @noteship/infra synth -- -c env=dev -c region=us-east-1
 cdk deploy NoteshipCore-dev -c env=dev -c region=us-east-1
+```
+
+Make sure the runtime env vars from `.env` are exported in your shell before deploying API/workers
+so the Lambda environment is populated.
+
+```sh
 cdk deploy NoteshipApi-dev -c env=dev -c region=us-east-1
+cdk deploy NoteshipWorkers-dev -c env=dev -c region=us-east-1
+cdk deploy NoteshipWeb-dev -c env=dev -c region=us-east-1
 ```
 
 ## 5) Local env vars
 
 - Copy `.env.example` to `.env` and populate values.
-- Use `docs/technical/deployment.md` as the authoritative list of required env vars.
+- Use `docs/technical/deployment.md` as the authoritative list of required env vars and secret keys.
 - For the web app, set `NEXT_PUBLIC_*` values for Auth0 SPA and `NEXT_PUBLIC_API_BASE_URL`.
+- For API/workers, set the runtime env vars listed in `.env.example`.
 
 ## 6) Run web locally
 
@@ -47,7 +62,20 @@ pnpm --filter @noteship/web dev
 
 Use the dev API URL from your deployed stack output as `NEXT_PUBLIC_API_BASE_URL`.
 
-## 7) Optional emulators (fast loops)
+## 7) API/workers local notes
+
+There is no local Lambda runtime harness yet. Use these for fast checks:
+
+```sh
+pnpm --filter @noteship/api build
+pnpm --filter @noteship/workers build
+pnpm --filter @noteship/api test
+pnpm --filter @noteship/workers test
+```
+
+For end-to-end verification, deploy to the dev stack and call the API.
+
+## 8) Optional emulators (fast loops)
 
 Emulators can help local testing but do not replace CDK deploys to AWS.
 

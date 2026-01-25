@@ -1,4 +1,4 @@
-# Noteship � Deployment & Infrastructure (CDK)
+# Noteship Deployment & Infrastructure (CDK)
 
 ## Purpose
 
@@ -17,12 +17,12 @@ Define deployable stacks and environment layout.
    - SQS jobs + DLQ
 2. `api-stack`
    - API Gateway (HTTP API) + Lambdas
-   - Auth0 JWT authorizer (issuer + audience)
+   - Auth0 JWT authorizer (issuer + audience from env vars)
    - Stripe webhook handler
-3. `workers-stack` (to be added)
+3. `workers-stack`
    - Worker Lambdas for embeddings/publish
    - Scheduled dispatcher Lambda (EventBridge rule, every minute) to enqueue due posts
-   - Permissions to S3/DDB/SQS/Secrets/Vector DB
+   - Permissions to S3/DDB/SQS/Vector DB
 4. `web-stack` (AWS hosting)
    - Next.js landing SSG + dashboard SPA on S3 + CloudFront (no SSR)
 

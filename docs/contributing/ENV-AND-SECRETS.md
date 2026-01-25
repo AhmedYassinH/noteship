@@ -1,6 +1,6 @@
 # Env and Secrets Hygiene
 
-This repo uses environment variables for local dev and a secret manager for deploys.
+This repo uses environment variables for local dev and deploys.
 Never commit secrets.
 
 ## Local development
@@ -11,7 +11,7 @@ Never commit secrets.
 
 ## Deployments
 
-- Store secrets in AWS Secrets Manager or SSM.
+- Provide runtime secrets via environment variables in the deployment environment.
 - Do not hardcode secrets in code or config files.
 - Rotate credentials if a secret is exposed.
 

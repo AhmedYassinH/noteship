@@ -13,8 +13,12 @@ Use `docs/technical/deployment.md` as the source of truth. This checklist mirror
 - [ ] Set CDK context `env=prod` and target AWS region.
 - [ ] Bootstrap the account/region if not already done.
 - [ ] Deploy core stack: `NoteshipCore-prod`.
+- [ ] Update `noteship/prod/runtime` secret values (Auth0 + integrations + LLM + Stripe).
 - [ ] Deploy API stack: `NoteshipApi-prod`.
+- [ ] Deploy Workers stack: `NoteshipWorkers-prod`.
+- [ ] Deploy Web stack: `NoteshipWeb-prod`.
 - [ ] Validate stack outputs (API URL, bucket/table names).
+- [ ] Confirm Auth0/Stripe/Qdrant/etc env vars are set in the shell before `cdk deploy` (see `docs/technical/deployment.md`).
 
 ## 3) DynamoDB production controls
 
@@ -35,6 +39,7 @@ Use `docs/technical/deployment.md` as the source of truth. This checklist mirror
 - [ ] Create/verify CloudFront distribution with OAC/OAI.
 - [ ] Configure SPA routing (403/404 to `/index.html`).
 - [ ] Set DNS + ACM certificate for the web domain.
+- [ ] Upload `apps/web/out` to the web bucket and invalidate CloudFront.
 
 ## 5) Auth0 setup (SPA auth: hosted UI + Google SSO + passwordless email)
 
@@ -63,7 +68,7 @@ Use `docs/technical/deployment.md` as the source of truth. This checklist mirror
 
 ## 6) Secrets and integrations
 
-- [ ] Validate Secrets Manager/SSM values for prod (Stripe, OAuth, Qdrant, LLM).
+- [ ] Validate prod environment variables (Stripe, OAuth, Qdrant, LLM).
 - [ ] Create Stripe webhook for prod events.
 - [ ] Create LinkedIn/Medium OAuth apps with prod redirect URIs.
 

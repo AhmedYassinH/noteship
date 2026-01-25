@@ -12,7 +12,7 @@ Related: `docs/technical/dev-environment.md`.
 
 ## Prerequisites
 
-- AWS CLI configured with an account that can create S3, DynamoDB, SQS, KMS/Secrets Manager.
+- AWS CLI configured with an account that can create S3, DynamoDB, SQS.
 - Node 18+, pnpm installed.
 - HLD/LLD followed: vector DB is external (e.g., Qdrant Cloud) and not provisioned here.
 
@@ -27,6 +27,12 @@ aws sso login --profile noteship-dev
 setx AWS_PROFILE "noteship-dev"
 ```
 
+For the current shell session, you can also set:
+
+```sh
+$env:AWS_PROFILE="noteship-dev"
+```
+
 ## CI status
 
 - GitHub Actions runs `pnpm lint`, `pnpm build`, `pnpm test`, and `pnpm format` on PRs/merges.
@@ -38,6 +44,14 @@ setx AWS_PROFILE "noteship-dev"
 cd packages/infra
 pnpm --filter @noteship/infra bootstrap -- -c env=dev -c region=us-east-1
 ```
+
+## Runtime configuration (env vars)
+
+All runtime configuration and credentials are provided via environment variables.
+See `.env.example` for the full list and defaults.
+
+Ensure the required env vars are set in your shell **before** running `cdk deploy` so Lambda
+environment variables are populated.
 
 ## Deploy core infra
 
@@ -60,17 +74,16 @@ Provisioned (aligns to HLD/LLD):
 - **Capacity mode:** Provisioned with auto scaling caps to stay within Always Free limits. Adjust caps for production traffic.
 - **PITR:** Disabled for cost control; enable for production (see `PRODUCTION-CHECKLIST.md`).
 
-## Config & secrets (store in Secrets Manager / SSM)
+## Config & secrets (env vars)
 
-Backend/API & workers expect (examples):
+API + workers read runtime config from env vars. Required keys:
 
-- `CONTENT_BUCKET_NAME`, `USERS_TABLE_NAME`, `NOTES_TABLE_NAME`, `POSTS_TABLE_NAME`, `INTEGRATIONS_TABLE_NAME`, `USAGE_TABLE_NAME`, `JOBS_TABLE_NAME`, `JOBS_QUEUE_URL`
+- Infra: `NOTESHIP_CONTENT_BUCKET_NAME`, `NOTESHIP_USERS_TABLE_NAME`, `NOTESHIP_NOTES_TABLE_NAME`, `NOTESHIP_POSTS_TABLE_NAME`, `NOTESHIP_INTEGRATIONS_TABLE_NAME`, `NOTESHIP_USAGE_TABLE_NAME`, `NOTESHIP_JOBS_TABLE_NAME`, `NOTESHIP_JOBS_QUEUE_URL`
 - Auth0 (JWT authorizer): `AUTH0_ISSUER_BASE_URL`, `AUTH0_AUDIENCE`
-- Vector DB: `VECTOR_DB_PROVIDER` (default `qdrant`), `QDRANT_URL`, `QDRANT_API_KEY`, `QDRANT_COLLECTION`
-- Billing: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_PRO_MONTHLY`, `STRIPE_PRICE_PRO_YEARLY`
-- OAuth: `LINKEDIN_CLIENT_ID/SECRET`, `MEDIUM_CLIENT_ID/SECRET`
-- AI: `LLM_PROVIDER` (default `openai`), `OPENAI_API_KEY`, `OPENAI_EMBED_MODEL`, `OPENAI_DRAFT_MODEL`
-- KMS key/secret names if using envelope encryption for tokens
+- Vector DB: `QDRANT_URL`, `QDRANT_COLLECTION`, optional `QDRANT_API_KEY`
+- Billing: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, optional `STRIPE_PRICE_PRO_MONTHLY`, `STRIPE_PRICE_PRO_YEARLY`
+- OAuth: `LINKEDIN_CLIENT_ID`, `LINKEDIN_CLIENT_SECRET`, `MEDIUM_CLIENT_ID`, `MEDIUM_CLIENT_SECRET`
+- AI: `OPENAI_API_KEY`, `OPENAI_EMBED_MODEL`, `OPENAI_DRAFT_MODEL`, optional `NOTESHIP_LLM_PROVIDER`, `NOTESHIP_VECTOR_DB_PROVIDER`
 
 ## Frontend deployment (Next.js SSG + SPA, no SSR)
 
@@ -88,6 +101,15 @@ pnpm --filter @noteship/web export
 - Static assets are fine on CloudFront/S3; SSR is not required for MVP.
 - Fonts/brand: serve IBM Plex Sans/Arabic (app) and Lora/Noto Naskh (marketing headlines) per `docs/brand/noteship-typography.md`; ensure Arabic locale builds set `dir="rtl"` on rendered pages.
 
+Manual steps to deploy assets (use `NoteshipWeb` stack outputs for bucket/distribution):
+
+```sh
+aws s3 sync apps/web/out s3://YOUR_BUCKET_NAME --delete
+aws cloudfront create-invalidation --distribution-id YOUR_DISTRIBUTION_ID --paths "/*"
+```
+
+Then invalidate CloudFront to pick up new assets.
+
 ### Frontend env vars (SPA Auth0)
 
 - `NEXT_PUBLIC_AUTH0_DOMAIN`
@@ -102,14 +124,10 @@ Note: `NEXT_PUBLIC_AUTH0_DOMAIN` should be the Auth0 tenant domain without the `
 
 ## API deployment (Auth0 required)
 
-Set Auth0 config in your shell before deploying:
+Ensure `AUTH0_ISSUER_BASE_URL` and `AUTH0_AUDIENCE` are set before deploying.
+If you rotate Auth0 settings later, redeploy the API stack so the authorizer picks up the change.
 
-```sh
-setx AUTH0_ISSUER_BASE_URL "https://your-tenant.us.auth0.com"
-setx AUTH0_AUDIENCE "https://api.noteship.com"
-```
-
-Then deploy the API stack:
+Deploy the API stack:
 
 ```sh
 cd packages/infra
@@ -131,9 +149,30 @@ Ensure:
   - API (audience per env)
 - Configure Allowed Callback URLs (e.g., `https://app.noteship.com/callback`) and Allowed Logout URLs (e.g., `https://app.noteship.com`).
 
-## Workers deployment (not yet wired)
+Concrete setup steps:
 
-- Worker stack is still TODO (see `packages/infra/README.md`).
+1. Create a **Single Page Application** in Auth0 for Noteship Web (per env).
+2. Add allowed callback/logout/web origin URLs for the env domain.
+3. Enable Google social connection for the SPA app.
+4. Enable Passwordless Email and configure an email provider.
+5. Create an **API** (Resource Server) per env; set Identifier to API URL.
+6. Copy Domain + Client ID into web env vars; copy Issuer/Audience into API env vars.
+
+## Workers deployment
+
+```sh
+cd packages/infra
+cdk deploy NoteshipWorkers-dev -c env=dev -c region=us-east-1
+```
+
+## Web stack deployment (AWS hosting)
+
+```sh
+cd packages/infra
+cdk deploy NoteshipWeb-dev -c env=dev -c region=us-east-1
+```
+
+The stack outputs the web bucket name and CloudFront distribution ID used in the asset deploy steps above.
 
 ## Post-deploy steps
 
@@ -141,6 +180,13 @@ Ensure:
 - Create LinkedIn/Medium OAuth apps; set redirect URIs; store secrets.
 - Seed plan entitlements consistent with `packages/domain/src/plans.ts`.
 - Set CloudWatch alarms for DLQ message count.
+
+## Local API/workers
+
+There is no local Lambda runtime harness yet. For now:
+
+- Build and typecheck with `pnpm --filter @noteship/api build` and `pnpm --filter @noteship/workers build`.
+- Validate behavior by deploying to the dev stack and calling the API.
 
 ## Rollback & cleanup
 

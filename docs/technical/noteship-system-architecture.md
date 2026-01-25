@@ -43,7 +43,7 @@ flowchart LR
     WORKER["Lambda Workers<br/>Async processing"]
     EB["EventBridge (optional)<br/>Events routing"]
     CW["CloudWatch Logs/Metrics"]
-    SM["Secrets Manager / KMS<br/>Tokens + Secrets"]
+    SM["Env vars / KMS (optional)<br/>Tokens + Secrets"]
   end
 
   subgraph External["External Services"]
@@ -344,7 +344,7 @@ Details: `docs/technical/detailed/15-deployment-and-infrastructure.md`.
   - S3 + CloudFront for artifacts/content delivery
   - DynamoDB
   - SQS + workers
-  - Secrets Manager/KMS
+  - Env vars / KMS (optional)
 
 ### Deployment diagram (topology)
 
@@ -364,7 +364,7 @@ flowchart LR
     DDB["DynamoDB"]
     SQS["SQS"]
     W["Worker Lambdas"]
-    SM["Secrets Manager/KMS"]
+    SM["Env vars / KMS (optional)"]
     CW["CloudWatch"]
   end
 

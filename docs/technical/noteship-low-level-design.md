@@ -16,7 +16,7 @@
 - **Async jobs:** SQS + worker Lambdas (+ DLQ)
 - **Billing:** Stripe
 - **Entitlements:** Derived from internal plan config; enforced server-side
-- **Editor:** TipTap (ProseMirror) → serialize to Markdown for storage
+- **Editor:** TipTap (ProseMirror) -> serialize to Markdown for storage
 
 Details: `docs/technical/detailed/03-mvp-scope-and-feature-definition.md`, `docs/technical/detailed/05-functional-requirements.md`.
 
@@ -141,7 +141,7 @@ Attributes:
 - `accountId` (vendor account identifier/URN)
 - `status` (connected|revoked|error)
 - `scopes[]`, `connectedAt`, `updatedAt`
-- `tokenRef` (pointer to Secrets Manager) OR encrypted token blob
+- `tokenRef` (future Secrets Manager pointer) OR encrypted token blob
 - provider metadata (e.g., LinkedIn person URN)
 
 #### Table: `Usage`
@@ -207,8 +207,8 @@ Always filter by `userId` (multi-tenant isolation).
 
 - Compute `embeddingVersion` as content hash of normalized text OR use S3 `versionId`.
 - On note update:
-  - If version unchanged → skip embedding job
-  - If changed → embed and upsert new points; delete old version points for note
+  - If version unchanged -> skip embedding job
+  - If changed -> embed and upsert new points; delete old version points for note
 
 ---
 
@@ -419,7 +419,7 @@ Conceptual:
 
 - Webhook ingestion endpoint (preferred)
 - Polling job (fallback)
-- Normalize vendor payload → internal note markdown
+- Normalize vendor payload -> internal note markdown
 - Trigger embedding job automatically
 
 ---
@@ -448,7 +448,7 @@ Webhook handler rules:
 - Update `Users` subscription fields (denormalized)
 - Persist subscription record if you choose (optional)
 
-### 8.3 Plan → entitlements mapping (MVP)
+### 8.3 Plan -> entitlements mapping (MVP)
 
 - Keep entitlements in code config (JSON/TS) for MVP to avoid admin tooling.
 - Types:
@@ -479,9 +479,8 @@ Webhook handler rules:
 Details: `docs/technical/detailed/06-non-functional-requirements.md`.
 
 - Vendor tokens must never reach frontend.
-- Store tokens encrypted:
-  - Secrets Manager (preferred) OR
-  - DynamoDB encrypted attribute with KMS (acceptable)
+- Store tokens encrypted at rest (KMS or encrypted fields).
+- API/workers load runtime config (LLM, OAuth, billing, vector DB) from env vars.
 - S3 access:
   - Prefer access through backend (signed URLs only if needed)
 - Multi-tenant:
@@ -514,7 +513,7 @@ Details: `docs/technical/detailed/16-testing-and-quality-strategy.md`.
 
 - entitlement checks
 - chunking logic
-- mapping functions (internal → vendor payload)
+- mapping functions (internal -> vendor payload)
 
 **Integration tests**
 

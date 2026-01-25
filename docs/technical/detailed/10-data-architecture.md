@@ -62,7 +62,7 @@ Bucket settings:
 - Attributes:
   - `provider`, `accountId`, `status`
   - `scopes[]`, `connectedAt`, `updatedAt`
-  - `tokenRef` (Secrets Manager pointer) or encrypted token blob
+  - `tokenRef` (future Secrets Manager pointer) or encrypted token blob
   - provider identifiers (URNs, usernames)
 
 ### Table: Usage
