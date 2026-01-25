@@ -9,6 +9,7 @@
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
     "test": "vitest run --passWithNoTests"
   },
+  "dependencies": {},
   "devDependencies": {
     "typescript": "^5.8.3"
   }
