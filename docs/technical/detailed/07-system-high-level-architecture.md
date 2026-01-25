@@ -7,7 +7,8 @@ Describe major components, boundaries, and data flows.
 ## Components
 
 - Next.js web app (landing + dashboard)
-- API Gateway + Lambda (REST)
+- API Gateway (HTTP API) + Lambda
+- Auth0 JWT authorizer (hosted login, Google SSO, passwordless email)
 - DynamoDB (metadata, posts, integration accounts, usage)
 - S3 (Markdown notes + artifacts)
 - SQS + Lambda workers (publishing, embedding)
