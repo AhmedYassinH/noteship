@@ -6,25 +6,25 @@ See `docs/technical/deployment.md` and `docs/technical/detailed/15-deployment-an
 ## Current
 
 - Core stack: S3 content bucket, DynamoDB tables, SQS + DLQ.
+- API stack: HTTP API + Lambda handlers + Auth0 JWT authorizer.
+
+### Required env for API stack
+
+- `AUTH0_ISSUER_BASE_URL`
+- `AUTH0_AUDIENCE`
 
 ## TODO (wiring plan)
 
-1. **api-stack**
-   - API Gateway + Lambda handlers.
-   - JWT authorizer integration.
-   - Stripe webhook handler.
-   - Permissions: S3/DDB/SQS/Secrets/Vector DB.
-
-2. **workers-stack**
+1. **workers-stack**
    - Worker Lambdas for embedding + publish.
    - Scheduled dispatcher Lambda (EventBridge rule, every minute).
    - Permissions: S3/DDB/SQS/Secrets/Vector DB.
 
-3. **web-stack** (if AWS hosting)
+2. **web-stack** (if AWS hosting)
    - CloudFront + S3 for landing.
    - Next.js SPA hosting strategy if AWS-only.
 
-4. **Observability**
+3. **Observability**
    - CloudWatch alarms for DLQ and job failure spikes.
 
 ## Non-goals (MVP)
