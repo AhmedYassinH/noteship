@@ -1,6 +1,8 @@
 # Deployment Guide (Noteship)
 
-Use this as the source of truth for deploying infrastructure and apps. Update it when deployment steps or configuration change.
+Use this as the source of truth for deploying infrastructure and apps. Update it when deployment steps or configuration change. Dev and production runbooks should mirror this doc.
+
+Related: `docs/technical/dev-environment.md`.
 
 ## Environments & naming
 
@@ -13,6 +15,17 @@ Use this as the source of truth for deploying infrastructure and apps. Update it
 - AWS CLI configured with an account that can create S3, DynamoDB, SQS, KMS/Secrets Manager.
 - Node 18+, pnpm installed.
 - HLD/LLD followed: vector DB is external (e.g., Qdrant Cloud) and not provisioned here.
+
+## AWS authentication (SSO + profiles)
+
+- Configure a named profile via AWS SSO (recommended for personal accounts).
+- Example:
+
+```sh
+aws configure sso
+aws sso login --profile noteship-dev
+setx AWS_PROFILE "noteship-dev"
+```
 
 ## CI status
 
@@ -59,13 +72,33 @@ Backend/API & workers expect (examples):
 - AI: `LLM_PROVIDER` (default `openai`), `OPENAI_API_KEY`, `OPENAI_EMBED_MODEL`, `OPENAI_DRAFT_MODEL`
 - KMS key/secret names if using envelope encryption for tokens
 
-## Frontend deployment (Next.js)
+## Frontend deployment (Next.js SSG + SPA, no SSR)
 
-- Intent: SPA dashboard + SSG landing.
-- Preferred: Vercel (fastest) — set env vars: `NEXT_PUBLIC_API_BASE_URL`, `NEXT_PUBLIC_ENV=dev|prod`, and Auth0 values (`AUTH0_BASE_URL`, `AUTH0_ISSUER_BASE_URL`, `AUTH0_CLIENT_ID`, `AUTH0_CLIENT_SECRET`, `AUTH0_SECRET`, `AUTH0_AUDIENCE`).
-- AWS option: `next build && next export` for landing pages to S3+CloudFront; dashboard as SPA served from same distribution pointing to built `.next` output via Next-on-AWS pattern (not yet scaffolded).
+- Intent: SPA dashboard + SSG landing, hosted on AWS only.
+- Build/export:
+
+```sh
+pnpm --filter @noteship/web build
+pnpm --filter @noteship/web export
+```
+
+- Upload `apps/web/out` to S3 and serve via CloudFront.
+- Configure CloudFront to route 403/404 to `/index.html` for SPA routes.
+- No Next.js API routes, server actions, or middleware in this setup.
 - Static assets are fine on CloudFront/S3; SSR is not required for MVP.
 - Fonts/brand: serve IBM Plex Sans/Arabic (app) and Lora/Noto Naskh (marketing headlines) per `docs/brand/noteship-typography.md`; ensure Arabic locale builds set `dir="rtl"` on rendered pages.
+
+### Frontend env vars (SPA Auth0)
+
+- `NEXT_PUBLIC_AUTH0_DOMAIN`
+- `NEXT_PUBLIC_AUTH0_CLIENT_ID`
+- `NEXT_PUBLIC_AUTH0_AUDIENCE`
+- `NEXT_PUBLIC_AUTH0_REDIRECT_URI` (e.g., `https://app.noteship.com/callback`)
+- `NEXT_PUBLIC_AUTH0_LOGOUT_REDIRECT_URI` (e.g., `https://app.noteship.com`)
+- `NEXT_PUBLIC_API_BASE_URL`
+- `NEXT_PUBLIC_ENV`
+
+Note: `NEXT_PUBLIC_AUTH0_DOMAIN` should be the Auth0 tenant domain without the `https://` prefix.
 
 ## API deployment (Auth0 required)
 
@@ -87,6 +120,16 @@ Ensure:
 
 - API uses Auth0 JWT authorizer (issuer + audience) and writes to provisioned tables/bucket.
 - Stripe webhook endpoint is deployed and wired with secrets.
+
+## Auth0 (SPA flow)
+
+- Use Auth0 SPA SDK (PKCE) with hosted Universal Login.
+- Token storage: browser localStorage (simple, higher XSS risk). Keep strict CSP and avoid inline scripts.
+- Silent auth requires Allowed Web Origins to include the app URL(s).
+- Create separate Auth0 apps and APIs per env (dev/prod) inside one tenant:
+  - SPA application (client ID per env)
+  - API (audience per env)
+- Configure Allowed Callback URLs (e.g., `https://app.noteship.com/callback`) and Allowed Logout URLs (e.g., `https://app.noteship.com`).
 
 ## Workers deployment (not yet wired)
 

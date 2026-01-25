@@ -336,15 +336,15 @@ Details: `docs/technical/detailed/15-deployment-and-infrastructure.md`.
 
 ### Hosting choices (recommended for MVP)
 
-- **Next.js on Vercel** for speed and simplicity (AWS backend remains core)
+- **AWS-only** hosting for the web app:
+  - S3 + CloudFront for landing (SSG) and dashboard (SPA)
+  - No SSR, no Next API routes
 - AWS hosts:
   - API Gateway + Lambda
   - S3 + CloudFront for artifacts/content delivery
   - DynamoDB
   - SQS + workers
   - Secrets Manager/KMS
-
-> If AWS-only hosting is required later: move Next SSR to AWS using a known-good deployment pattern; do not hand-roll.
 
 ### Deployment diagram (topology)
 
@@ -354,11 +354,9 @@ flowchart LR
     B["Web App"]
   end
 
-  subgraph Vercel["Vercel (MVP)"]
-    NX["Next.js App<br/>Landing + Dashboard"]
-  end
-
   subgraph AWS["AWS"]
+    CFWEB["CloudFront (Web)"]
+    S3WEB["S3 (Web Assets)"]
     APIGW["API Gateway"]
     LAPI["Lambda API"]
     S3["S3 Content"]
@@ -378,8 +376,9 @@ flowchart LR
     LLM["LLM Provider"]
   end
 
-  B --> NX
-  NX --> APIGW --> LAPI
+  B --> CFWEB
+  CFWEB --> S3WEB
+  B --> APIGW --> LAPI
   LAPI --> DDB
   LAPI --> S3
   LAPI --> SQS
@@ -395,7 +394,7 @@ flowchart LR
   W --> SM
   LAPI --> CW
   W --> CW
-  S3 --> CF --> NX
+  S3 --> CF --> CFWEB
 ```
 
 ---

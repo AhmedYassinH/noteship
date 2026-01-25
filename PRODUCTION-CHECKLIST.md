@@ -1,30 +1,49 @@
 # Production Deployment Checklist
 
-- [ ] Set CDK context `env=prod` and the target AWS region.
-- [ ] Enable DynamoDB PITR for all tables (disabled in MVP for cost control).
+Use `docs/technical/deployment.md` as the source of truth. This checklist mirrors the critical production steps.
+
+## 1) Pre-flight
+
+- [ ] Confirm `docs/technical/deployment.md` reflects the latest deployment steps.
+- [ ] Confirm AWS SSO profile for prod access is configured.
+- [ ] Confirm tagging strategy (same AWS account, env tags for prod).
+
+## 2) Core infrastructure (CDK)
+
+- [ ] Set CDK context `env=prod` and target AWS region.
+- [ ] Bootstrap the account/region if not already done.
+- [ ] Deploy core stack: `NoteshipCore-prod`.
+- [ ] Deploy API stack: `NoteshipApi-prod`.
+- [ ] Validate stack outputs (API URL, bucket/table names).
+
+## 3) DynamoDB production controls
+
+- [ ] Enable PITR for all tables (disabled in MVP for cost control).
 - [ ] Update docs after enabling PITR:
   - `docs/technical/noteship-low-level-design.md`
   - `docs/technical/detailed/10-data-architecture.md`
   - `docs/technical/deployment.md`
-- [ ] Review DynamoDB provisioned auto scaling caps (MVP caps keep Always Free limits); raise for production traffic.
+- [ ] Review provisioned auto scaling caps; raise for expected production traffic.
 - [ ] Update docs after changing caps:
   - `docs/technical/noteship-low-level-design.md`
   - `docs/technical/detailed/10-data-architecture.md`
   - `docs/technical/deployment.md`
-- [ ] Review S3 lifecycle/retention and versioning costs.
-- [ ] Configure AWS Budgets + alerts; confirm kill switch procedure (see `KILL-SWITCH.md`).
-- [ ] Validate Secrets Manager/SSM values for prod.
-- [ ] Verify CloudWatch alarms (DLQ, DynamoDB throttles, cost/budget alerts).
 
-## Auth0 setup (MVP auth: hosted UI + Google SSO + passwordless email)
+## 4) Web hosting (AWS S3 + CloudFront)
 
-- [ ] Create Auth0 tenant for `prod` (separate from dev).
-- [ ] Create **Regular Web App** (Noteship Web) and record:
+- [ ] Create/verify web hosting S3 bucket (public access blocked).
+- [ ] Create/verify CloudFront distribution with OAC/OAI.
+- [ ] Configure SPA routing (403/404 to `/index.html`).
+- [ ] Set DNS + ACM certificate for the web domain.
+
+## 5) Auth0 setup (SPA auth: hosted UI + Google SSO + passwordless email)
+
+- [ ] Use a single Auth0 tenant with separate dev/prod apps and APIs.
+- [ ] Create **SPA application** (Noteship Web, prod) and record:
   - [ ] Auth0 Domain
   - [ ] Client ID
-  - [ ] Client Secret (store in AWS Secrets Manager; do not ship to browser)
 - [ ] Configure app URLs:
-  - [ ] Allowed Callback URLs (e.g., `https://app.noteship.com/api/auth/callback`)
+  - [ ] Allowed Callback URLs (e.g., `https://app.noteship.com/callback`)
   - [ ] Allowed Logout URLs (e.g., `https://app.noteship.com`)
   - [ ] Allowed Web Origins (e.g., `https://app.noteship.com`)
 - [ ] Enable **Google** social connection:
@@ -39,5 +58,22 @@
   - [ ] Identifier (audience) set to API URL (e.g., `https://api.noteship.com`)
   - [ ] Token signing algorithm = RS256
 - [ ] Wire prod environment variables:
-  - [ ] Web: `AUTH0_BASE_URL`, `AUTH0_ISSUER_BASE_URL`, `AUTH0_CLIENT_ID`, `AUTH0_CLIENT_SECRET`, `AUTH0_SECRET`, `AUTH0_AUDIENCE`, `NEXT_PUBLIC_API_BASE_URL`
+  - [ ] Web: `NEXT_PUBLIC_AUTH0_DOMAIN`, `NEXT_PUBLIC_AUTH0_CLIENT_ID`, `NEXT_PUBLIC_AUTH0_AUDIENCE`, `NEXT_PUBLIC_AUTH0_REDIRECT_URI`, `NEXT_PUBLIC_AUTH0_LOGOUT_REDIRECT_URI`, `NEXT_PUBLIC_API_BASE_URL`, `NEXT_PUBLIC_ENV`
   - [ ] API/Infra: `AUTH0_ISSUER_BASE_URL`, `AUTH0_AUDIENCE`
+
+## 6) Secrets and integrations
+
+- [ ] Validate Secrets Manager/SSM values for prod (Stripe, OAuth, Qdrant, LLM).
+- [ ] Create Stripe webhook for prod events.
+- [ ] Create LinkedIn/Medium OAuth apps with prod redirect URIs.
+
+## 7) Observability + cost guardrails
+
+- [ ] Verify CloudWatch alarms (DLQ, DynamoDB throttles, API errors).
+- [ ] Configure AWS Budgets + alerts; confirm kill switch procedure (see `KILL-SWITCH.md`).
+- [ ] Review S3 lifecycle/retention and versioning costs.
+
+## 8) Smoke checks
+
+- [ ] Web login/logout works in production.
+- [ ] `/me` returns expected data when called with a prod token.

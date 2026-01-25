@@ -11,7 +11,7 @@ Define the Next.js structure, state management, and integration points.
 - Component library: shadcn/ui or similar
 - Data fetching: TanStack Query
 - Validation: zod schemas shared with backend
-- Auth: Auth0 Universal Login (hosted) with Google SSO + passwordless email
+- Auth: Auth0 Universal Login (hosted) with Google SSO + passwordless email, SPA PKCE flow (no SSR)
 - i18n: English + Arabic (RTL/LTR) following brand rules (`docs/brand/noteship-language-guidelines.md`, `docs/brand/noteship-layout-rtl-ltr.md`, `docs/brand/noteship-typography.md`)
 - Formatting: Prettier (repo-wide) with opinionated defaults; run `pnpm prettier --write .` after changes.
 
@@ -21,7 +21,7 @@ Define the Next.js structure, state management, and integration points.
 - `components/ui/` primitives
 - `components/features/` feature modules (Notes, Search, Publish, Billing)
 - `lib/api/` API clients
-- `lib/auth/` auth helpers
+- `lib/auth-spa.ts` auth helpers
 - `lib/entitlements/` gating helpers
 - `stores/` (only if needed; prefer Query + local state)
 - `data/` localized public-page copy (`landing.ts` etc.) exporting `{ en, ar }` payloads including locale-specific images
@@ -32,6 +32,12 @@ Define the Next.js structure, state management, and integration points.
 - UI derives:
   - hide vs disable + upsell
 - Backend always enforces
+
+## Auth notes (SPA)
+
+- Use Auth0 SPA SDK with PKCE.
+- Tokens stored in localStorage (simple, higher XSS risk); enforce strict CSP and avoid inline scripts.
+- Silent auth requires Allowed Web Origins to include the app URL(s).
 
 ## Editor
 

@@ -23,14 +23,14 @@ Define deployable stacks and environment layout.
    - Worker Lambdas for embeddings/publish
    - Scheduled dispatcher Lambda (EventBridge rule, every minute) to enqueue due posts
    - Permissions to S3/DDB/SQS/Secrets/Vector DB
-4. `web-stack` (if hosting on AWS)
-   - Next.js landing SSG + dashboard SPA (Vercel preferred otherwise)
+4. `web-stack` (AWS hosting)
+   - Next.js landing SSG + dashboard SPA on S3 + CloudFront (no SSR)
 
 ## Notes on Next.js hosting
 
 - Landing pages: SSG
 - Dashboard: SPA strategy
-- Preferred: Vercel. If AWS-only, use S3/CloudFront for SSG and a proven Next-on-AWS pattern for the SPA.
+- AWS only: S3 + CloudFront with SPA fallback to `/index.html`
 
 ## Observability
 
