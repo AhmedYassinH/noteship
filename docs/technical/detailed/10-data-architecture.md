@@ -30,19 +30,19 @@ Bucket settings:
 ### Table: Notes
 
 - PK: `userId`
-- SK: `NOTE#{noteId}`
+- SK: `noteId`
 - Attributes:
   - `noteId`, `title`, `tags[]`, `createdAt`, `updatedAt`
   - `s3Key`, `contentHash`, `embeddingStatus`, `embeddingVersion`
   - `editorFormat` (tiptap/markdown) (optional)
 - Indexes:
-  - GSI1: `GSI1PK = userId`, `GSI1SK = UPDATED#{updatedAt}`
+  - GSI1 (ByUpdatedAt): `userId` (PK), `updatedAt` (SK, ISO string)
   - Optional tag index later (avoid premature complexity)
 
 ### Table: Posts
 
 - PK: `userId`
-- SK: `POST#{postId}`
+- SK: `postId`
 - Attributes:
   - `postId`, `noteId` (source)
   - `provider` (linkedin/medium)
@@ -52,13 +52,13 @@ Bucket settings:
   - `error` (lastErrorCode/message) nullable
   - `createdAt`, `updatedAt`
 - Indexes:
-  - GSI1: `GSI1PK = userId`, `GSI1SK = STATUS#{status}#UPDATED#{updatedAt}`
-  - GSI2: `GSI2PK = STATUS#scheduled`, `GSI2SK = SCHEDULE#{scheduledAt}`
+  - GSI1 (ByStatusUpdatedAt): `userId` (PK), `statusUpdatedAt` (SK, `${status}#${updatedAt}`)
+  - GSI2 (BySchedule): `scheduleStatus` (PK, value `scheduled`), `scheduledAt` (SK, ISO string)
 
 ### Table: IntegrationAccounts
 
 - PK: `userId`
-- SK: `INTEGRATION#{provider}#{accountId}`
+- SK: `providerAccountId` (e.g., `${provider}#${accountId}`)
 - Attributes:
   - `provider`, `accountId`, `status`
   - `scopes[]`, `connectedAt`, `updatedAt`
@@ -68,7 +68,7 @@ Bucket settings:
 ### Table: Usage
 
 - PK: `userId`
-- SK: `PERIOD#{YYYY-MM}`
+- SK: `period` (`YYYY-MM`)
 - Attributes:
   - `aiGenerationsUsed`, `scheduledPostsUsed`
   - `postsPublished` (optional; analytics)
@@ -77,7 +77,7 @@ Bucket settings:
 ### Table: Jobs (optional)
 
 - PK: `userId`
-- SK: `JOB#{jobId}`
+- SK: `jobId`
 - Attributes:
   - `type` (EMBED_NOTE|PUBLISH_POST|IMPORT_NOTE)
   - `status` (queued|running|succeeded|failed)

@@ -47,50 +47,50 @@ export class NoteshipCoreStack extends Stack {
 
     const notesTable = this.createTable("NotesTable", {
       tableName: `noteship-notes-${envName}`,
-      partitionKey: { name: "pk", type: AttributeType.STRING },
-      sortKey: { name: "sk", type: AttributeType.STRING },
+      partitionKey: { name: "userId", type: AttributeType.STRING },
+      sortKey: { name: "noteId", type: AttributeType.STRING },
     });
     notesTable.addGlobalSecondaryIndex({
       indexName: "GSI1",
-      partitionKey: { name: "GSI1PK", type: AttributeType.STRING },
-      sortKey: { name: "GSI1SK", type: AttributeType.STRING },
+      partitionKey: { name: "userId", type: AttributeType.STRING },
+      sortKey: { name: "updatedAt", type: AttributeType.STRING },
       projectionType: ProjectionType.ALL,
     });
 
     const postsTable = this.createTable("PostsTable", {
       tableName: `noteship-posts-${envName}`,
-      partitionKey: { name: "pk", type: AttributeType.STRING },
-      sortKey: { name: "sk", type: AttributeType.STRING },
+      partitionKey: { name: "userId", type: AttributeType.STRING },
+      sortKey: { name: "postId", type: AttributeType.STRING },
     });
     postsTable.addGlobalSecondaryIndex({
-      indexName: "GSIStatus",
-      partitionKey: { name: "GSI1PK", type: AttributeType.STRING },
-      sortKey: { name: "GSI1SK", type: AttributeType.STRING },
+      indexName: "GSI1",
+      partitionKey: { name: "userId", type: AttributeType.STRING },
+      sortKey: { name: "statusUpdatedAt", type: AttributeType.STRING },
       projectionType: ProjectionType.ALL,
     });
     postsTable.addGlobalSecondaryIndex({
-      indexName: "GSISchedule",
-      partitionKey: { name: "GSI2PK", type: AttributeType.STRING },
-      sortKey: { name: "GSI2SK", type: AttributeType.STRING },
+      indexName: "GSI2",
+      partitionKey: { name: "scheduleStatus", type: AttributeType.STRING },
+      sortKey: { name: "scheduledAt", type: AttributeType.STRING },
       projectionType: ProjectionType.ALL,
     });
 
     const integrationsTable = this.createTable("IntegrationsTable", {
       tableName: `noteship-integrations-${envName}`,
-      partitionKey: { name: "pk", type: AttributeType.STRING },
-      sortKey: { name: "sk", type: AttributeType.STRING },
+      partitionKey: { name: "userId", type: AttributeType.STRING },
+      sortKey: { name: "providerAccountId", type: AttributeType.STRING },
     });
 
     const usageTable = this.createTable("UsageTable", {
       tableName: `noteship-usage-${envName}`,
-      partitionKey: { name: "pk", type: AttributeType.STRING },
-      sortKey: { name: "sk", type: AttributeType.STRING },
+      partitionKey: { name: "userId", type: AttributeType.STRING },
+      sortKey: { name: "period", type: AttributeType.STRING },
     });
 
     const jobsTable = this.createTable("JobsTable", {
       tableName: `noteship-jobs-${envName}`,
-      partitionKey: { name: "pk", type: AttributeType.STRING },
-      sortKey: { name: "sk", type: AttributeType.STRING },
+      partitionKey: { name: "userId", type: AttributeType.STRING },
+      sortKey: { name: "jobId", type: AttributeType.STRING },
     });
 
     const dlq = new Queue(this, "JobsDlq", {

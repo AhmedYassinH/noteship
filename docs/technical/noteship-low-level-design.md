@@ -98,8 +98,8 @@ Attributes:
 
 #### Table: `Notes`
 
-Partition key: `pk = userId`
-Sort key: `sk = NOTE#{noteId}`
+Partition key: `userId`
+Sort key: `noteId`
 Attributes:
 
 - `noteId`, `title`, `tags[]`
@@ -108,13 +108,13 @@ Attributes:
 - `embeddingVersion` (hash or S3 versionId)
 - `editorFormat` (tiptap/markdown) (optional; default markdown)
   Indexes:
-- GSI1: `GSI1PK = userId`, `GSI1SK = UPDATED#{updatedAt}` for listing latest notes
+- GSI1 (ByUpdatedAt): `userId` (PK), `updatedAt` (SK, ISO string) for listing latest notes
 - Optional tag index later (avoid premature complexity)
 
 #### Table: `Posts`
 
-Partition key: `pk = userId`
-Sort key: `sk = POST#{postId}`
+Partition key: `userId`
+Sort key: `postId`
 Attributes:
 
 - `postId`, `noteId` (source)
@@ -126,13 +126,13 @@ Attributes:
 - `error` (lastErrorCode/message) nullable
 - `createdAt`, `updatedAt`
   Indexes:
-- GSI1: `GSI1PK = userId`, `GSI1SK = STATUS#{status}#UPDATED#{updatedAt}`
-- GSI2: `GSI2PK = STATUS#scheduled`, `GSI2SK = SCHEDULE#{scheduledAt}` (for scheduler dispatcher)
+- GSI1 (ByStatusUpdatedAt): `userId` (PK), `statusUpdatedAt` (SK, `${status}#${updatedAt}`)
+- GSI2 (BySchedule): `scheduleStatus` (PK, value `scheduled`), `scheduledAt` (SK, ISO string) (for scheduler dispatcher)
 
 #### Table: `IntegrationAccounts`
 
-Partition key: `pk = userId`
-Sort key: `sk = INTEGRATION#{provider}#{accountId}`
+Partition key: `userId`
+Sort key: `providerAccountId` (e.g., `${provider}#${accountId}`)
 Attributes:
 
 - `provider` (linkedin|medium|...)
@@ -144,8 +144,8 @@ Attributes:
 
 #### Table: `Usage`
 
-Partition key: `pk = userId`
-Sort key: `sk = PERIOD#{YYYY-MM}`
+Partition key: `userId`
+Sort key: `period` (`YYYY-MM`)
 Attributes:
 
 - `aiGenerationsUsed`
@@ -157,8 +157,8 @@ Attributes:
 #### Table: `Jobs` (optional, recommended)
 
 If you want observable job history beyond SQS:
-Partition key: `pk = userId`
-Sort key: `sk = JOB#{jobId}`
+Partition key: `userId`
+Sort key: `jobId`
 Attributes:
 
 - `type` (EMBED_NOTE|PUBLISH_POST|IMPORT_NOTE)
