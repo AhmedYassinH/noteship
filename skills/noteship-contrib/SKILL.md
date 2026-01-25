@@ -17,6 +17,7 @@ description: Cross-cutting Noteship contribution workflow for PR/test/change hyg
 - Avoid over-mocking; prefer real integration boundaries when feasible.
 - If behavior is unclear, stop and ask for spec.
 - Use `.env.example` and `docs/contributing/ENV-AND-SECRETS.md` for local setup.
+- Use Conventional Commits for commit messages.
 
 ## Workflow (enforced)
 
