@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata = {
   title: "Noteship",
-  description: "Semantic-first notes and publishing for solo consultants.",
+  description: "Semantic-first notes and publishing pipeline for solo consultants.",
 };
 
 const RootLayout = ({ children }: { children: ReactNode }) => {

@@ -1,4 +1,4 @@
-import { Lang } from "../../data/landing";
+﻿import { Lang } from "../../data/marketing-shared";
 import styles from "./language-toggle.module.css";
 
 type Props = {
