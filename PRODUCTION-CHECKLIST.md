@@ -39,5 +39,5 @@
   - [ ] Identifier (audience) set to API URL (e.g., `https://api.noteship.com`)
   - [ ] Token signing algorithm = RS256
 - [ ] Wire prod environment variables:
-  - [ ] Web: Auth0 domain, client ID, audience, redirect URLs
-  - [ ] API/Infra: Auth0 issuer + audience for JWT authorizer
+  - [ ] Web: `AUTH0_BASE_URL`, `AUTH0_ISSUER_BASE_URL`, `AUTH0_CLIENT_ID`, `AUTH0_CLIENT_SECRET`, `AUTH0_SECRET`, `AUTH0_AUDIENCE`, `NEXT_PUBLIC_API_BASE_URL`
+  - [ ] API/Infra: `AUTH0_ISSUER_BASE_URL`, `AUTH0_AUDIENCE`
