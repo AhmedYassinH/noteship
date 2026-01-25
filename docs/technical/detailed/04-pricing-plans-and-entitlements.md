@@ -52,7 +52,7 @@ Config-driven entitlements (versioned file), e.g.
 Store per-user per-period counters (DynamoDB):
 
 - Partition: `userId`
-- Sort: `YYYY-MM`
+- Sort: `periodStart` (ISO date; use Stripe `current_period_start`)
 - Counters: `ai_generations_used`, `scheduled_posts_used`, etc.
   Use atomic increments.
 

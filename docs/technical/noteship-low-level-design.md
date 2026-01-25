@@ -145,7 +145,7 @@ Attributes:
 #### Table: `Usage`
 
 Partition key: `userId`
-Sort key: `period` (`YYYY-MM`)
+Sort key: `periodStart` (ISO date; use Stripe `current_period_start`)
 Attributes:
 
 - `aiGenerationsUsed`
@@ -463,6 +463,7 @@ Webhook handler rules:
   - AI generation success ? `aiGenerationsUsed += 1`
   - Schedule creation success ? `scheduledPostsUsed += 1`
   - Publish success ? `postsPublished += 1` (optional analytics)
+- Usage counters are tracked per Stripe billing cycle. Use `current_period_start` as the `periodStart` key to align with billing.
 
 ---
 

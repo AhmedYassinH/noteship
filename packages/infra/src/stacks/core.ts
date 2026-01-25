@@ -126,7 +126,7 @@ export class NoteshipCoreStack extends Stack {
     const usageTable = this.createTable("UsageTable", {
       tableName: `noteship-usage-${envName}`,
       partitionKey: { name: "userId", type: AttributeType.STRING },
-      sortKey: { name: "period", type: AttributeType.STRING },
+      sortKey: { name: "periodStart", type: AttributeType.STRING },
       readCapacity: capacityCaps.usage.minRead,
       writeCapacity: capacityCaps.usage.minWrite,
     });

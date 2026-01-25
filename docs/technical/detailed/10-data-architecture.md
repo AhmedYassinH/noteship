@@ -68,7 +68,7 @@ Bucket settings:
 ### Table: Usage
 
 - PK: `userId`
-- SK: `period` (`YYYY-MM`)
+- SK: `periodStart` (ISO date; use Stripe `current_period_start`)
 - Attributes:
   - `aiGenerationsUsed`, `scheduledPostsUsed`
   - `postsPublished` (optional; analytics)
