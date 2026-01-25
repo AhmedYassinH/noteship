@@ -14,6 +14,28 @@ export const jobSchema = z.object({
   updatedAt: isoDateTimeSchema.optional(),
 });
 
+export const embedNoteJobPayloadSchema = z.object({
+  noteId: idSchema,
+  s3Key: nonEmptyStringSchema,
+  version: nonEmptyStringSchema,
+});
+
+export const publishPostJobPayloadSchema = z.object({
+  postId: idSchema,
+});
+
+export const jobMessageSchema = z.object({
+  jobId: idSchema,
+  type: jobTypeSchema,
+  userId: idSchema,
+  createdAt: isoDateTimeSchema,
+  payload: z.record(z.string(), z.unknown()),
+});
+
+export type EmbedNoteJobPayload = z.infer<typeof embedNoteJobPayloadSchema>;
+export type PublishPostJobPayload = z.infer<typeof publishPostJobPayloadSchema>;
+export type JobMessage = z.infer<typeof jobMessageSchema>;
+
 export type Job = z.infer<typeof jobSchema>;
 export const jobItemSchema = jobSchema;
 export type JobItem = z.infer<typeof jobItemSchema>;

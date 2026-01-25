@@ -95,6 +95,7 @@ Attributes:
 
 - `email`, `name`, `createdAt`
 - `planId`, `subscriptionStatus`, `currentPeriodEnd` (denormalized convenience)
+- `currentPeriodStart` (ISO, from Stripe `current_period_start`)
 - `stripeCustomerId` (optional)
 
 #### Table: `Notes`

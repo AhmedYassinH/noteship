@@ -8,6 +8,7 @@ export const userSchema = z.object({
   createdAt: isoDateTimeSchema,
   planId: nonEmptyStringSchema.optional(),
   subscriptionStatus: nonEmptyStringSchema.optional(),
+  currentPeriodStart: isoDateTimeSchema.optional(),
   currentPeriodEnd: isoDateTimeSchema.optional(),
   stripeCustomerId: nonEmptyStringSchema.optional(),
 });
