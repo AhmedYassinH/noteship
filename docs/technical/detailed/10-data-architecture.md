@@ -83,6 +83,11 @@ Bucket settings:
   - `status` (queued|running|succeeded|failed)
   - `payload` (small), `createdAt`, `updatedAt`
 
+## DynamoDB capacity + recovery (MVP defaults)
+
+- **Capacity mode:** Provisioned with auto scaling caps to keep total max RCUs/WCUs within the Always Free tier (25/25). Caps are defined in infra and should be raised for production traffic.
+- **PITR:** Disabled in MVP for cost control; enable for production per the production checklist.
+
 ## Vector DB (Qdrant) schema (conceptual)
 
 Collection: `noteship_notes_{env}`

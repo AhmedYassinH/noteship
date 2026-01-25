@@ -42,6 +42,11 @@ Provisioned (aligns to HLD/LLD):
 - DynamoDB tables: users, notes (GSI1), posts (status GSI + schedule GSI), integrations, usage, jobs.
 - SQS jobs queue + DLQ.
 
+## DynamoDB defaults (MVP)
+
+- **Capacity mode:** Provisioned with auto scaling caps to stay within Always Free limits. Adjust caps for production traffic.
+- **PITR:** Disabled for cost control; enable for production (see `PRODUCTION-CHECKLIST.md`).
+
 ## Config & secrets (store in Secrets Manager / SSM)
 
 Backend/API & workers expect (examples):

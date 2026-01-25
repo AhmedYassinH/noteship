@@ -167,6 +167,11 @@ Attributes:
 
 > You can skip Jobs table initially if you log well and rely on DLQ; add later when needed.
 
+#### DynamoDB capacity + recovery (MVP defaults)
+
+- **Capacity mode:** Provisioned with auto scaling caps to keep total max RCUs/WCUs within the Always Free tier (25/25). Caps are defined in infra and should be raised for production traffic.
+- **PITR:** Disabled in MVP for cost control; enable for production per the production checklist.
+
 ---
 
 ## 3) Vector DB design (Qdrant-like model)
