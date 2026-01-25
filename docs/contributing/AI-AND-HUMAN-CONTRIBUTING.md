@@ -11,6 +11,7 @@ A change is "done" when it:
 - Updates docs when new decisions are introduced.
 - Runs required quality gates (see `docs/contributing/QUALITY-GATES.md`).
 - Is formatted with `pnpm prettier --write .`.
+- Uses Conventional Commits for commit messages (e.g., `type(scope): summary`).
 
 ## Workflow (humans + agents)
 
