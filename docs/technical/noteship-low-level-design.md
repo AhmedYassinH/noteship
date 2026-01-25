@@ -56,6 +56,7 @@ apps/web/data          # Localized copy per surface (e.g., landing) with {en, ar
 - Handlers are thin: parse/validate, auth, call use-case, return response.
 - Use-cases contain business logic and depend on **interfaces**, not AWS SDK.
 - Adapters implement interfaces (DynamoDB/S3/Stripe/Qdrant).
+- DynamoDB adapters must map/validate items via `@noteship/domain` schemas and mappers in `packages/domain/src/schemas`.
 - Keep DI simple: explicit `deps` object with module-level caching for expensive clients.
 
 ---

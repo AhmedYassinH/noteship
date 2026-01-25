@@ -8,6 +8,7 @@ description: Maintain shared domain types, feature keys, plans, and entitlements
 ## Overview
 
 - Maintain shared domain types and feature/plan definitions in `packages/domain`.
+- Maintain Zod schemas + DynamoDB item mappers in `packages/domain/src/schemas`.
 - Keep entitlements and feature keys aligned with billing and API behavior.
 
 ## Guardrails
