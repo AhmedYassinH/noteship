@@ -1,6 +1,6 @@
 "use client";
 
-import createAuth0Client, { type Auth0Client, type User } from "@auth0/auth0-spa-js";
+import type { Auth0Client, User } from "@auth0/auth0-spa-js";
 
 const auth0Domain = process.env.NEXT_PUBLIC_AUTH0_DOMAIN ?? "";
 const auth0ClientId = process.env.NEXT_PUBLIC_AUTH0_CLIENT_ID ?? "";
@@ -16,17 +16,19 @@ const getClient = () => {
   }
 
   if (!clientPromise) {
-    clientPromise = createAuth0Client({
-      domain: auth0Domain,
-      clientId: auth0ClientId,
-      cacheLocation: "localstorage",
-      useRefreshTokens: false,
-      authorizationParams: {
-        audience: auth0Audience || undefined,
-        redirect_uri: auth0RedirectUri || undefined,
-        scope: "openid profile email",
-      },
-    });
+    clientPromise = import("@auth0/auth0-spa-js").then((mod) =>
+      mod.createAuth0Client({
+        domain: auth0Domain,
+        clientId: auth0ClientId,
+        cacheLocation: "localstorage",
+        useRefreshTokens: false,
+        authorizationParams: {
+          audience: auth0Audience || undefined,
+          redirect_uri: auth0RedirectUri || undefined,
+          scope: "openid profile email",
+        },
+      }),
+    );
   }
 
   return clientPromise;
