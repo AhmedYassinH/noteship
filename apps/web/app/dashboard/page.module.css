@@ -33,6 +33,28 @@
   margin: 0 0 20px;
 }
 
+.list {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.listRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.95rem;
+}
+
+.label {
+  color: var(--muted);
+}
+
+.value {
+  font-weight: 600;
+  color: var(--ink);
+}
+
 .actions {
   display: flex;
   flex-wrap: wrap;

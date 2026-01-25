@@ -1,6 +1,8 @@
 import { getSession } from "@auth0/nextjs-auth0";
+import type { MeResponse } from "@noteship/domain";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { apiFetch } from "../../lib/api/client";
 import styles from "./page.module.css";
 
 const DashboardPage = async () => {
@@ -10,12 +12,33 @@ const DashboardPage = async () => {
     redirect("/login");
   }
 
+  const me = await apiFetch<MeResponse>("/me");
+  const user = me.user;
+
   return (
     <main className={styles.main}>
       <section className={styles.card}>
         <p className={styles.kicker}>Noteship Dashboard</p>
         <h1 className={styles.title}>You&apos;re signed in.</h1>
-        <p className={styles.meta}>{session.user.name ?? session.user.email ?? session.user.sub}</p>
+        <p className={styles.meta}>{user.name ?? user.email}</p>
+        <div className={styles.list}>
+          <div className={styles.listRow}>
+            <span className={styles.label}>User ID</span>
+            <span className={styles.value}>{user.userId}</span>
+          </div>
+          <div className={styles.listRow}>
+            <span className={styles.label}>Email</span>
+            <span className={styles.value}>{user.email}</span>
+          </div>
+          <div className={styles.listRow}>
+            <span className={styles.label}>Plan</span>
+            <span className={styles.value}>{user.planId ?? "free"}</span>
+          </div>
+          <div className={styles.listRow}>
+            <span className={styles.label}>Status</span>
+            <span className={styles.value}>{user.subscriptionStatus ?? "n/a"}</span>
+          </div>
+        </div>
         <div className={styles.actions}>
           <Link className={styles.actionPrimary} href="/logout">
             Log out
@@ -25,7 +48,7 @@ const DashboardPage = async () => {
           </Link>
         </div>
         <p className={styles.note}>
-          Next step: connect to the API and load your notes after bootstrap.
+          Next step: load notes and drafts now that `/me` bootstrap is wired.
         </p>
       </section>
     </main>
