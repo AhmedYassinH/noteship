@@ -1,5 +1,5 @@
 import * as cdk from "aws-cdk-lib";
-import { Duration, Stack, type StackProps } from "aws-cdk-lib";
+import { Duration, Stack, type StackProps, Tags } from "aws-cdk-lib";
 import {
   CorsHttpMethod,
   HttpApi,
@@ -29,6 +29,21 @@ type RouteConfig = {
   auth?: boolean;
 };
 
+const requireEnv = (key: string): string => {
+  const value = process.env[key];
+  if (!value) {
+    throw new Error(`${key} is required for infra deploy`);
+  }
+  return value;
+};
+
+const maybeSetEnv = (env: Record<string, string>, key: string): void => {
+  const value = process.env[key];
+  if (value) {
+    env[key] = value;
+  }
+};
+
 export class NoteshipApiStack extends Stack {
   constructor(scope: Construct, id: string, props: NoteshipApiStackProps) {
     super(scope, id, {
@@ -39,10 +54,9 @@ export class NoteshipApiStack extends Stack {
       },
     });
 
-    const { envName, auth0Audience, auth0IssuerBaseUrl } = props.envConfig;
-    if (!auth0Audience || !auth0IssuerBaseUrl) {
-      throw new Error("AUTH0_ISSUER_BASE_URL and AUTH0_AUDIENCE are required for API stack.");
-    }
+    const { envName } = props.envConfig;
+    Tags.of(this).add("app", "noteship");
+    Tags.of(this).add("env", envName);
 
     const bucketName = `noteship-content-${envName}`;
     const contentBucket = Bucket.fromBucketName(this, "ContentBucket", bucketName);
@@ -64,36 +78,41 @@ export class NoteshipApiStack extends Stack {
       queueUrl: `https://sqs.${cdk.Aws.REGION}.amazonaws.com/${cdk.Aws.ACCOUNT_ID}/${queueName}`,
     });
 
-    const envVars: Record<string, string> = {
-      CONTENT_BUCKET_NAME: bucketName,
-      USERS_TABLE_NAME: usersTable.tableName,
-      NOTES_TABLE_NAME: notesTable.tableName,
-      POSTS_TABLE_NAME: postsTable.tableName,
-      INTEGRATIONS_TABLE_NAME: integrationsTable.tableName,
-      USAGE_TABLE_NAME: usageTable.tableName,
-      JOBS_TABLE_NAME: jobsTable.tableName,
-      JOBS_QUEUE_URL: jobsQueue.queueUrl,
-      VECTOR_DB_PROVIDER: process.env.VECTOR_DB_PROVIDER ?? "qdrant",
-      QDRANT_URL: process.env.QDRANT_URL ?? "",
-      QDRANT_API_KEY: process.env.QDRANT_API_KEY ?? "",
-      QDRANT_COLLECTION: process.env.QDRANT_COLLECTION ?? "",
-      LLM_PROVIDER: process.env.LLM_PROVIDER ?? "openai",
-      OPENAI_API_KEY: process.env.OPENAI_API_KEY ?? "",
-      OPENAI_EMBED_MODEL: process.env.OPENAI_EMBED_MODEL ?? "",
-      OPENAI_DRAFT_MODEL: process.env.OPENAI_DRAFT_MODEL ?? "",
-      STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY ?? "",
-      STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET ?? "",
-      STRIPE_PRICE_PRO_MONTHLY: process.env.STRIPE_PRICE_PRO_MONTHLY ?? "",
-      STRIPE_PRICE_PRO_YEARLY: process.env.STRIPE_PRICE_PRO_YEARLY ?? "",
-      LINKEDIN_CLIENT_ID: process.env.LINKEDIN_CLIENT_ID ?? "",
-      LINKEDIN_CLIENT_SECRET: process.env.LINKEDIN_CLIENT_SECRET ?? "",
-      MEDIUM_CLIENT_ID: process.env.MEDIUM_CLIENT_ID ?? "",
-      MEDIUM_CLIENT_SECRET: process.env.MEDIUM_CLIENT_SECRET ?? "",
-    };
-
+    const auth0IssuerBaseUrl = requireEnv("AUTH0_ISSUER_BASE_URL");
+    const auth0Audience = requireEnv("AUTH0_AUDIENCE");
     const jwtAuthorizer = new HttpJwtAuthorizer("Auth0Authorizer", auth0IssuerBaseUrl, {
       jwtAudience: [auth0Audience],
     });
+
+    const envVars: Record<string, string> = {
+      NOTESHIP_CONTENT_BUCKET_NAME: contentBucket.bucketName,
+      NOTESHIP_USERS_TABLE_NAME: usersTable.tableName,
+      NOTESHIP_NOTES_TABLE_NAME: notesTable.tableName,
+      NOTESHIP_POSTS_TABLE_NAME: postsTable.tableName,
+      NOTESHIP_INTEGRATIONS_TABLE_NAME: integrationsTable.tableName,
+      NOTESHIP_USAGE_TABLE_NAME: usageTable.tableName,
+      NOTESHIP_JOBS_TABLE_NAME: jobsTable.tableName,
+      NOTESHIP_JOBS_QUEUE_URL: jobsQueue.queueUrl,
+      AUTH0_ISSUER_BASE_URL: auth0IssuerBaseUrl,
+      AUTH0_AUDIENCE: auth0Audience,
+      OPENAI_API_KEY: requireEnv("OPENAI_API_KEY"),
+      OPENAI_EMBED_MODEL: requireEnv("OPENAI_EMBED_MODEL"),
+      OPENAI_DRAFT_MODEL: requireEnv("OPENAI_DRAFT_MODEL"),
+      QDRANT_URL: requireEnv("QDRANT_URL"),
+      QDRANT_COLLECTION: requireEnv("QDRANT_COLLECTION"),
+      STRIPE_SECRET_KEY: requireEnv("STRIPE_SECRET_KEY"),
+      STRIPE_WEBHOOK_SECRET: requireEnv("STRIPE_WEBHOOK_SECRET"),
+      LINKEDIN_CLIENT_ID: requireEnv("LINKEDIN_CLIENT_ID"),
+      LINKEDIN_CLIENT_SECRET: requireEnv("LINKEDIN_CLIENT_SECRET"),
+      MEDIUM_CLIENT_ID: requireEnv("MEDIUM_CLIENT_ID"),
+      MEDIUM_CLIENT_SECRET: requireEnv("MEDIUM_CLIENT_SECRET"),
+    };
+
+    maybeSetEnv(envVars, "NOTESHIP_LLM_PROVIDER");
+    maybeSetEnv(envVars, "NOTESHIP_VECTOR_DB_PROVIDER");
+    maybeSetEnv(envVars, "QDRANT_API_KEY");
+    maybeSetEnv(envVars, "STRIPE_PRICE_PRO_MONTHLY");
+    maybeSetEnv(envVars, "STRIPE_PRICE_PRO_YEARLY");
 
     const api = new HttpApi(this, "NoteshipHttpApi", {
       apiName: `noteship-api-${envName}`,
