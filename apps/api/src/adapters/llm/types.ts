@@ -1,6 +1,6 @@
 export type LlmClient = {
-  embedTexts: (input: { inputs: string[]; model: string }) => Promise<number[][]>;
-  generateDraft: (input: {
+  embedTexts: (_input: { inputs: string[]; model: string }) => Promise<number[][]>;
+  generateDraft: (_input: {
     noteContent: string;
     provider: "linkedin" | "medium";
     tone?: string;

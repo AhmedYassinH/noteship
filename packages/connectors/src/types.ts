@@ -34,7 +34,7 @@ export type PublishPostResult = {
 
 export type Connector = {
   provider: ConnectorProvider;
-  buildOAuthUrl: (input: OAuthStartInput) => string;
-  exchangeCode: (input: OAuthExchangeInput) => Promise<OAuthExchangeResult>;
-  publishPost: (input: PublishPostInput) => Promise<PublishPostResult>;
+  buildOAuthUrl: (_input: OAuthStartInput) => string;
+  exchangeCode: (_input: OAuthExchangeInput) => Promise<OAuthExchangeResult>;
+  publishPost: (_input: PublishPostInput) => Promise<PublishPostResult>;
 };

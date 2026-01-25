@@ -3,8 +3,8 @@ import { errorResponse } from "./http";
 import { type Deps, getDeps } from "./deps";
 
 export type HandlerFn = (
-  deps: Deps,
-  event: APIGatewayProxyEventV2,
+  _deps: Deps,
+  _event: APIGatewayProxyEventV2,
 ) => Promise<APIGatewayProxyResultV2>;
 
 export const withDeps =

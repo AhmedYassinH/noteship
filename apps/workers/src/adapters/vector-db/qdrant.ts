@@ -1,7 +1,7 @@
 import { QdrantClient } from "@qdrant/js-client-rest";
 
 export type VectorDbClient = {
-  upsert: (input: {
+  upsert: (_input: {
     collection: string;
     points: {
       id: string;
@@ -9,7 +9,7 @@ export type VectorDbClient = {
       payload: Record<string, unknown>;
     }[];
   }) => Promise<void>;
-  delete: (input: { collection: string; filter: Record<string, unknown> }) => Promise<void>;
+  delete: (_input: { collection: string; filter: Record<string, unknown> }) => Promise<void>;
 };
 
 export const createQdrantClient = (url: string, apiKey?: string): VectorDbClient => {

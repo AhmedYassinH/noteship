@@ -1,7 +1,7 @@
 import OpenAI from "openai";
 
 export type LlmClient = {
-  embedTexts: (input: { inputs: string[]; model: string }) => Promise<number[][]>;
+  embedTexts: (_input: { inputs: string[]; model: string }) => Promise<number[][]>;
 };
 
 export const createOpenAiClient = (apiKey: string): LlmClient => {

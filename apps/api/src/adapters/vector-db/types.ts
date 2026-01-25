@@ -5,7 +5,7 @@ export type VectorSearchResult = {
 };
 
 export type VectorDbClient = {
-  search: (input: {
+  search: (_input: {
     collection: string;
     vector: number[];
     limit: number;
