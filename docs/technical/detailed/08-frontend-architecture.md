@@ -11,6 +11,7 @@ Define the Next.js structure, state management, and integration points.
 - Component library: shadcn/ui or similar
 - Data fetching: TanStack Query
 - Validation: zod schemas shared with backend
+- Auth: Auth0 Universal Login (hosted) with Google SSO + passwordless email
 - i18n: English + Arabic (RTL/LTR) following brand rules (`docs/brand/noteship-language-guidelines.md`, `docs/brand/noteship-layout-rtl-ltr.md`, `docs/brand/noteship-typography.md`)
 - Formatting: Prettier (repo-wide) with opinionated defaults; run `pnpm prettier --write .` after changes.
 

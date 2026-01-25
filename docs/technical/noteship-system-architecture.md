@@ -114,6 +114,7 @@ Details: `docs/technical/detailed/08-frontend-architecture.md`.
 1. **API Layer (API Gateway + Lambda API)**
    - Stateless request handlers
    - Validates input, resolves user identity, calls use-cases
+   - Auth0 JWT authorizer (Universal Login; Google SSO + passwordless email)
    - Writes canonical content to S3 and metadata to DynamoDB
    - Enqueues async jobs (embedding, publishing)
 

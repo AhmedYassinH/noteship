@@ -15,9 +15,9 @@ Define deployable stacks and environment layout.
    - S3 content bucket (versioned)
    - DynamoDB tables (users, notes, posts, integrations, usage, jobs)
    - SQS jobs + DLQ
-2. `api-stack` (to be added)
-   - API Gateway + Lambdas
-   - JWT authorizer integration
+2. `api-stack`
+   - API Gateway (HTTP API) + Lambdas
+   - Auth0 JWT authorizer (issuer + audience)
    - Stripe webhook handler
 3. `workers-stack` (to be added)
    - Worker Lambdas for embeddings/publish

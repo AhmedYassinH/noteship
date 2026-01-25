@@ -6,11 +6,15 @@ Define the MVP API surface and request/response shapes (conceptual).
 
 ## Conventions
 
-- Auth: JWT (Cognito/Auth0 later), `userId` from token
+- Auth: JWT (Auth0), `userId` from token
 - Validation: zod schemas in shared package
 - Errors: consistent `{code, message}`
 
 ## Endpoints (MVP)
+
+### Auth / Users
+
+- `GET /me` get or create current user (bootstraps user record)
 
 ### Notes
 

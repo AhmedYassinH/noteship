@@ -6,7 +6,7 @@ Define backend modules, DI approach, async patterns, and boundaries.
 
 ## Stack
 
-- API Gateway (REST)
+- API Gateway (HTTP API)
 - Lambda (Node.js, TypeScript)
 - DynamoDB, S3
 - SQS workers (publishing + embedding)
@@ -60,6 +60,6 @@ sequenceDiagram
 
 ## Security boundaries
 
-- User identity from JWT authorizer
+- User identity from Auth0 JWT authorizer
 - Per-user partitioning (userId as tenant)
 - OAuth tokens encrypted at rest

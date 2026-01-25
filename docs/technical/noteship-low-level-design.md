@@ -295,10 +295,15 @@ Details: `docs/technical/detailed/11-api-design-and-contracts.md`.
 
 ### 5.1 Auth
 
-- JWT-based auth (Cognito/Auth0). API Gateway authorizer injects user identity.
+- JWT-based auth (Auth0). Use Universal Login (hosted UI) with Google SSO + passwordless email.
+- API Gateway JWT authorizer validates tokens (issuer + audience) and injects user identity.
 - All endpoints assume `userId` from JWT subject.
 
 ### 5.2 Endpoints (MVP)
+
+#### Auth / Users
+
+- `GET /me` get or create current user
 
 #### Notes
 

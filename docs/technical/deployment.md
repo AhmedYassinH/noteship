@@ -33,7 +33,7 @@ cd packages/infra
 # synth
 pnpm --filter @noteship/infra synth -- -c env=dev -c region=us-east-1
 # deploy
-cdk deploy -c env=dev -c region=us-east-1
+cdk deploy NoteshipCore-dev -c env=dev -c region=us-east-1
 ```
 
 Provisioned (aligns to HLD/LLD):
@@ -52,6 +52,7 @@ Provisioned (aligns to HLD/LLD):
 Backend/API & workers expect (examples):
 
 - `CONTENT_BUCKET_NAME`, `USERS_TABLE_NAME`, `NOTES_TABLE_NAME`, `POSTS_TABLE_NAME`, `INTEGRATIONS_TABLE_NAME`, `USAGE_TABLE_NAME`, `JOBS_TABLE_NAME`, `JOBS_QUEUE_URL`
+- Auth0 (JWT authorizer): `AUTH0_ISSUER_BASE_URL`, `AUTH0_AUDIENCE`
 - Vector DB: `VECTOR_DB_PROVIDER` (default `qdrant`), `QDRANT_URL`, `QDRANT_API_KEY`, `QDRANT_COLLECTION`
 - Billing: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_PRO_MONTHLY`, `STRIPE_PRICE_PRO_YEARLY`
 - OAuth: `LINKEDIN_CLIENT_ID/SECRET`, `MEDIUM_CLIENT_ID/SECRET`
@@ -61,18 +62,35 @@ Backend/API & workers expect (examples):
 ## Frontend deployment (Next.js)
 
 - Intent: SPA dashboard + SSG landing.
-- Preferred: Vercel (fastest) — set env vars: `NEXT_PUBLIC_API_BASE_URL`, `NEXT_PUBLIC_ENV=dev|prod`.
+- Preferred: Vercel (fastest) — set env vars: `NEXT_PUBLIC_API_BASE_URL`, `NEXT_PUBLIC_ENV=dev|prod`, and Auth0 values (`AUTH0_BASE_URL`, `AUTH0_ISSUER_BASE_URL`, `AUTH0_CLIENT_ID`, `AUTH0_CLIENT_SECRET`, `AUTH0_SECRET`, `AUTH0_AUDIENCE`).
 - AWS option: `next build && next export` for landing pages to S3+CloudFront; dashboard as SPA served from same distribution pointing to built `.next` output via Next-on-AWS pattern (not yet scaffolded).
 - Static assets are fine on CloudFront/S3; SSR is not required for MVP.
 - Fonts/brand: serve IBM Plex Sans/Arabic (app) and Lora/Noto Naskh (marketing headlines) per `docs/brand/noteship-typography.md`; ensure Arabic locale builds set `dir="rtl"` on rendered pages.
 
-## API & workers deployment (not yet wired)
+## API deployment (Auth0 required)
 
-- CDK currently provisions data/queue only. Add Lambda/API Gateway and worker stacks before shipping.
-- When added, ensure:
-  - API uses authorizer (Cognito/Auth0) and writes to provisioned tables/bucket.
-  - Workers consume SQS jobs and have permissions to S3/DDB/Secrets/Vector DB.
-  - Stripe webhook endpoint is deployed and wired with secrets.
+Set Auth0 config in your shell before deploying:
+
+```sh
+setx AUTH0_ISSUER_BASE_URL "https://your-tenant.us.auth0.com"
+setx AUTH0_AUDIENCE "https://api.noteship.com"
+```
+
+Then deploy the API stack:
+
+```sh
+cd packages/infra
+cdk deploy NoteshipApi-dev -c env=dev -c region=us-east-1
+```
+
+Ensure:
+
+- API uses Auth0 JWT authorizer (issuer + audience) and writes to provisioned tables/bucket.
+- Stripe webhook endpoint is deployed and wired with secrets.
+
+## Workers deployment (not yet wired)
+
+- Worker stack is still TODO (see `packages/infra/README.md`).
 
 ## Post-deploy steps
 
