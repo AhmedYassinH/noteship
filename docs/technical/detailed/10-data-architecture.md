@@ -24,7 +24,7 @@ Bucket settings:
 - PK: `userId`
 - Attributes:
   - `email`, `name`, `createdAt`
-  - `planId`, `subscriptionStatus`, `currentPeriodEnd`
+  - `planId`, `subscriptionStatus`, `currentPeriodStart`, `currentPeriodEnd`
   - `stripeCustomerId` (optional)
 
 ### Table: Notes

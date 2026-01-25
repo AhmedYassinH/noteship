@@ -90,7 +90,7 @@ You can do single-table later. For MVP, use **multiple tables** to stay readable
 
 #### Table: `Users`
 
-Partition key: `pk = userId`
+Partition key: `userId`
 Attributes:
 
 - `email`, `name`, `createdAt`
