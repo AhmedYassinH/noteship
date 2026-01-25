@@ -1,34 +1,53 @@
-import { getSession } from "@auth0/nextjs-auth0";
+"use client";
+
 import type { MeResponse } from "@noteship/domain";
 import Link from "next/link";
-import { redirect } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useAuth } from "../../components/auth/AuthProvider";
 import { apiFetch } from "../../lib/api/client";
 import styles from "./page.module.css";
 
-const DashboardPage = async () => {
-  const session = await getSession();
+const DashboardPage = () => {
+  const { isLoading, isAuthenticated, user: authUser, login } = useAuth();
+  const [user, setUser] = useState<MeResponse["user"] | null>(null);
+  const [loadError, setLoadError] = useState(false);
 
-  if (!session?.user) {
-    redirect("/login");
-  }
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      void login("/dashboard");
+    }
+  }, [isLoading, isAuthenticated, login]);
 
-  let user: MeResponse["user"] | null = null;
-  let loadError = false;
+  useEffect(() => {
+    if (!isAuthenticated) {
+      return;
+    }
 
-  try {
-    const me = await apiFetch<MeResponse>("/me");
-    user = me.user;
-  } catch {
-    loadError = true;
-  }
+    const load = async () => {
+      try {
+        const me = await apiFetch<MeResponse>("/me");
+        setUser(me.user);
+      } catch {
+        setLoadError(true);
+      }
+    };
+
+    void load();
+  }, [isAuthenticated]);
 
   return (
     <main className={styles.main}>
       <section className={styles.card}>
         <p className={styles.kicker}>Noteship Dashboard</p>
-        <h1 className={styles.title}>You&apos;re signed in.</h1>
+        <h1 className={styles.title}>
+          {isLoading
+            ? "Checking session..."
+            : isAuthenticated
+              ? "You're signed in."
+              : "Redirecting to login..."}
+        </h1>
         <p className={styles.meta}>
-          {user?.name ?? user?.email ?? session.user.email ?? session.user.name ?? session.user.sub}
+          {user?.name ?? user?.email ?? authUser?.email ?? authUser?.name}
         </p>
         {loadError ? (
           <div className={styles.warning}>

@@ -1,9 +1,9 @@
-import { getApiAccessToken } from "../auth";
+import { getAccessToken } from "../auth-spa";
 
 const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? "";
 
 export const apiFetch = async <T>(path: string, init: RequestInit = {}): Promise<T> => {
-  const accessToken = await getApiAccessToken();
+  const accessToken = await getAccessToken();
   const headers = new Headers(init.headers);
   headers.set("Authorization", `Bearer ${accessToken}`);
   if (!headers.has("Content-Type")) {

@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
-import { useUser } from "@auth0/nextjs-auth0/client";
+import { useAuth } from "../auth/AuthProvider";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -30,7 +30,7 @@ const MarketingShell = ({ children }: { children: ReactNode }) => {
   const pathname = usePathname();
   const copy = useMemo(() => sharedCopy[lang], [lang]);
   const isAr = lang === "ar";
-  const { user } = useUser();
+  const { isAuthenticated } = useAuth();
 
   useEffect(() => {
     document.documentElement.lang = lang;
@@ -69,7 +69,7 @@ const MarketingShell = ({ children }: { children: ReactNode }) => {
 
           <div className={styles.navActions}>
             <LanguageToggle lang={lang} onChange={setLang} />
-            {user ? (
+            {isAuthenticated ? (
               <>
                 <Link className={styles.navGhost} href="/logout">
                   {copy.auth.logout}
