@@ -55,6 +55,16 @@
   color: var(--ink);
 }
 
+.warning {
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  background: rgba(245, 158, 11, 0.08);
+  color: var(--ink);
+  padding: 12px 14px;
+  border-radius: 16px;
+  margin-bottom: 20px;
+  font-size: 0.95rem;
+}
+
 .actions {
   display: flex;
   flex-wrap: wrap;

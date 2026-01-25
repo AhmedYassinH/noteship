@@ -12,33 +12,51 @@ const DashboardPage = async () => {
     redirect("/login");
   }
 
-  const me = await apiFetch<MeResponse>("/me");
-  const user = me.user;
+  let user: MeResponse["user"] | null = null;
+  let loadError = false;
+
+  try {
+    const me = await apiFetch<MeResponse>("/me");
+    user = me.user;
+  } catch {
+    loadError = true;
+  }
 
   return (
     <main className={styles.main}>
       <section className={styles.card}>
         <p className={styles.kicker}>Noteship Dashboard</p>
         <h1 className={styles.title}>You&apos;re signed in.</h1>
-        <p className={styles.meta}>{user.name ?? user.email}</p>
-        <div className={styles.list}>
-          <div className={styles.listRow}>
-            <span className={styles.label}>User ID</span>
-            <span className={styles.value}>{user.userId}</span>
+        <p className={styles.meta}>
+          {user?.name ?? user?.email ?? session.user.email ?? session.user.name ?? session.user.sub}
+        </p>
+        {loadError ? (
+          <div className={styles.warning}>
+            We couldn&apos;t load your profile from the API. Check{" "}
+            <code>NEXT_PUBLIC_API_BASE_URL</code> and Auth0 audience configuration.
           </div>
-          <div className={styles.listRow}>
-            <span className={styles.label}>Email</span>
-            <span className={styles.value}>{user.email}</span>
-          </div>
-          <div className={styles.listRow}>
-            <span className={styles.label}>Plan</span>
-            <span className={styles.value}>{user.planId ?? "free"}</span>
-          </div>
-          <div className={styles.listRow}>
-            <span className={styles.label}>Status</span>
-            <span className={styles.value}>{user.subscriptionStatus ?? "n/a"}</span>
-          </div>
-        </div>
+        ) : (
+          user && (
+            <div className={styles.list}>
+              <div className={styles.listRow}>
+                <span className={styles.label}>User ID</span>
+                <span className={styles.value}>{user.userId}</span>
+              </div>
+              <div className={styles.listRow}>
+                <span className={styles.label}>Email</span>
+                <span className={styles.value}>{user.email}</span>
+              </div>
+              <div className={styles.listRow}>
+                <span className={styles.label}>Plan</span>
+                <span className={styles.value}>{user.planId ?? "free"}</span>
+              </div>
+              <div className={styles.listRow}>
+                <span className={styles.label}>Status</span>
+                <span className={styles.value}>{user.subscriptionStatus ?? "n/a"}</span>
+              </div>
+            </div>
+          )
+        )}
         <div className={styles.actions}>
           <Link className={styles.actionPrimary} href="/logout">
             Log out
