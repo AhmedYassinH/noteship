@@ -4,6 +4,7 @@ export type SharedCopy = {
   brandTagline: string;
   navLinks: { label: string; href: string }[];
   ctas: { primary: string; secondary: string };
+  auth: { dashboard: string; logout: string };
   footer: {
     summary: string;
     columns: { title: string; links: { label: string; href: string }[] }[];
@@ -22,6 +23,10 @@ const sharedCopy: Record<Lang, SharedCopy> = {
     ctas: {
       primary: "Start free",
       secondary: "Log in",
+    },
+    auth: {
+      dashboard: "Dashboard",
+      logout: "Log out",
     },
     footer: {
       summary:
@@ -65,6 +70,10 @@ const sharedCopy: Record<Lang, SharedCopy> = {
     ctas: {
       primary: "ابدأ مجاناً",
       secondary: "تسجيل الدخول",
+    },
+    auth: {
+      dashboard: "لوحة التحكم",
+      logout: "تسجيل الخروج",
     },
     footer: {
       summary: "نوتشِب يحفظ أفكارك قابلة للبحث والنقل، ثم يحولها إلى منشورات جاهزة للنشر.",

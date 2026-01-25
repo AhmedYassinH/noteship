@@ -2,12 +2,12 @@
 
 import type { ReactNode } from "react";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { useUser } from "@auth0/nextjs-auth0/client";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import sharedCopy, { Lang } from "../../data/marketing-shared";
 import LanguageToggle from "../ui/LanguageToggle";
-import Button from "../ui/Button";
 import styles from "../../app/(marketing)/marketing.module.css";
 
 type MarketingLanguageState = {
@@ -30,6 +30,7 @@ const MarketingShell = ({ children }: { children: ReactNode }) => {
   const pathname = usePathname();
   const copy = useMemo(() => sharedCopy[lang], [lang]);
   const isAr = lang === "ar";
+  const { user } = useUser();
 
   useEffect(() => {
     document.documentElement.lang = lang;
@@ -68,10 +69,25 @@ const MarketingShell = ({ children }: { children: ReactNode }) => {
 
           <div className={styles.navActions}>
             <LanguageToggle lang={lang} onChange={setLang} />
-            <Link className={styles.navGhost} href="/login">
-              {copy.ctas.secondary}
-            </Link>
-            <Button className={styles.navPrimaryButton}>{copy.ctas.primary}</Button>
+            {user ? (
+              <>
+                <Link className={styles.navGhost} href="/logout">
+                  {copy.auth.logout}
+                </Link>
+                <Link className={styles.navPrimaryButton} href="/dashboard">
+                  {copy.auth.dashboard}
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link className={styles.navGhost} href="/login">
+                  {copy.ctas.secondary}
+                </Link>
+                <Link className={styles.navPrimaryButton} href="/login">
+                  {copy.ctas.primary}
+                </Link>
+              </>
+            )}
           </div>
         </header>
 
