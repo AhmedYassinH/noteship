@@ -50,46 +50,45 @@ const requireEnv = (key: string): string => {
 };
 
 export const getDeps = (): Deps => {
-  if (deps) {
-    return deps;
-  }
+  if (!deps) {
+    const llmProvider = (process.env.NOTESHIP_LLM_PROVIDER as LlmProvider | undefined) ?? "openai";
+    const vectorDbProvider =
+      (process.env.NOTESHIP_VECTOR_DB_PROVIDER as VectorDbProvider | undefined) ?? "qdrant";
 
-  deps = {
-    ddb: ddbDocClient,
-    s3: new S3Client({}),
-    sqs: new SQSClient({}),
-    tableNames: {
-      notes: requireEnv("NOTES_TABLE_NAME"),
-      posts: requireEnv("POSTS_TABLE_NAME"),
-      integrations: requireEnv("INTEGRATIONS_TABLE_NAME"),
-      usage: requireEnv("USAGE_TABLE_NAME"),
-    },
-    bucketName: requireEnv("CONTENT_BUCKET_NAME"),
-    jobsQueueUrl: requireEnv("JOBS_QUEUE_URL"),
-    llm: createLlmClient(
-      (process.env.LLM_PROVIDER as LlmProvider | undefined) ?? "openai",
-      requireEnv("OPENAI_API_KEY"),
-    ),
-    llmModels: {
-      embeddings: requireEnv("OPENAI_EMBED_MODEL"),
-    },
-    vectorDb: createVectorDbClient(
-      (process.env.VECTOR_DB_PROVIDER as VectorDbProvider | undefined) ?? "qdrant",
-      requireEnv("QDRANT_URL"),
-      process.env.QDRANT_API_KEY,
-    ),
-    vectorDbCollection: requireEnv("QDRANT_COLLECTION"),
-    connectors: {
-      linkedin: {
-        clientId: requireEnv("LINKEDIN_CLIENT_ID"),
-        clientSecret: requireEnv("LINKEDIN_CLIENT_SECRET"),
+    deps = {
+      ddb: ddbDocClient,
+      s3: new S3Client({}),
+      sqs: new SQSClient({}),
+      tableNames: {
+        notes: requireEnv("NOTESHIP_NOTES_TABLE_NAME"),
+        posts: requireEnv("NOTESHIP_POSTS_TABLE_NAME"),
+        integrations: requireEnv("NOTESHIP_INTEGRATIONS_TABLE_NAME"),
+        usage: requireEnv("NOTESHIP_USAGE_TABLE_NAME"),
       },
-      medium: {
-        clientId: requireEnv("MEDIUM_CLIENT_ID"),
-        clientSecret: requireEnv("MEDIUM_CLIENT_SECRET"),
+      bucketName: requireEnv("NOTESHIP_CONTENT_BUCKET_NAME"),
+      jobsQueueUrl: requireEnv("NOTESHIP_JOBS_QUEUE_URL"),
+      llm: createLlmClient(llmProvider, requireEnv("OPENAI_API_KEY")),
+      llmModels: {
+        embeddings: requireEnv("OPENAI_EMBED_MODEL"),
       },
-    },
-  };
+      vectorDb: createVectorDbClient(
+        vectorDbProvider,
+        requireEnv("QDRANT_URL"),
+        process.env.QDRANT_API_KEY,
+      ),
+      vectorDbCollection: requireEnv("QDRANT_COLLECTION"),
+      connectors: {
+        linkedin: {
+          clientId: requireEnv("LINKEDIN_CLIENT_ID"),
+          clientSecret: requireEnv("LINKEDIN_CLIENT_SECRET"),
+        },
+        medium: {
+          clientId: requireEnv("MEDIUM_CLIENT_ID"),
+          clientSecret: requireEnv("MEDIUM_CLIENT_SECRET"),
+        },
+      },
+    };
+  }
 
   return deps;
 };
