@@ -23,11 +23,14 @@ export const noteUpdateSchema = z.object({
 export const noteUploadRequestSchema = z.object({
   filename: nonEmptyStringSchema,
   contentType: nonEmptyStringSchema,
+  sizeBytes: z.number().int().positive(),
 });
 
 export const noteUploadResponseSchema = z.object({
   uploadUrl: nonEmptyStringSchema,
   s3Key: nonEmptyStringSchema,
+  artifactId: nonEmptyStringSchema,
+  publicUrl: nonEmptyStringSchema,
 });
 
 export const noteResponseSchema = z.object({

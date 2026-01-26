@@ -8,7 +8,7 @@ import {
 import { getUserById } from "../adapters/dynamodb/users";
 import { getUsageByPeriod, incrementUsage } from "../adapters/dynamodb/usage";
 import type { Deps } from "../runtime/deps";
-import { forbidden, notFound } from "../runtime/errors";
+import { badRequest, forbidden, notFound } from "../runtime/errors";
 
 const resolvePlan = (planId?: string): PlanConfig => {
   const normalized = planId === "pro" ? "pro" : "free";
@@ -68,14 +68,59 @@ export const assertQuotaEntitlement = async (
   return { periodStart };
 };
 
+export const assertCapacityEntitlement = async (
+  deps: Deps,
+  userId: string,
+  featureKey: FeatureKey,
+  field: "storageUsedMb",
+  delta: number,
+): Promise<{ periodStart: string; used: number; limit: number }> => {
+  if (delta <= 0) {
+    throw badRequest("Delta must be greater than zero");
+  }
+
+  const user = await requireUser(deps, userId);
+  const plan = resolvePlan(user.planId);
+  const entitlement = getEntitlement(plan, featureKey);
+  if (!entitlement || entitlement.type !== "capacity") {
+    throw forbidden("Capacity not available on current plan");
+  }
+
+  const periodStart = getUsagePeriodStart(user);
+  const usage = await getUsageByPeriod(deps.ddb, deps.tableNames.usage, userId, periodStart);
+  const used = usage?.[field] ?? 0;
+
+  if (used + delta > entitlement.limit) {
+    throw forbidden("Capacity exceeded");
+  }
+
+  return { periodStart, used, limit: entitlement.limit };
+};
+
 export const incrementUsageForField = async (
   deps: Deps,
   userId: string,
   periodStart: string,
-  field: "aiGenerationsUsed" | "scheduledPostsUsed" | "postsPublished",
+  field: "aiGenerationsUsed" | "scheduledPostsUsed" | "postsPublished" | "storageUsedMb",
 ): Promise<void> => {
   await incrementUsage(deps.ddb, deps.tableNames.usage, userId, periodStart, {
     [field]: 1,
+  });
+};
+
+export const incrementUsageByAmount = async (
+  deps: Deps,
+  userId: string,
+  periodStart: string,
+  field: "storageUsedMb",
+  amount: number,
+): Promise<void> => {
+  if (amount <= 0) {
+    throw badRequest("Amount must be greater than zero");
+  }
+
+  await incrementUsage(deps.ddb, deps.tableNames.usage, userId, periodStart, {
+    [field]: amount,
   });
 };
 

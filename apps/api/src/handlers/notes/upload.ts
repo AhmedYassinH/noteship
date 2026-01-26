@@ -11,7 +11,14 @@ export const handler = withDeps(async (deps, event) => {
   const payload = parseJsonBody(event.body);
   const input = noteUploadRequestSchema.parse(payload);
 
-  const result = await createNoteUploadUrl(deps, userId, noteId, input.filename, input.contentType);
+  const result = await createNoteUploadUrl(
+    deps,
+    userId,
+    noteId,
+    input.filename,
+    input.contentType,
+    input.sizeBytes,
+  );
 
   return jsonResponse(200, noteUploadResponseSchema.parse(result));
 });

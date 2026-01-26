@@ -26,7 +26,9 @@ export const incrementUsage = async (
   tableName: string,
   userId: string,
   periodStart: string,
-  fields: Partial<Pick<Usage, "aiGenerationsUsed" | "scheduledPostsUsed" | "postsPublished">>,
+  fields: Partial<
+    Pick<Usage, "aiGenerationsUsed" | "scheduledPostsUsed" | "postsPublished" | "storageUsedMb">
+  >,
 ): Promise<Usage> => {
   const increments = Object.entries(fields).filter(([, value]) => value !== undefined);
 
@@ -53,6 +55,16 @@ export const incrementUsage = async (
     attributeNames[nameKey] = field;
     attributeValues[valueKey] = Number(value);
     updateExpressions.push(`${nameKey} = if_not_exists(${nameKey}, :zero) + ${valueKey}`);
+  });
+
+  const ensuredFields = new Set(increments.map(([field]) => field));
+  (["aiGenerationsUsed", "scheduledPostsUsed"] as const).forEach((field, index) => {
+    if (ensuredFields.has(field)) {
+      return;
+    }
+    const nameKey = `#r${index}`;
+    attributeNames[nameKey] = field;
+    updateExpressions.push(`${nameKey} = if_not_exists(${nameKey}, :zero)`);
   });
 
   updateExpressions.push("#updatedAt = :updatedAt");

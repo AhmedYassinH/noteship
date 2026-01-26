@@ -11,6 +11,7 @@ import { enqueueJob } from "../adapters/sqs";
 import type { Deps } from "../runtime/deps";
 import { badRequest, notFound } from "../runtime/errors";
 import { buildNoteArtifactKey, buildNoteContentKey } from "@noteship/utils";
+import { FEATURE_KEYS, assertCapacityEntitlement, incrementUsageByAmount } from "./entitlements";
 
 const hashContent = (content: string): string => createHash("sha256").update(content).digest("hex");
 
@@ -154,14 +155,36 @@ export const createNoteUploadUrl = async (
   noteId: string,
   filename: string,
   contentType: string,
-): Promise<{ uploadUrl: string; s3Key: string }> => {
+  sizeBytes: number,
+): Promise<{ uploadUrl: string; s3Key: string; artifactId: string; publicUrl: string }> => {
+  if (!Number.isFinite(sizeBytes) || sizeBytes <= 0) {
+    throw badRequest("sizeBytes must be a positive number");
+  }
+
+  const note = await getNoteById(deps.ddb, deps.tableNames.notes, userId, noteId);
+  if (!note) {
+    throw notFound("Note not found");
+  }
+
+  const sizeMb = Math.round((sizeBytes / (1024 * 1024)) * 1000) / 1000;
+  const { periodStart } = await assertCapacityEntitlement(
+    deps,
+    userId,
+    FEATURE_KEYS.maxStorageMb,
+    "storageUsedMb",
+    sizeMb,
+  );
+  await incrementUsageByAmount(deps, userId, periodStart, "storageUsedMb", sizeMb);
+
   const extension = filename.includes(".") ? filename.split(".").pop() : "bin";
   if (!extension) {
     throw badRequest("filename must include an extension");
   }
 
-  const s3Key = buildNoteArtifactKey(userId, noteId, randomUUID(), extension);
+  const artifactId = randomUUID();
+  const s3Key = buildNoteArtifactKey(userId, noteId, artifactId, extension);
   const uploadUrl = await createPresignedPutUrl(deps.s3, deps.bucketName, s3Key, contentType);
+  const publicUrl = `https://${deps.contentDomain}/${s3Key}`;
 
-  return { uploadUrl, s3Key };
+  return { uploadUrl, s3Key, artifactId, publicUrl };
 };
