@@ -40,6 +40,7 @@ description: Build and maintain Noteship infrastructure in packages/infra (CDK s
 - Stack boundaries (core, api, workers, web).
 - Queue + DLQ configuration and retention policies.
 - Observability basics (logs, metrics, alarms).
+- CloudFront signer and content cookie domain env wiring.
 
 ## References
 
