@@ -156,6 +156,11 @@ Attributes:
 - `storageUsedMb` (optional)
 - `updatedAt`
 
+Notes:
+
+- `storageUsedMb` is reserved on upload init to enforce `max_storage_mb` entitlements.
+- Consider a later reconcile step on upload completion to adjust for failed uploads.
+
 #### Table: `Jobs` (optional, recommended)
 
 If you want observable job history beyond SQS:
@@ -316,6 +321,13 @@ Details: `docs/technical/detailed/11-api-design-and-contracts.md`.
 #### Attachments
 
 - `POST /notes/{noteId}/uploads` get presigned upload URL
+  - Body: `{ filename, contentType, sizeBytes }`
+  - Response: `{ uploadUrl, s3Key, artifactId, publicUrl }`
+
+#### Content access
+
+- `POST /content/session` issue CloudFront signed cookies (user-scoped)
+  - Response: `{ ok: true }`
 
 #### Search
 

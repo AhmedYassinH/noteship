@@ -74,6 +74,11 @@ Bucket settings:
   - `postsPublished` (optional; analytics)
   - `storageUsedMb` (optional)
 
+Notes:
+
+- `storageUsedMb` is reserved on upload init to enforce `max_storage_mb` entitlements.
+- Consider a later reconcile step on upload completion to adjust for failed uploads.
+
 ### Table: Jobs (optional)
 
 - PK: `userId`

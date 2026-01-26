@@ -93,6 +93,7 @@ Details: `docs/technical/detailed/07-system-high-level-architecture.md`.
 - Auth UI and session handling
 - Rich text editing (TipTap)
 - Calling API endpoints for notes, search, posts, scheduling
+- Requesting signed content session cookies for user content access
 - Client-side feature gating (hide/disable) based on entitlements snapshot
 - Showing async job statuses (scheduled/published/failed)
 - Bilingual UX (EN/AR) with RTL/LTR layout mirroring per brand docs (`docs/brand/noteship-language-guidelines.md`, `docs/brand/noteship-layout-rtl-ltr.md`, `docs/brand/noteship-typography.md`)
@@ -147,6 +148,7 @@ Details: `docs/technical/detailed/09-backend-architecture.md`, `docs/technical/d
 - `note.md` stored per note
 - `artifacts/*` stored per note (images, exports, generated outputs)
 - Versioning enabled (supports history + safe re-embedding)
+- Content access via CloudFront signed cookies scoped to `users/{userId}/*`
 
 ### DynamoDB (system of record for state/metadata)
 
@@ -254,7 +256,7 @@ sequenceDiagram
 
 **Intent:** Use async pipeline for reliability and vendor rate limits.
 
-```mermaid
+````mermaid
 flowchart TD
   A[User clicks Publish/Schedule] --> B[API validates entitlement]
   B --> C[Create Post record in DDB<br/>status=queued or scheduled]
@@ -267,7 +269,28 @@ flowchart TD
   I --> J{Retries exceeded?}
   J -->|Yes| K[DLQ + status=failed]
   J -->|No| D
-```
+
+### 5.5 Content access session
+
+**Intent:** Provide time-limited access to user content stored in S3 via CloudFront.
+
+```mermaid
+sequenceDiagram
+  participant FE as Next.js
+  participant GW as API Gateway
+  participant API as Lambda API
+  participant CF as CloudFront
+  participant S3 as S3 (Artifacts)
+
+  FE->>GW: POST /content/session
+  GW->>API: Invoke handler
+  API-->>FE: Set signed cookies (CloudFront-*)
+  FE->>CF: Request users/{userId}/... assets
+  CF->>S3: Fetch artifact
+  CF-->>FE: Serve content
+````
+
+````
 
 ---
 
@@ -319,7 +342,7 @@ flowchart LR
   Job --> LIConn --> LI
   Job --> MEDConn --> MED
   Job --> Future --> X
-```
+````
 
 Details: `docs/technical/detailed/12-connector-and-integration-architecture.md`.
 

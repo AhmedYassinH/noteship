@@ -44,6 +44,7 @@ Define the Next.js structure, state management, and integration points.
 - TipTap document in memory
 - Serialize to Markdown for saving/export
 - Attachments upload to S3 via backend-signed URL (recommended)
+- Request `/content/session` to obtain CloudFront signed cookies before fetching artifacts
 - Support per-block RTL/LTR direction; code blocks stay LTR; persist `language` on note/post metadata.
 
 ## i18n content strategy (public pages)

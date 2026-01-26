@@ -39,6 +39,7 @@ description: Build and maintain the Noteship Next.js app (landing + dashboard), 
 
 - TipTap serialization to Markdown for storage.
 - Attachment uploads via presigned URLs.
+- Request `/content/session` to obtain signed cookies before fetching artifacts.
 - Entitlements: hide vs disable + upsell; backend is source of truth.
 - Locale-specific assets and copy; avoid hardcoded strings in components.
 

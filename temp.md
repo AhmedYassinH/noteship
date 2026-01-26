@@ -105,6 +105,10 @@ This file tracks what is done vs what remains from the agreed plan.
   - Guarded CloudFront signed cookie values before building response cookies.
   - Wrapped dashboard shell in Suspense to satisfy `useSearchParams` build requirement.
 
+- **Docs + skills alignment**
+  - Updated HLD/LLD for content session cookies, upload contract, and storage reservation notes.
+  - Updated skills guidance for API/Web/Infra to reflect content session and upload entitlements.
+
 ## Still Needed (from the plan)
 
 1. **Targeted E2E smoke checks (optional but recommended)**
