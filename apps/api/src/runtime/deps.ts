@@ -38,6 +38,10 @@ export type Deps = {
     proMonthly?: string;
     proYearly?: string;
   };
+  contentDomain: string;
+  contentCookieDomain?: string;
+  cloudfrontKeyPairId: string;
+  cloudfrontPrivateKey: string;
   connectors: {
     linkedin: {
       clientId: string;
@@ -97,6 +101,10 @@ export const getDeps = (): Deps => {
         proMonthly: process.env.STRIPE_PRICE_PRO_MONTHLY,
         proYearly: process.env.STRIPE_PRICE_PRO_YEARLY,
       },
+      contentDomain: requireEnv("NOTESHIP_CONTENT_DOMAIN"),
+      contentCookieDomain: process.env.NOTESHIP_CONTENT_COOKIE_DOMAIN,
+      cloudfrontKeyPairId: requireEnv("NOTESHIP_CLOUDFRONT_KEY_PAIR_ID"),
+      cloudfrontPrivateKey: requireEnv("NOTESHIP_CLOUDFRONT_PRIVATE_KEY"),
       connectors: {
         linkedin: {
           clientId: requireEnv("LINKEDIN_CLIENT_ID"),

@@ -106,6 +106,9 @@ export class NoteshipApiStack extends Stack {
       LINKEDIN_CLIENT_SECRET: requireEnv("LINKEDIN_CLIENT_SECRET"),
       MEDIUM_CLIENT_ID: requireEnv("MEDIUM_CLIENT_ID"),
       MEDIUM_CLIENT_SECRET: requireEnv("MEDIUM_CLIENT_SECRET"),
+      NOTESHIP_CONTENT_DOMAIN: requireEnv("NOTESHIP_CONTENT_DOMAIN"),
+      NOTESHIP_CLOUDFRONT_KEY_PAIR_ID: requireEnv("NOTESHIP_CLOUDFRONT_KEY_PAIR_ID"),
+      NOTESHIP_CLOUDFRONT_PRIVATE_KEY: requireEnv("NOTESHIP_CLOUDFRONT_PRIVATE_KEY"),
     };
 
     maybeSetEnv(envVars, "NOTESHIP_LLM_PROVIDER");
@@ -113,6 +116,7 @@ export class NoteshipApiStack extends Stack {
     maybeSetEnv(envVars, "QDRANT_API_KEY");
     maybeSetEnv(envVars, "STRIPE_PRICE_PRO_MONTHLY");
     maybeSetEnv(envVars, "STRIPE_PRICE_PRO_YEARLY");
+    maybeSetEnv(envVars, "NOTESHIP_CONTENT_COOKIE_DOMAIN");
 
     const api = new HttpApi(this, "NoteshipHttpApi", {
       apiName: `noteship-api-${envName}`,
@@ -120,7 +124,8 @@ export class NoteshipApiStack extends Stack {
       corsPreflight: {
         allowHeaders: ["authorization", "content-type"],
         allowMethods: [CorsHttpMethod.ANY],
-        allowOrigins: ["*"],
+        allowOrigins: [requireEnv("NOTESHIP_WEB_ORIGIN")],
+        allowCredentials: true,
       },
     });
 
@@ -146,6 +151,12 @@ export class NoteshipApiStack extends Stack {
         path: "/notes/{noteId}/uploads",
         methods: [HttpMethod.POST],
         entry: "notes/upload.ts",
+      },
+      {
+        id: "ContentSession",
+        path: "/content/session",
+        methods: [HttpMethod.POST],
+        entry: "content/session.ts",
       },
       { id: "SearchNotes", path: "/search", methods: [HttpMethod.POST], entry: "search/post.ts" },
       {

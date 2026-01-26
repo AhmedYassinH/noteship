@@ -27,6 +27,13 @@ Define the MVP API surface and request/response shapes (conceptual).
 ### Attachments
 
 - `POST /notes/{noteId}/uploads` get presigned upload URL
+  Body: `{ filename, contentType, sizeBytes }`
+  Response: `{ uploadUrl, s3Key, artifactId, publicUrl }`
+
+### Content access
+
+- `POST /content/session` issue CloudFront signed cookies for user content
+  Response: `{ ok: true }`
 
 ### Search
 

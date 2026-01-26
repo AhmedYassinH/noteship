@@ -6,3 +6,4 @@ export * from "./posts";
 export * from "./integrations";
 export * from "./billing";
 export * from "./users";
+export * from "./content";
