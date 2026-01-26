@@ -35,7 +35,8 @@ $env:AWS_PROFILE="noteship-dev"
 
 ## CI status
 
-- GitHub Actions runs `pnpm lint`, `pnpm build`, `pnpm test`, and `pnpm format` on PRs/merges.
+- GitHub Actions runs `pnpm lint`, `pnpm build`, and `pnpm test` on PRs/merges.
+- A main-branch deploy job ships the dev environment after CI succeeds.
 - Playwright E2E runs only when `RUN_E2E=1` is set (or via `pnpm --filter @noteship/web test:e2e`).
 
 ## CDK bootstrap (per account/region)
@@ -62,6 +63,16 @@ pnpm --filter @noteship/infra synth -- -c env=dev -c region=us-east-1
 # deploy
 cdk deploy NoteshipCore-dev -c env=dev -c region=us-east-1
 ```
+
+## GitHub Actions (dev deploy)
+
+- Trigger: push to `main`.
+- Gate: lint, build, and test must succeed.
+- Deploys stacks in order: Core → API → Workers → Web.
+- Builds/exports web app, syncs to S3, and invalidates CloudFront.
+- Requires secrets from the env var list above plus:
+  - `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION`
+  - `NOTESHIP_WEB_BUCKET_NAME`, `NOTESHIP_WEB_DISTRIBUTION_ID`
 
 Provisioned (aligns to HLD/LLD):
 

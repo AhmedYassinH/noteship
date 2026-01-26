@@ -109,6 +109,10 @@ This file tracks what is done vs what remains from the agreed plan.
   - Updated HLD/LLD for content session cookies, upload contract, and storage reservation notes.
   - Updated skills guidance for API/Web/Infra to reflect content session and upload entitlements.
 
+- **CI/CD dev deploy workflow**
+  - CI no longer runs format; dev deploy runs on main after lint/build/test.
+  - Added deploy steps for Core/API/Workers/Web and web asset sync/invalidation.
+
 ## Still Needed (from the plan)
 
 1. **Targeted E2E smoke checks (optional but recommended)**
