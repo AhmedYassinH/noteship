@@ -115,7 +115,7 @@ This file tracks what is done vs what remains from the agreed plan.
 
 - **Infra tooling**
   - Ignored CDK/CloudFormation artifacts and build JS in `.gitignore`.
-  - Infra scripts load `.env` via `NODE_OPTIONS=--env-file=../../.env` (cross-platform).
+  - Infra scripts load `.env` via `dotenv-cli` for synth/deploy.
 
 ## Still Needed (from the plan)
 

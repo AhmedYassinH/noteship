@@ -7,9 +7,9 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
-    "synth": "cross-env NODE_OPTIONS=--env-file=../../.env cdk synth",
+    "synth": "dotenv -e ../../.env -- cdk synth",
     "bootstrap": "cdk bootstrap",
-    "deploy:dev": "cross-env NODE_OPTIONS=--env-file=../../.env cdk deploy -c env=dev -c region=us-east-1"
+    "deploy:dev": "dotenv -e ../../.env -- cdk deploy -c env=dev -c region=us-east-1"
   },
   "dependencies": {
     "aws-cdk-lib": "^2.151.0",
@@ -17,7 +17,7 @@
   },
   "devDependencies": {
     "@types/node": "^22.16.5",
-    "cross-env": "^7.0.3",
+    "dotenv-cli": "^7.4.2",
     "esbuild": "^0.25.10",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3"
