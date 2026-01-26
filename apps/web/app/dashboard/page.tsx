@@ -1,92 +1,151 @@
 "use client";
 
-import type { MeResponse } from "@noteship/domain";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { useAuth } from "../../components/auth/AuthProvider";
-import { apiFetch } from "../../lib/api/client";
-import styles from "./page.module.css";
+import dashboardCopy from "../../data/dashboard";
+import { useDashboard } from "../../components/dashboard/DashboardShell";
+import { listPosts } from "../../lib/api/notes";
+import type { PostResponse } from "../../lib/api/types";
+import styles from "./dashboard.module.css";
 
 const DashboardPage = () => {
-  const { isLoading, isAuthenticated, user: authUser, login } = useAuth();
-  const [user, setUser] = useState<MeResponse["user"] | null>(null);
-  const [loadError, setLoadError] = useState(false);
+  const { lang, isAr, recentNotes, recentNotesStatus, refreshNotes } = useDashboard();
+  const t = useMemo(() => dashboardCopy[lang], [lang]);
+  const [publishing, setPublishing] = useState<PostResponse[]>([]);
+  const [publishingStatus, setPublishingStatus] = useState<"loading" | "ready" | "error">(
+    "loading",
+  );
+
+  const statusClass = (status: PostResponse["status"]) => {
+    if (status === "published") return styles.statusSuccess;
+    if (status === "failed") return styles.statusDanger;
+    if (status === "scheduled") return styles.statusWarning;
+    return "";
+  };
+
+  const loadPublishing = useCallback(async () => {
+    setPublishingStatus("loading");
+    try {
+      const result = await listPosts();
+      setPublishing(result.items);
+      setPublishingStatus("ready");
+    } catch {
+      setPublishing([]);
+      setPublishingStatus("error");
+    }
+  }, []);
 
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      void login("/dashboard");
-    }
-  }, [isLoading, isAuthenticated, login]);
-
-  useEffect(() => {
-    if (!isAuthenticated) {
-      return;
-    }
-
-    const load = async () => {
-      try {
-        const me = await apiFetch<MeResponse>("/me");
-        setUser(me.user);
-      } catch {
-        setLoadError(true);
-      }
-    };
-
-    void load();
-  }, [isAuthenticated]);
+    void loadPublishing();
+  }, [loadPublishing]);
 
   return (
-    <main className={styles.main}>
-      <section className={styles.card}>
-        <p className={styles.kicker}>Noteship Dashboard</p>
-        <h1 className={styles.title}>
-          {isLoading
-            ? "Checking session..."
-            : isAuthenticated
-              ? "You're signed in."
-              : "Redirecting to login..."}
-        </h1>
-        <p className={styles.meta}>
-          {user?.name ?? user?.email ?? authUser?.email ?? authUser?.name}
-        </p>
-        {loadError ? (
-          <div className={styles.warning}>
-            We couldn&apos;t load your profile from the API. Check{" "}
-            <code>NEXT_PUBLIC_API_BASE_URL</code> and Auth0 audience configuration.
-          </div>
-        ) : (
-          user && (
-            <div className={styles.list}>
-              <div className={styles.listRow}>
-                <span className={styles.label}>User ID</span>
-                <span className={styles.value}>{user.userId}</span>
-              </div>
-              <div className={styles.listRow}>
-                <span className={styles.label}>Email</span>
-                <span className={styles.value}>{user.email}</span>
-              </div>
-              <div className={styles.listRow}>
-                <span className={styles.label}>Plan</span>
-                <span className={styles.value}>{user.planId ?? "free"}</span>
-              </div>
-              <div className={styles.listRow}>
-                <span className={styles.label}>Status</span>
-                <span className={styles.value}>{user.subscriptionStatus ?? "n/a"}</span>
-              </div>
-            </div>
-          )
-        )}
-        <div className={styles.actions}>
-          <Link className={styles.actionPrimary} href="/logout">
-            Log out
+    <main lang={lang} dir={isAr ? "rtl" : "ltr"}>
+      <div className={styles.pageHeader}>
+        <div>
+          <h1 className={styles.pageTitle}>{t.overview.title}</h1>
+          <p className={styles.pageSubtitle}>{t.overview.subtitle}</p>
+        </div>
+        <div className={styles.inlineActions}>
+          <Link className={styles.pillButton} href="/dashboard/notes">
+            {t.nav.notes}
           </Link>
-          <Link className={styles.actionSecondary} href="/">
-            Back to marketing site
+          <Link className={`${styles.pillButton} ${styles.primaryButton}`} href="/dashboard/drafts">
+            {t.nav.drafts}
           </Link>
         </div>
-        <p className={styles.note}>
-          Next step: load notes and drafts now that `/me` bootstrap is wired.
-        </p>
+      </div>
+
+      <section className={styles.statGrid}>
+        {t.overview.stats.map((stat) => (
+          <div key={stat.label} className={styles.card}>
+            <p className={styles.cardTitle}>{stat.label}</p>
+            <p className={styles.statValue}>{stat.value}</p>
+          </div>
+        ))}
+      </section>
+
+      <section className={styles.grid}>
+        <div className={styles.card}>
+          <h2 className={styles.cardTitle}>{t.overview.recentNotes}</h2>
+          {recentNotesStatus === "loading" ? (
+            <div className={styles.emptyState}>{t.common.loading}</div>
+          ) : recentNotesStatus === "error" ? (
+            <div className={styles.emptyState} role="alert">
+              <p>{t.common.error}</p>
+              <button
+                type="button"
+                className={styles.pillButton}
+                onClick={() => void refreshNotes()}
+              >
+                {t.common.retry}
+              </button>
+            </div>
+          ) : recentNotes.length === 0 ? (
+            <div className={styles.emptyState}>{t.overview.emptyNotes}</div>
+          ) : (
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>{t.table.note}</th>
+                  <th>{t.table.updated}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {recentNotes.map((note) => (
+                  <tr key={note.noteId}>
+                    <td>
+                      <Link href={`/dashboard/notes/${note.noteId}`}>{note.title}</Link>
+                    </td>
+                    <td>{new Date(note.updatedAt).toLocaleDateString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+        <div className={styles.card}>
+          <h2 className={styles.cardTitle}>{t.overview.publishQueue}</h2>
+          {publishingStatus === "loading" ? (
+            <div className={styles.emptyState}>{t.common.loading}</div>
+          ) : publishingStatus === "error" ? (
+            <div className={styles.emptyState} role="alert">
+              <p>{t.common.error}</p>
+              <button
+                type="button"
+                className={styles.pillButton}
+                onClick={() => void loadPublishing()}
+              >
+                {t.common.retry}
+              </button>
+            </div>
+          ) : publishing.length === 0 ? (
+            <div className={styles.emptyState}>{t.overview.emptyQueue}</div>
+          ) : (
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>{t.table.provider}</th>
+                  <th>{t.table.status}</th>
+                  <th>{t.table.updated}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {publishing.slice(0, 4).map((post) => (
+                  <tr key={post.postId}>
+                    <td>{post.provider}</td>
+                    <td>
+                      <span className={`${styles.statusPill} ${statusClass(post.status)}`}>
+                        {post.status}
+                      </span>
+                    </td>
+                    <td>{new Date(post.updatedAt).toLocaleDateString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
       </section>
     </main>
   );

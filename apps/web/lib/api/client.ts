@@ -14,6 +14,7 @@ export const apiFetch = async <T>(path: string, init: RequestInit = {}): Promise
     ...init,
     headers,
     cache: "no-store",
+    credentials: init.credentials ?? "include",
   });
 
   if (!response.ok) {
