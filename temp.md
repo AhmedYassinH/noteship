@@ -113,6 +113,10 @@ This file tracks what is done vs what remains from the agreed plan.
   - CI no longer runs format; dev deploy runs on main after lint/build/test.
   - Added deploy steps for Core/API/Workers/Web and web asset sync/invalidation.
 
+- **Infra tooling**
+  - Ignored CDK/CloudFormation artifacts and build JS in `.gitignore`.
+  - Infra scripts load `.env` via `NODE_OPTIONS=--env-file=../../.env` (cross-platform).
+
 ## Still Needed (from the plan)
 
 1. **Targeted E2E smoke checks (optional but recommended)**
