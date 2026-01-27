@@ -70,10 +70,17 @@ export const getDeps = (): Deps => {
     const vectorDbProvider =
       (process.env.NOTESHIP_VECTOR_DB_PROVIDER as VectorDbProvider | undefined) ?? "qdrant";
 
+    const s3Endpoint = process.env.NOTESHIP_S3_ENDPOINT;
+    const sqsEndpoint = process.env.NOTESHIP_SQS_ENDPOINT;
+
     deps = {
       ddb: ddbDocClient,
-      s3: new S3Client({}),
-      sqs: new SQSClient({}),
+      s3: new S3Client({
+        ...(s3Endpoint && { endpoint: s3Endpoint, forcePathStyle: true }),
+      }),
+      sqs: new SQSClient({
+        ...(sqsEndpoint && { endpoint: sqsEndpoint }),
+      }),
       tableNames: {
         users: requireEnv("NOTESHIP_USERS_TABLE_NAME"),
         notes: requireEnv("NOTESHIP_NOTES_TABLE_NAME"),

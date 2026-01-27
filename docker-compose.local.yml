@@ -1,0 +1,38 @@
+version: "3.8"
+
+services:
+  dynamodb-local:
+    image: amazon/dynamodb-local:latest
+    container_name: noteship-dynamodb
+    ports:
+      - "8000:8000"
+    command: "-jar DynamoDBLocal.jar -sharedDb -dbPath /data"
+    volumes:
+      - dynamodb-data:/data
+    networks:
+      - noteship-local
+
+  localstack:
+    image: localstack/localstack:latest
+    container_name: noteship-localstack
+    ports:
+      - "4566:4566"
+      - "4510-4559:4510-4559"
+    environment:
+      - SERVICES=s3,sqs
+      - DEBUG=1
+      - DATA_DIR=/var/lib/localstack/data
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    volumes:
+      - localstack-data:/var/lib/localstack
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - noteship-local
+
+volumes:
+  dynamodb-data:
+  localstack-data:
+
+networks:
+  noteship-local:
+    driver: bridge

@@ -89,3 +89,27 @@ Limitations:
 - API Gateway + Lambda integrations may differ from AWS behavior.
 
 If you use emulators, keep them for local tests only and verify flows against real AWS dev stacks.
+
+## 9) Quick-start local emulators
+
+Run the launcher script to start DynamoDB Local + LocalStack and initialize resources:
+
+**Bash/macOS/WSL:**
+
+```sh
+./scripts/start-local.sh
+```
+
+**PowerShell (Windows):**
+
+```powershell
+.\scripts\start-local.ps1
+```
+
+This will:
+
+1. Start Docker containers for DynamoDB Local and LocalStack.
+2. Create tables, S3 bucket, and SQS queue.
+3. Print next steps for running the app.
+
+Use `.env.local` as a template for local endpoint overrides.
