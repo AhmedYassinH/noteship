@@ -8,10 +8,10 @@ export type HandlerFn = (
 ) => Promise<APIGatewayProxyResultV2>;
 
 export const withDeps =
-  (handler: HandlerFn) =>
+  (handler: HandlerFn, overrideDeps?: Deps) =>
   async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
     try {
-      const deps = getDeps();
+      const deps = overrideDeps ?? getDeps();
       return await handler(deps, event);
     } catch (error) {
       return errorResponse(error);

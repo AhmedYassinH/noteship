@@ -14,6 +14,11 @@ Use unit tests for:
 
 Avoid over-mocking. If the behavior is a contract with another module, prefer integration tests.
 
+### Handler tests (deps override)
+
+API handlers can be tested without global mocks by passing a fake `deps` object to `withDeps()`.
+This keeps Lambda-style global caching in production while allowing per-test injection.
+
 ## Integration tests
 
 Use integration tests for I/O boundaries:

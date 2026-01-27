@@ -25,5 +25,5 @@ These documents define product intent and system design. Follow them before maki
 
 ## Repo skills (Codex)
 
-Skills live in `skills/` but are not automatically loaded into Codex sessions.
+Skills live in `.github/skills/` but are not automatically loaded into Codex sessions.
 Install them into `$CODEX_HOME/skills` and restart Codex to activate.
