@@ -13,7 +13,7 @@ export { handler as publishPostHandler } from "./handlers/posts/publish";
 export { handler as schedulePostHandler } from "./handlers/posts/schedule";
 export { handler as cancelPostHandler } from "./handlers/posts/cancel";
 
-export { handler as searchHandler } from "./handlers/search/post";
+export { handler as searchHandler } from "./handlers/search/searchInNotes";
 export { handler as createDraftHandler } from "./handlers/drafts/create";
 
 export { handler as listIntegrationsHandler } from "./handlers/integrations/list";

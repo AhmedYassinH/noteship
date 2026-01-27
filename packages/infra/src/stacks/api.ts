@@ -158,7 +158,12 @@ export class NoteshipApiStack extends Stack {
         methods: [HttpMethod.POST],
         entry: "content/session.ts",
       },
-      { id: "SearchNotes", path: "/search", methods: [HttpMethod.POST], entry: "search/post.ts" },
+      {
+        id: "SearchNotes",
+        path: "/search",
+        methods: [HttpMethod.POST],
+        entry: "search/searchInNotes.ts",
+      },
       {
         id: "CreateDraft",
         path: "/notes/{noteId}/drafts",

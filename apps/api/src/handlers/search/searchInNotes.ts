@@ -1,4 +1,4 @@
-import { searchRequestSchema } from "@noteship/domain";
+import { searchRequestSchema, searchResultSchema } from "@noteship/domain";
 import { getUserId } from "../../runtime/auth";
 import { jsonResponse, parseJsonBody } from "../../runtime/http";
 import { withDeps } from "../../runtime/handler";
@@ -12,13 +12,16 @@ export const handler = withDeps(async (deps, event) => {
   const results = await searchNotes(deps, userId, input.query, input.limit);
 
   return jsonResponse(200, {
-    results: results.map((result) => ({
-      noteId: result.note.noteId,
-      title: result.note.title,
-      score: result.score,
-      preview: result.preview,
-      highlights: result.chunkIndex !== undefined ? [{ chunkIndex: result.chunkIndex }] : undefined,
-      updatedAt: result.note.updatedAt,
-    })),
+    results: searchResultSchema.parse(
+      results.map((result) => ({
+        noteId: result.note.noteId,
+        title: result.note.title,
+        score: result.score,
+        preview: result.preview,
+        highlights:
+          result.chunkIndex !== undefined ? [{ chunkIndex: result.chunkIndex }] : undefined,
+        updatedAt: result.note.updatedAt,
+      })),
+    ),
   });
 });
