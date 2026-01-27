@@ -29,6 +29,7 @@ updates:
           - "patch"
 
   # Check for security updates daily
+  # Note: GitHub Dependabot automatically prioritizes security updates
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
@@ -39,7 +40,6 @@ updates:
       - "dependencies"
     commit-message:
       prefix: "security(deps)"
-    # Only security updates
     versioning-strategy: increase-if-necessary
 
   # GitHub Actions updates

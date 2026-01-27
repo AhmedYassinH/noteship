@@ -1,5 +1,9 @@
 # Noteship
 
+[![CI](https://github.com/AhmedYassinH/noteship/actions/workflows/ci.yml/badge.svg)](https://github.com/AhmedYassinH/noteship/actions/workflows/ci.yml)
+[![Security](https://github.com/AhmedYassinH/noteship/actions/workflows/security.yml/badge.svg)](https://github.com/AhmedYassinH/noteship/actions/workflows/security.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 Read `AGENTS.md` and the docs in `docs/` before making changes.
 
 ## Repository layout
@@ -29,3 +33,15 @@ Read `AGENTS.md` and the docs in `docs/` before making changes.
 - Synthesize: `pnpm --filter @noteship/infra synth` (uses `env` context, default `dev`)
 - Context example: `cd packages/infra && cdk synth -c env=dev -c region=us-east-1`
 - Stacks: content bucket, DynamoDB tables (users, notes, posts, integrations, usage, jobs), jobs queue + DLQ.
+
+## Contributing
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines on how to contribute to this project.
+
+## Security
+
+For security concerns, please review our [Security Policy](./SECURITY.md).
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.
