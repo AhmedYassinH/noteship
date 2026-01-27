@@ -1,0 +1,34 @@
+# Auto detect text files and normalize line endings to LF
+* text=auto eol=lf
+
+# Explicitly declare text files
+*.c text
+*.css text
+*.html text
+*.java text
+*.js text
+*.json text
+*.md text
+*.ts text
+*.tsx text
+*.xml text
+*.yml text
+*.yaml text
+
+# Shell scripts need LF
+*.sh text eol=lf
+
+# Windows batch files need CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Deny list - these are binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary
