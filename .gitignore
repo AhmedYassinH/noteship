@@ -34,8 +34,29 @@ build.js
 *.sln
 *.sw?
 
-# Env files
+# Backup files
+*.bak
+*.backup
+*.old
+*.orig
+*~
+
+# Env files and secrets
 .env
 .env.*
 !.env.example
 !.env.local.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.cer
+secrets.json
+secrets/
+.secrets/
+
+# AWS and cloud credentials
+.aws/
+credentials
+config
