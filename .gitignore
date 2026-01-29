@@ -39,3 +39,8 @@ build.js
 .env.*
 !.env.example
 !.env.local.example
+
+
+
+# Agents (Claude Code, Codex, Copilot ... etc) files
+.claude/settings.local.json
