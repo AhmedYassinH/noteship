@@ -64,7 +64,10 @@ export class NoteshipWorkersStack extends Stack {
       queueUrl: `https://sqs.${cdk.Aws.REGION}.amazonaws.com/${cdk.Aws.ACCOUNT_ID}/${queueName}`,
     });
 
+    const powertoolsLogLevel = envName === "prod" ? "INFO" : "DEBUG";
+
     const envVars: Record<string, string> = {
+      NOTESHIP_ENV_NAME: envName,
       NOTESHIP_CONTENT_BUCKET_NAME: contentBucket.bucketName,
       NOTESHIP_NOTES_TABLE_NAME: notesTable.tableName,
       NOTESHIP_POSTS_TABLE_NAME: postsTable.tableName,
@@ -79,11 +82,14 @@ export class NoteshipWorkersStack extends Stack {
       LINKEDIN_CLIENT_SECRET: requireEnv("LINKEDIN_CLIENT_SECRET"),
       MEDIUM_CLIENT_ID: requireEnv("MEDIUM_CLIENT_ID"),
       MEDIUM_CLIENT_SECRET: requireEnv("MEDIUM_CLIENT_SECRET"),
+      POWERTOOLS_SERVICE_NAME: "noteship-workers",
+      POWERTOOLS_LOG_LEVEL: powertoolsLogLevel,
     };
 
     maybeSetEnv(envVars, "NOTESHIP_LLM_PROVIDER");
     maybeSetEnv(envVars, "NOTESHIP_VECTOR_DB_PROVIDER");
     maybeSetEnv(envVars, "QDRANT_API_KEY");
+    maybeSetEnv(envVars, "POWERTOOLS_LOGGER_SAMPLE_RATE");
 
     const jobsHandler = new NodejsFunction(this, "JobsWorker", {
       entry: path.join(repoRoot, "apps/workers/src/handlers/jobs.ts"),

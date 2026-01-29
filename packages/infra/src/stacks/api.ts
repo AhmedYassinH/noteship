@@ -78,6 +78,8 @@ export class NoteshipApiStack extends Stack {
       queueUrl: `https://sqs.${cdk.Aws.REGION}.amazonaws.com/${cdk.Aws.ACCOUNT_ID}/${queueName}`,
     });
 
+    const powertoolsLogLevel = envName === "prod" ? "INFO" : "DEBUG";
+
     const auth0IssuerBaseUrl = requireEnv("AUTH0_ISSUER_BASE_URL");
     const auth0Audience = requireEnv("AUTH0_AUDIENCE");
     const jwtAuthorizer = new HttpJwtAuthorizer("Auth0Authorizer", auth0IssuerBaseUrl, {
@@ -85,6 +87,7 @@ export class NoteshipApiStack extends Stack {
     });
 
     const envVars: Record<string, string> = {
+      NOTESHIP_ENV_NAME: envName,
       NOTESHIP_CONTENT_BUCKET_NAME: contentBucket.bucketName,
       NOTESHIP_USERS_TABLE_NAME: usersTable.tableName,
       NOTESHIP_NOTES_TABLE_NAME: notesTable.tableName,
@@ -109,6 +112,8 @@ export class NoteshipApiStack extends Stack {
       NOTESHIP_CONTENT_DOMAIN: requireEnv("NOTESHIP_CONTENT_DOMAIN"),
       NOTESHIP_CLOUDFRONT_KEY_PAIR_ID: requireEnv("NOTESHIP_CLOUDFRONT_KEY_PAIR_ID"),
       NOTESHIP_CLOUDFRONT_PRIVATE_KEY: requireEnv("NOTESHIP_CLOUDFRONT_PRIVATE_KEY"),
+      POWERTOOLS_SERVICE_NAME: "noteship-api",
+      POWERTOOLS_LOG_LEVEL: powertoolsLogLevel,
     };
 
     maybeSetEnv(envVars, "NOTESHIP_LLM_PROVIDER");
@@ -117,6 +122,7 @@ export class NoteshipApiStack extends Stack {
     maybeSetEnv(envVars, "STRIPE_PRICE_PRO_MONTHLY");
     maybeSetEnv(envVars, "STRIPE_PRICE_PRO_YEARLY");
     maybeSetEnv(envVars, "NOTESHIP_CONTENT_COOKIE_DOMAIN");
+    maybeSetEnv(envVars, "POWERTOOLS_LOGGER_SAMPLE_RATE");
 
     const api = new HttpApi(this, "NoteshipHttpApi", {
       apiName: `noteship-api-${envName}`,

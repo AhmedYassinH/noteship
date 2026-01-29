@@ -115,14 +115,15 @@ export const handleStripeWebhook = async (
   deps: Deps,
   payload: string,
   signature: string | undefined,
-): Promise<{ received: boolean }> => {
+): Promise<{ received: boolean; eventType?: string }> => {
   if (!signature) {
     throw badRequest("Missing Stripe signature");
   }
 
   const event = deps.stripe.webhooks.constructEvent(payload, signature, deps.stripeWebhookSecret);
+  const eventType = event.type;
 
-  switch (event.type) {
+  switch (eventType) {
     case "checkout.session.completed": {
       const session = event.data.object as Stripe.Checkout.Session;
       const userId = session.metadata?.userId || session.client_reference_id;
@@ -145,5 +146,5 @@ export const handleStripeWebhook = async (
       break;
   }
 
-  return { received: true };
+  return { received: true, eventType };
 };

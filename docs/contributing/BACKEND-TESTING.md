@@ -42,6 +42,7 @@ Prefer local or sandboxed services. If you must mock, keep mocks shallow and val
 - Unit/integration tests added for the change type.
 - Tests run locally (or noted if not available yet).
 - No change contradicts HLD/LLD or data boundaries.
+- If logging changes are involved: verify structured JSON logs and request/job context in CloudWatch, with no cross-invocation context bleed.
 
 ## Suggested commands (recommended when tests exist)
 

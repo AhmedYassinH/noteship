@@ -18,3 +18,10 @@ Never commit secrets.
 ## Source of truth
 
 - Deployment env keys and expected values: `docs/technical/deployment.md`.
+
+## Logging (Lambda Powertools)
+
+- `POWERTOOLS_SERVICE_NAME` (set by infra; default per service)
+- `POWERTOOLS_LOG_LEVEL` (set by infra; `DEBUG` in dev, `INFO` in prod)
+- `POWERTOOLS_LOGGER_SAMPLE_RATE` (optional; set in deploy env to enable sampling)
+- `NOTESHIP_ENV_NAME` (set by infra; used for log context)
