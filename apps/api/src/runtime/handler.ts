@@ -46,10 +46,11 @@ export const withDeps =
       });
       const response = await handler(deps, event);
       const durationMs = Date.now() - start;
+      const statusCode = typeof response === "string" ? 200 : response.statusCode;
       logger.info("request_end", {
         requestId,
         userId,
-        statusCode: response.statusCode,
+        statusCode,
         durationMs,
       });
       return response;
