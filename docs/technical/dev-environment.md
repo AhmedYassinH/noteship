@@ -54,6 +54,7 @@ cdk deploy NoteshipWeb-dev -c env=dev -c region=us-east-1
 - For the web app, set `NEXT_PUBLIC_*` values for Auth0 SPA and `NEXT_PUBLIC_API_BASE_URL`.
 - For API/workers, set the runtime env vars listed in `.env.example`.
 - Optional logging env vars for API/workers (Powertools): `POWERTOOLS_LOG_LEVEL`, `POWERTOOLS_LOGGER_SAMPLE_RATE`, `POWERTOOLS_SERVICE_NAME` (override), and `NOTESHIP_ENV_NAME`.
+  - Accepted values for `POWERTOOLS_LOG_LEVEL`: `TRACE`, `DEBUG`, `INFO`, `WARN`, `ERROR`, `SILENT`, `CRITICAL`
 
 ## 6) Run web locally
 

@@ -23,5 +23,6 @@ Never commit secrets.
 
 - `POWERTOOLS_SERVICE_NAME` (set by infra; default per service)
 - `POWERTOOLS_LOG_LEVEL` (set by infra; `DEBUG` in dev, `INFO` in prod)
+- Accepted values: `TRACE`, `DEBUG`, `INFO`, `WARN`, `ERROR`, `SILENT`, `CRITICAL`
 - `POWERTOOLS_LOGGER_SAMPLE_RATE` (optional; set in deploy env to enable sampling)
 - `NOTESHIP_ENV_NAME` (set by infra; used for log context)
