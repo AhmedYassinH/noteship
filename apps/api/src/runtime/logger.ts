@@ -1,7 +1,8 @@
 import { Logger } from "@aws-lambda-powertools/logger";
+import type { LogLevel } from "@aws-lambda-powertools/logger/types";
 
-const resolveLogLevel = (): string | undefined =>
-  process.env.POWERTOOLS_LOG_LEVEL ?? process.env.LOG_LEVEL;
+const resolveLogLevel = (): LogLevel | undefined =>
+  (process.env.POWERTOOLS_LOG_LEVEL ?? process.env.LOG_LEVEL) as LogLevel | undefined;
 
 const resolveSampleRate = (): number | undefined => {
   const raw = process.env.POWERTOOLS_LOGGER_SAMPLE_RATE;
@@ -15,7 +16,7 @@ const resolveSampleRate = (): number | undefined => {
 export const logger = new Logger({
   serviceName: process.env.POWERTOOLS_SERVICE_NAME ?? "noteship-api",
   logLevel: resolveLogLevel(),
-  sampleRate: resolveSampleRate(),
+  sampleRateValue: resolveSampleRate(),
 });
 
 const baseContext = {
