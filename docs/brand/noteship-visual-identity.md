@@ -1,6 +1,6 @@
 # Noteship — Visual Identity & UI Personality
 
-_Last updated: 2026-01-24_
+_Last updated: 2026-01-28_
 
 ## 1) Visual direction (locked)
 
@@ -55,3 +55,6 @@ Avoid:
 - Show real product UI (not mock “AI robot” visuals)
 - Prefer annotated screenshots (subtle callouts)
 - Keep framing consistent (same device frame or none at all)
+- Prefer showing the full workflow when possible:
+  - **Note → Recall → Repurpose → Publish/Schedule**
+  - Semantic recall is a moment inside “Recall”, not the entire story

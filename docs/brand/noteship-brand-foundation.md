@@ -1,14 +1,14 @@
 # Noteship — Brand Foundation
 
-_Last updated: 2026-01-24_
+_Last updated: 2026-01-28_
 
 ## 1) Brand essence
 
-**Noteship is a calm, professional “second brain” that helps solo consultants and coaches recall their own ideas by meaning and turn them into publishable content.**
+**Noteship is a calm, professional AI-first notes workflow that helps solo consultants and coaches recall their own ideas, repurpose them into grounded drafts, and publish with consistency — powered by meaning-based recall when they don’t remember the exact wording.**
 
 ### One-line promise
 
-**Remember by meaning. Reuse with confidence. Publish with consistency.**
+**Recall by meaning. Repurpose with confidence. Publish with consistency.**
 
 ## 2) Brand archetype (locked)
 
@@ -34,9 +34,10 @@ Primary ICP:
 
 ### It **is**
 
-- Semantic-first note recall
-- Note → draft → publish/schedule workflow
-- Portability-minded (Markdown)
+- **Recall (semantic-powered):** find and resurface ideas by meaning, not keywords
+- **Repurpose:** turn your notes into structured drafts in your voice
+- **Publish & schedule:** ship reliably to LinkedIn/Medium with clear status
+- **Portability-minded:** Markdown-first mindset (export/import, avoid lock-in)
 
 ### It is **not**
 
@@ -76,4 +77,4 @@ Avoid:
 
 When opening Noteship late at night after client calls:
 
-> “Everything I learned is here. I can find it fast. I can ship something good.”
+> “Everything I learned is here. I can recall it fast. I can turn it into a draft. I can ship something good.”

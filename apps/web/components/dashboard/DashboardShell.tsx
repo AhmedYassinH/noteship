@@ -86,6 +86,7 @@ const DashboardShellInner = ({ children }: { children: ReactNode }) => {
   const isAr = lang === "ar";
   const copy = useMemo(() => dashboardCopy[lang], [lang]);
   const shared = useMemo(() => sharedCopy[lang], [lang]);
+  const collapseIcon = isAr ? (collapsed ? "◀" : "▶") : collapsed ? "▶" : "◀";
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -280,11 +281,18 @@ const DashboardShellInner = ({ children }: { children: ReactNode }) => {
           <div className={styles.sidebarFooter}>
             <button
               type="button"
-              className={styles.collapseButton}
+              className={styles.iconButton}
               onClick={() => setCollapsed((v) => !v)}
               aria-pressed={collapsed}
+              aria-label={collapsed ? copy.shell.expand : copy.shell.collapse}
+              title={collapsed ? copy.shell.expand : copy.shell.collapse}
             >
-              {collapsed ? copy.shell.expand : copy.shell.collapse}
+              <span className={styles.collapseIcon} aria-hidden="true">
+                {collapseIcon}
+              </span>
+              <span className={styles.srOnly}>
+                {collapsed ? copy.shell.expand : copy.shell.collapse}
+              </span>
             </button>
             <button
               type="button"

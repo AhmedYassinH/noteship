@@ -1,6 +1,6 @@
 # Noteship — Bilingual Language & Tone Guidelines (EN/AR)
 
-_Last updated: 2026-01-24_
+_Last updated: 2026-01-28_
 
 ## 1) Principles
 
@@ -13,7 +13,7 @@ _Last updated: 2026-01-24_
 
 - Friendly-professional, concise, direct.
 - Use concrete outcomes and verbs:
-  - “Find”, “Reuse”, “Publish”, “Schedule”, “Export”
+  - “Recall”, “Repurpose”, “Publish”, “Schedule”, “Export”
 - Prefer active voice.
 - Avoid marketing fluff.
 
@@ -22,6 +22,7 @@ _Last updated: 2026-01-24_
 - **Modern Standard Arabic (MSA), simplified** (clear, not overly formal).
 - Prefer common modern terms:
   - “ملاحظة” (note), “مسودة” (draft), “نشر” (publish), “جدولة” (schedule)
+  - “استرجاع” (recall), “تحويل إلى مسودة” (repurpose into a draft)
 - Avoid archaic phrasing and heavy ornamentation.
 - Keep UI microcopy short.
 
@@ -47,6 +48,7 @@ Do:
 - “تم الحفظ”
 - “إنشاء مسودة”
 - “جدولة النشر”
+- “استرجاع فكرة”
   Don’t:
 - Long explanations in buttons
 - Exclamation-heavy tone

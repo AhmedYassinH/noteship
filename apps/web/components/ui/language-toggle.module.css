@@ -7,6 +7,10 @@
   background: #fff;
 }
 
+:global([dir="rtl"]) .toggle {
+  flex-direction: row-reverse;
+}
+
 .btn {
   border: none;
   background: transparent;

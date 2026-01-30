@@ -1,4 +1,4 @@
-export type Lang = "en" | "ar";
+﻿export type Lang = "en" | "ar";
 
 export type SharedCopy = {
   brandTagline: string;
@@ -14,7 +14,7 @@ export type SharedCopy = {
 
 const sharedCopy: Record<Lang, SharedCopy> = {
   en: {
-    brandTagline: "Semantic memory for publishing",
+    brandTagline: "Recall by meaning. Publish with consistency.",
     navLinks: [
       { label: "Home", href: "/" },
       { label: "Features", href: "/features" },
@@ -30,7 +30,7 @@ const sharedCopy: Record<Lang, SharedCopy> = {
     },
     footer: {
       summary:
-        "Noteship keeps your ideas portable and searchable, then turns them into publish-ready posts.",
+        "Recall your ideas by meaning, repurpose them into drafts, and publish consistently — grounded in your notes.",
       columns: [
         {
           title: "Product",
@@ -61,11 +61,11 @@ const sharedCopy: Record<Lang, SharedCopy> = {
     },
   },
   ar: {
-    brandTagline: "ذاكرة دلالية للنشر",
+    brandTagline: "استرجاع بالمعنى ونشر بثبات.",
     navLinks: [
       { label: "الرئيسية", href: "/" },
-      { label: "الميزات", href: "/features" },
-      { label: "الأسعار", href: "/pricing" },
+      { label: "المزايا", href: "/features" },
+      { label: "التسعير", href: "/pricing" },
     ],
     ctas: {
       primary: "ابدأ مجاناً",
@@ -76,34 +76,35 @@ const sharedCopy: Record<Lang, SharedCopy> = {
       logout: "تسجيل الخروج",
     },
     footer: {
-      summary: "نوتشِب يحفظ أفكارك قابلة للبحث والنقل، ثم يحولها إلى منشورات جاهزة للنشر.",
+      summary:
+        "استرجع أفكارك بالمعنى، وأعد توظيفها في مسودات، وانشر بثبات — كل ذلك مبني على ملاحظاتك.",
       columns: [
         {
           title: "المنتج",
           links: [
-            { label: "الميزات", href: "/features" },
-            { label: "الأسعار", href: "/pricing" },
-            { label: "الاندماجات", href: "/features#integrations" },
+            { label: "المزايا", href: "/features" },
+            { label: "التسعير", href: "/pricing" },
+            { label: "التكاملات", href: "/features#integrations" },
           ],
         },
         {
           title: "الشركة",
           links: [
-            { label: "حول نوتشِب", href: "/features#about" },
+            { label: "عن Noteship", href: "/features#about" },
             { label: "الأسئلة الشائعة", href: "/pricing#faq" },
-            { label: "تواصل معنا", href: "mailto:hello@noteship.app" },
+            { label: "تواصل", href: "mailto:hello@noteship.app" },
           ],
         },
         {
-          title: "المصادر",
+          title: "الموارد",
           links: [
-            { label: "المستندات", href: "/features#docs" },
+            { label: "الوثائق", href: "/features#docs" },
             { label: "الحالة", href: "/features#reliability" },
-            { label: "سجل التحديثات", href: "/features#changelog" },
+            { label: "التغييرات", href: "/features#changelog" },
           ],
         },
       ],
-      bottom: "© 2026 نوتشِب. جميع الحقوق محفوظة.",
+      bottom: "© 2026 Noteship. جميع الحقوق محفوظة.",
     },
   },
 };

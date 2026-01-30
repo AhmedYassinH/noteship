@@ -20,6 +20,16 @@
   flex-direction: row-reverse;
 }
 
+.rtl .sidebar {
+  order: 2;
+  border-inline-start: 1px solid var(--dashboard-border);
+  border-inline-end: none;
+}
+
+.rtl .main {
+  order: 1;
+}
+
 .shell[data-collapsed="true"] .sidebar {
   width: var(--sidebar-collapsed);
 }
@@ -182,6 +192,34 @@
   margin-top: auto;
   display: grid;
   gap: 10px;
+}
+
+.iconButton {
+  border: 1px solid var(--dashboard-border);
+  background: #ffffff;
+  border-radius: 999px;
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.collapseIcon {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
 }
 
 .collapseButton {
@@ -424,6 +462,10 @@
   display: grid;
   gap: 18px;
   grid-template-columns: minmax(0, 1fr) var(--panel-width);
+}
+
+.rtl .pageSplit {
+  grid-template-columns: var(--panel-width) minmax(0, 1fr);
 }
 
 .editorShell {

@@ -4,7 +4,8 @@ import "./globals.css";
 
 export const metadata = {
   title: "Noteship",
-  description: "Semantic-first notes and publishing pipeline for solo consultants.",
+  description:
+    "AI-first notes workflow for consultants and coaches: recall by meaning, repurpose drafts, publish consistently.",
 };
 
 const RootLayout = ({ children }: { children: ReactNode }) => {

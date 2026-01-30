@@ -1,6 +1,25 @@
 # Noteship — AI Voice & Output Spec
 
-_Last updated: 2026-01-24_
+_Last updated: 2026-01-28_
+
+## 0) Where AI fits in Noteship (the 3-step workflow)
+
+AI supports the workflow end-to-end, but must remain **grounded in the user’s notes**:
+
+1. **Recall (semantic-powered)**
+   - Surface relevant notes/snippets by meaning.
+   - When suggesting “related ideas,” prioritize high-precision recall and show sources (snippets) whenever possible.
+
+2. **Repurpose (drafting)**
+   - Transform a note into a clearer structure.
+   - Generate drafts in the user’s selected tone/persona.
+   - Offer variants and iterative edits on request.
+
+3. **Publish (formatting & readiness)**
+   - Format output for the target platform (LinkedIn/Medium).
+   - Help the user finalize (titles/hooks/structure), without inventing facts.
+
+---
 
 ## 1) Core principle
 

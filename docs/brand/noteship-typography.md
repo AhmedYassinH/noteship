@@ -1,6 +1,6 @@
 # Noteship — Typography System (App + Marketing)
 
-_Last updated: 2026-01-24_
+_Last updated: 2026-01-28_
 
 ## 0) Locked font strategy
 

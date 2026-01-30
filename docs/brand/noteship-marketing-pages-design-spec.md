@@ -1,6 +1,6 @@
 # Noteship — Public-facing Pages Design Spec (Modern Editorial, Subtle)
 
-_Last updated: 2026-01-24_
+_Last updated: 2026-01-28_
 
 ## 0) Purpose
 
@@ -77,7 +77,7 @@ Noto Naskh Arabic should feel **editorial and refined**, but avoid extreme bold.
 
 - Hero (headline + subhead + CTA + product shot)
 - Problem statement
-- How it works (Note → Search → Draft → Publish/Schedule)
+- How it works (**Note → Recall → Repurpose → Publish/Schedule**)
 - Feature pillars (3)
 - Screenshots
 - Pricing
@@ -134,7 +134,9 @@ Noto Naskh Arabic should feel **editorial and refined**, but avoid extreme bold.
 - Primary: solid accent
 - Secondary: outline
 - Tertiary: text/ghost
-  Rules:
+
+Rules:
+
 - Short labels (“Start free”, “See how it works”)
 - No serif in buttons
 
@@ -149,7 +151,8 @@ Noto Naskh Arabic should feel **editorial and refined**, but avoid extreme bold.
   - pricing plans
   - testimonials
   - feature highlights
-    Keep spacing generous.
+
+Keep spacing generous.
 
 ### FAQ
 
@@ -164,8 +167,8 @@ Noto Naskh Arabic should feel **editorial and refined**, but avoid extreme bold.
 - Subhead: explain in one sentence
 - Avoid hype and “growth hacks”
 - Prefer concrete benefits:
-  - find by meaning
-  - reuse notes
+  - recall by meaning
+  - repurpose notes into drafts
   - publish reliably
 
 Arabic:

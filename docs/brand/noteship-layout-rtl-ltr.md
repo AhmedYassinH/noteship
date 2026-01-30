@@ -1,6 +1,6 @@
 # Noteship — RTL/LTR Layout Rules (App + Marketing)
 
-_Last updated: 2026-01-24_
+_Last updated: 2026-01-28_
 
 ## 1) Principle
 
@@ -14,6 +14,9 @@ _Last updated: 2026-01-24_
   - Hero alignment, image placement, section flow
 - Keep icons directional:
   - arrows should flip in RTL
+- If showing the 3-step promise, mirror the flow while keeping meaning:
+  - EN: Recall → Repurpose → Publish
+  - AR: same concept, RTL layout mirrored (not reordered randomly)
 
 ### App dashboard
 

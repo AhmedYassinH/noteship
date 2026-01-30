@@ -2,11 +2,13 @@
 
 **Document purpose:** Define the business intent, target user, MVP scope, pricing/entitlements, and product boundaries for Noteship so development can start with clear constraints.
 
+_Last updated: 2026-01-28_
+
 ---
 
 ## 1) One-line definition
 
-**Noteship helps solo consultants and coaches turn scattered notes into publishable content (LinkedIn + Medium) and _find past ideas semantically_ even when they don’t remember exact wording.**
+**Noteship helps solo consultants and coaches recall their thinking, repurpose notes into publish-ready drafts (LinkedIn + Medium), and publish consistently — powered by meaning-based recall when they don’t remember the exact wording.**
 
 ---
 
@@ -18,7 +20,7 @@
 
 - Produce knowledge work (frameworks, lessons, client patterns, insights)
 - Want to publish consistently but struggle with time, reuse, and recall
-- Need a “second brain” that is searchable by meaning, not keywords
+- Need a “second brain” that can reliably resurface ideas and turn them into output
 
 ### Secondary ICP (later, not MVP)
 
@@ -27,8 +29,10 @@
 
 ### Positioning
 
-- **Semantic-first** note recall + **content repurposing** with publishing.
+- **AI-first notes → output workflow:** Recall → Repurpose → Publish.
+- **Recall is semantic-powered** (meaning-based retrieval + resurfacing), but it’s not “just search.”
 - Not a “general note app clone.” Not trying to beat Notion on broad workspace features.
+- Not a generic “AI writer.” Output must be grounded in the user’s notes.
 
 ---
 
@@ -39,12 +43,12 @@
 - “I wrote something great months ago but can’t find it.”
 - “Publishing regularly is hard; I waste time rewriting from scratch.”
 - “I want my voice/tone to stay consistent across posts.”
-- “Tools either store notes or schedule posts—rarely both—especially with semantic recall.”
+- “Tools either store notes or schedule posts — rarely both — and almost never grounded in my own notes.”
 
 ### Outcomes they pay for
 
-- Retrieve insights quickly (semantic memory)
-- Turn notes into posts in minutes (reuse)
+- Recall insights quickly (meaning-based recall)
+- Turn notes into drafts in minutes (repurpose)
 - Publish consistently with less effort (workflow + scheduling)
 - Keep content portable (easy export/import)
 
@@ -52,19 +56,19 @@
 
 ## 4) Jobs-to-be-done (JTBD)
 
-### JTBD #1 — Semantic recall
+### JTBD #1 — Recall (semantic-powered)
 
 **When** I remember the idea but not the exact words,  
-**I want** to search by meaning and immediately find the note(s) and relevant passages,  
+**I want** to recall by meaning and quickly resurface the relevant notes/snippets,  
 **so I** can reuse prior thinking without redoing work.
 
-### JTBD #2 — Repurpose to posts
+### JTBD #2 — Repurpose to drafts
 
 **When** I have a note that contains a useful insight,  
 **I want** to convert it into a LinkedIn/Medium-ready draft in my voice,  
 **so I** can publish consistently without spending hours writing.
 
-### JTBD #3 — Ship and schedule content
+### JTBD #3 — Publish and schedule
 
 **When** I have a draft,  
 **I want** to publish now or schedule for later,  
@@ -88,11 +92,13 @@
    - Attach files (stored in S3)
    - Export note as Markdown
 
-3. **Semantic search**
-   - Semantic search across notes (vector-based)
-   - Returns relevant notes/snippets (no in-note jump/highlighting requirement in MVP)
+3. **Recall (semantic-powered)**
+   - Meaning-based recall across notes (vector-based)
+   - Returns relevant notes/snippets
+   - Optional “Related ideas” resurfacing (nice-to-have; can be minimal in MVP)
+   - No in-note jump/highlighting requirement in MVP
 
-4. **AI content generation**
+4. **AI content generation (repurpose)**
    - Generate post drafts from a note
    - Tone/persona selection
    - Regenerate/refine drafts
@@ -120,8 +126,8 @@
 flowchart TD
   A[Capture note in editor] --> B[Saved as Markdown + artifacts]
   B --> C[Background embedding]
-  C --> D[Semantic search finds past notes]
-  B --> E[Generate post drafts from note]
+  C --> D[Recall finds past notes by meaning]
+  B --> E[Generate drafts from note]
   E --> F{Publish now?}
   F -->|Yes| G[Publish to LinkedIn / Medium]
   F -->|No| H[Schedule post]
@@ -153,10 +159,10 @@ These are intentionally out of scope to keep the build lean and cost-efficient:
 
 ## 7) Differentiators (what makes it worth switching)
 
-- **Semantic-first recall** tailored to personal knowledge work
-- **Note → post pipeline** with tone/persona control
+- **Recall by meaning** tailored to personal knowledge work (semantic-powered resurfacing)
+- **Note → draft pipeline** with tone/persona control, grounded in your notes
 - **Direct publishing + scheduling** to LinkedIn and Medium
-- **Portability-first storage**: Markdown export/import mindset (avoid lock-in)
+- **Portability-first storage:** Markdown export/import mindset (avoid lock-in)
 
 ---
 
@@ -176,7 +182,7 @@ These are intentionally out of scope to keep the build lean and cost-efficient:
 **Free**
 
 - Notes: limited count (or soft limit)
-- Semantic search: enabled
+- Recall: enabled
 - AI generations: low monthly quota
 - Publishing: allowed (manual publish only)
 - Scheduling: **disabled**
@@ -185,7 +191,7 @@ These are intentionally out of scope to keep the build lean and cost-efficient:
 **Pro**
 
 - Notes: higher or unlimited
-- Semantic search: enabled
+- Recall: enabled
 - AI generations: higher monthly quota
 - Publishing: enabled
 - Scheduling: **enabled**
@@ -202,65 +208,32 @@ These are intentionally out of scope to keep the build lean and cost-efficient:
 - If user exceeds a limit: **do not delete data**.
   - Example: user downgrades → keep notes, block creating new ones.
 
-### Entitlements model (Mermaid)
-
-```mermaid
-erDiagram
-  USER ||--o| SUBSCRIPTION : has
-  SUBSCRIPTION }o--|| PLAN : maps_to
-  PLAN ||--o{ PLAN_ENTITLEMENT : defines
-  PLAN_ENTITLEMENT }o--|| FEATURE : enables
-
-  USER {
-    string userId
-    string email
-  }
-  SUBSCRIPTION {
-    string subscriptionId
-    string stripeCustomerId
-    string stripePriceId
-    string planId
-    string status
-    datetime currentPeriodEnd
-  }
-  PLAN {
-    string planId
-    string name
-  }
-  FEATURE {
-    string featureKey
-    string description
-  }
-  PLAN_ENTITLEMENT {
-    string planId
-    string featureKey
-    string type  "boolean|quota|capacity"
-    number limit
-  }
-```
-
 ---
 
 ## 9) Go-to-market (practical, MVP-aligned)
 
 ### Initial acquisition channels (pragmatic)
 
-- LinkedIn content + DMs (dogfooding: Noteship helps you post there)
+- LinkedIn content + DMs (dogfooding: Noteship helps you publish there)
 - Communities where consultants/coaches hang out (niche groups)
 - Partnerships with coaches/consultant creators (small affiliate/referrals)
 
 ### Early messaging angle
 
-- “Never lose an idea again — search your notes by meaning.”
-- “Turn notes into posts in minutes and schedule them.”
+- “Recall your ideas — then turn them into drafts and ship consistently.”
+- “From notes to posts, grounded in your own thinking.”
 
 ---
 
 ## 10) Risks and mitigation
 
-### Risk: “Search feels weak”
+### Risk: “Recall feels weak”
 
-- Mitigation: prioritize semantic search quality early (chunking, embeddings, relevance tuning)
+- Mitigation: prioritize recall quality early (chunking, embeddings, relevance tuning)
+
+### Risk: Drafts feel generic / ungrounded
+
+- Mitigation: enforce grounding rules; keep drafts tied to note content; clear “assumptions” handling
 
 ### Risk: Publishing integrations are brittle
 
@@ -278,13 +251,11 @@ erDiagram
 
 ## 11) Success criteria (MVP)
 
-Business success isn’t “analytics dashboards”—it’s behavior:
-
 - **Activation:** user creates ≥ 3 notes in first week
-- **Value moment:** user finds an old idea via semantic search
-- **Workflow adoption:** user generates and publishes ≥ 1 post/week
+- **Value moment:** user recalls an old idea and generates a draft from it
+- **Workflow adoption:** user publishes ≥ 1 post/week (manual or scheduled)
 - **Conversion:** meaningful upgrade rate from Free → Pro (driven by scheduling + higher AI quota)
-- **Retention:** returning weekly to search/reuse notes
+- **Retention:** returning weekly to recall/repurpose notes
 
 ---
 
@@ -292,5 +263,5 @@ Business success isn’t “analytics dashboards”—it’s behavior:
 
 - Exact plan names and pricing points
 - Best default quotas (AI and storage)
-- Whether semantic search includes in-note highlighting at v1.1
+- Whether recall includes in-note highlighting at v1.1
 - Medium integration approach depending on API constraints

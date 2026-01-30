@@ -1,6 +1,6 @@
 # Noteship — Marketing Assets Checklist (MVP)
 
-_Last updated: 2026-01-24_
+_Last updated: 2026-01-28_
 
 ## 1) Required pages (public)
 
@@ -15,9 +15,10 @@ _Last updated: 2026-01-24_
 
 1. Hero: value proposition + primary CTA
 2. Problem: “I remember the idea, not the wording”
-3. How it works: Note → Search → Draft → Publish/Schedule
+3. How it works: **Note → Recall → Repurpose → Publish/Schedule**
 4. Key features (3 pillars)
-5. Screenshots (editor, search, publish status)
+5. Screenshots (editor, draft builder, publish status)
+   - Optional/secondary: recall/search results view
 6. Pricing (free vs pro)
 7. FAQ (integrations, privacy, billing)
 8. Final CTA
@@ -45,4 +46,4 @@ _Last updated: 2026-01-24_
 
 - Keep editorial tone (no hype)
 - Keep visuals minimal
-- Use the same CTA verbs everywhere: Find / Reuse / Publish
+- Use the same pillar verbs everywhere: **Recall / Repurpose / Publish**
