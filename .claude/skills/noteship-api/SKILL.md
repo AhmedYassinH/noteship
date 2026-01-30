@@ -42,6 +42,7 @@ description: Build and maintain the Noteship REST API lambdas in apps/api, inclu
 - Idempotency keys on publish/schedule endpoints.
 - Stripe webhook verification and idempotent processing.
 - Presigned uploads for attachments.
+- Use Powertools logger for structured Lambda logs; avoid PII and clear request context between invocations.
 - Upload entitlement enforcement using `sizeBytes` and usage reservation.
 - Content session cookies (`/content/session`) for CloudFront access.
 

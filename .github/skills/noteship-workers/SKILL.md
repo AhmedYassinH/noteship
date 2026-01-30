@@ -17,6 +17,7 @@ description: Build and maintain Noteship async worker lambdas in apps/workers fo
 - Read/write canonical content in S3 and metadata in DynamoDB.
 - Use connectors for vendor APIs; do not bypass connector interfaces.
 - Run `pnpm prettier --write .` after changes.
+- Use Powertools logger for structured job logs; avoid PII and clear job context between records.
 
 ## Safe workflow + tests
 
