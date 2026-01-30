@@ -2,6 +2,7 @@ import * as cdk from "aws-cdk-lib";
 import { resolveEnv } from "./config";
 import { NoteshipApiStack } from "./stacks/api";
 import { NoteshipCoreStack } from "./stacks/core";
+import { NoteshipOpsGuardrailsStack } from "./stacks/ops-guardrails";
 import { NoteshipWebStack } from "./stacks/web";
 import { NoteshipWorkersStack } from "./stacks/workers";
 
@@ -26,5 +27,9 @@ new NoteshipWorkersStack(app, `NoteshipWorkers-${envConfig.envName}`, {
 });
 
 new NoteshipWebStack(app, `NoteshipWeb-${envConfig.envName}`, {
+  envConfig,
+});
+
+new NoteshipOpsGuardrailsStack(app, `NoteshipOpsGuardrails-${envConfig.envName}`, {
   envConfig,
 });

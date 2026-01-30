@@ -45,6 +45,7 @@ so the Lambda environment is populated.
 cdk deploy NoteshipApi-dev -c env=dev -c region=us-east-1
 cdk deploy NoteshipWorkers-dev -c env=dev -c region=us-east-1
 cdk deploy NoteshipWeb-dev -c env=dev -c region=us-east-1
+cdk deploy NoteshipOpsGuardrails-dev -c env=dev -c region=us-east-1
 ```
 
 ## 5) Local env vars

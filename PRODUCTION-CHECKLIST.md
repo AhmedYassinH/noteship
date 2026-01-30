@@ -75,7 +75,7 @@ Use `docs/technical/deployment.md` as the source of truth. This checklist mirror
 ## 7) Observability + cost guardrails
 
 - [ ] Verify CloudWatch alarms (DLQ, DynamoDB throttles, API errors).
-- [ ] Configure AWS Budgets + alerts; confirm kill switch procedure (see `KILL-SWITCH.md`).
+- [ ] Configure AWS Budgets + alerts; confirm guardrails procedure (see `docs/technical/detailed/17-operational-observability-and-cost-guardrails.md`).
 - [ ] Review S3 lifecycle/retention and versioning costs.
 
 ## 8) Smoke checks

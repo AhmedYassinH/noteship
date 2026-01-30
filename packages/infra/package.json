@@ -18,7 +18,9 @@
     "constructs": "^10.3.0"
   },
   "devDependencies": {
+    "@types/aws-lambda": "^8.10.147",
     "@types/node": "^22.16.5",
+    "aws-sdk": "^2.1700.0",
     "dotenv-cli": "^7.4.2",
     "esbuild": "^0.25.10",
     "ts-node": "^10.9.2",

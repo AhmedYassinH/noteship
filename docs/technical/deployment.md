@@ -68,7 +68,7 @@ cdk deploy NoteshipCore-dev -c env=dev -c region=us-east-1
 
 - Trigger: push to `main`.
 - Gate: lint, build, and test must succeed.
-- Deploys stacks in order: Core → API → Workers → Web.
+- Deploys stacks in order: Core → API → Workers → Web → Ops Guardrails.
 - Builds/exports web app, syncs to S3, and invalidates CloudFront.
 - Requires secrets from the env var list above plus:
   - `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION`
@@ -90,6 +90,7 @@ Provisioned (aligns to HLD/LLD):
 API + workers read runtime config from env vars. Required keys:
 
 - Infra: `NOTESHIP_CONTENT_BUCKET_NAME`, `NOTESHIP_USERS_TABLE_NAME`, `NOTESHIP_NOTES_TABLE_NAME`, `NOTESHIP_POSTS_TABLE_NAME`, `NOTESHIP_INTEGRATIONS_TABLE_NAME`, `NOTESHIP_USAGE_TABLE_NAME`, `NOTESHIP_JOBS_TABLE_NAME`, `NOTESHIP_JOBS_QUEUE_URL`
+- Guardrails: `NOTESHIP_GUARDRAILS_BUDGET_LIMIT_USD`, `NOTESHIP_GUARDRAILS_BILLING_ALARM_USD`, optional `NOTESHIP_GUARDRAILS_EMAILS`, optional `NOTESHIP_HTTP_API_ID`
 - Auth0 (JWT authorizer): `AUTH0_ISSUER_BASE_URL`, `AUTH0_AUDIENCE`
 - Vector DB: `QDRANT_URL`, `QDRANT_COLLECTION`, optional `QDRANT_API_KEY`
 - Billing: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, optional `STRIPE_PRICE_PRO_MONTHLY`, `STRIPE_PRICE_PRO_YEARLY`
@@ -187,6 +188,13 @@ cdk deploy NoteshipWeb-dev -c env=dev -c region=us-east-1
 ```
 
 The stack outputs the web bucket name and CloudFront distribution ID used in the asset deploy steps above.
+
+## Ops guardrails stack deployment
+
+```sh
+cd packages/infra
+cdk deploy NoteshipOpsGuardrails-dev -c env=dev -c region=us-east-1
+```
 
 ## Post-deploy steps
 

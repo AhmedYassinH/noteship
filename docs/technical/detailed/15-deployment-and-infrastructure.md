@@ -25,6 +25,8 @@ Define deployable stacks and environment layout.
    - Permissions to S3/DDB/SQS/Vector DB
 4. `web-stack` (AWS hosting)
    - Next.js landing SSG + dashboard SPA on S3 + CloudFront (no SSR)
+5. `ops-guardrails-stack`
+   - Budgets + SNS + alarms + guardrails Lambda
 
 ## Notes on Next.js hosting
 
