@@ -30,6 +30,7 @@ Details: `docs/technical/detailed/03-mvp-scope-and-feature-definition.md`, `docs
 - **TypeScript:** strict mode everywhere
 - **Lint/format:** ESLint + Prettier
 - **Prettier command:** `pnpm prettier --write .` (run before PRs/commits; applies to apps, packages, and docs)
+- **Styling (web):** Tailwind CSS + shadcn/ui primitives; generate components into `apps/web/components/ui` and keep app-specific styles minimal.
 - **Validation:** Zod for request/response schemas + shared types
 - **Testing:** Vitest/Jest (unit/integration), Playwright (E2E)
 
@@ -573,6 +574,7 @@ Details: `docs/technical/detailed/08-frontend-architecture.md`.
 - Languages: English (LTR) and Arabic (RTL) with user toggle; default from browser language, persist per user profile.
 - Apply brand rules: see `docs/brand/noteship-language-guidelines.md`, `docs/brand/noteship-layout-rtl-ltr.md`, `docs/brand/noteship-typography.md` for tone, mirroring, and font stacks (IBM Plex Sans + IBM Plex Sans Arabic for app UI; Lora/Noto Naskh for marketing headlines).
 - Layout: use CSS logical properties (`padding-inline`, `text-align: start|end`) and set `lang`/`dir` at the root per locale; mirror nav and directional icons for RTL.
+- shadcn/ui: enable RTL support in shadcn config; keep `dir` set on `html` or page root and use the Radix `DirectionProvider` where a component needs explicit direction (menus, popovers, dialogs).
 - TipTap/editor:
   - Support per-block `dir` (RTL/LTR) and text alignment; keep code blocks and inline code LTR with monospace Latin fonts.
   - Preserve language metadata on notes/posts (`language: ar|en`) and render containers with `lang`/`dir`.

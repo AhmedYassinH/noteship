@@ -87,6 +87,7 @@ Details: `docs/technical/detailed/07-system-high-level-architecture.md`.
   - One auth integration
   - One deployment pipeline
   - Shared UI/components without duplication
+- **UI system:** Tailwind CSS with shadcn/ui primitives for consistent, reusable components; bespoke styling only where needed.
 
 ### Frontend responsibilities
 
