@@ -8,8 +8,9 @@ import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
 import { Markdown } from "tiptap-markdown";
 import EditorToolbar from "./EditorToolbar";
+import { Input } from "../ui/input";
 import { createNoteUpload } from "../../lib/api/notes";
-import styles from "../../app/dashboard/dashboard.module.css";
+import { cn } from "@/lib/utils";
 
 type Props = {
   noteId: string;
@@ -56,7 +57,17 @@ const NoteEditor = ({
     content,
     editorProps: {
       attributes: {
-        class: styles.editorContent,
+        class: cn(
+          "min-h-[320px] rounded-[10px] border border-[rgba(15,23,42,0.1)] bg-white px-3.5 py-3 text-[0.95rem] leading-relaxed",
+          "[&_h1]:text-[1.5rem] [&_h1]:leading-[1.2] [&_h2]:text-[1.25rem] [&_h2]:leading-[1.3]",
+          "[&_blockquote]:border-l-4 [&_blockquote]:border-[rgba(15,118,110,0.4)] [&_blockquote]:pl-3 [&_blockquote]:text-[#5b6474]",
+          "rtl:[&_blockquote]:border-l-0 rtl:[&_blockquote]:pl-0 rtl:[&_blockquote]:border-r-4 rtl:[&_blockquote]:pr-3",
+          "[&_.is-editor-empty]:before:content-[attr(data-placeholder)]",
+          "[&_.is-editor-empty]:before:text-[#5b6474]",
+          "[&_.is-editor-empty]:before:pointer-events-none",
+          "[&_.is-editor-empty]:before:float-left rtl:[&_.is-editor-empty]:before:float-right",
+          "[&_.is-editor-empty]:before:h-0",
+        ),
       },
       handlePaste: (_view, event) => {
         const files = event.clipboardData?.files;
@@ -151,8 +162,11 @@ const NoteEditor = ({
   }
 
   return (
-    <div className={styles.editorShell} dir={dir}>
-      <div className={styles.editorToolbar}>
+    <div
+      className="grid gap-0 overflow-hidden rounded-2xl border border-[rgba(15,23,42,0.1)] bg-white"
+      dir={dir}
+    >
+      <div className="flex flex-wrap gap-2 border-b border-[rgba(15,23,42,0.1)] bg-[#f8fafc] px-4 py-3">
         <EditorToolbar
           editor={editor}
           onUploadClick={handleUploadClick}
@@ -166,7 +180,7 @@ const NoteEditor = ({
           }
         />
       </div>
-      <div className={styles.editorBody}>
+      <div className="grid gap-3 p-[18px]">
         <input
           ref={fileInputRef}
           type="file"
@@ -176,8 +190,8 @@ const NoteEditor = ({
             void handleFilesSelected(event.target.files);
           }}
         />
-        <input
-          className={styles.input}
+        <Input
+          className="rounded-[10px] border border-[rgba(15,23,42,0.1)] text-[0.95rem]"
           value={title}
           onChange={(event) => onTitleChange(event.target.value)}
           placeholder={titlePlaceholder}

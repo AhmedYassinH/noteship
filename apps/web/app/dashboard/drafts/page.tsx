@@ -4,9 +4,18 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import dashboardCopy from "../../../data/dashboard";
 import { useDashboard } from "../../../components/dashboard/DashboardShell";
+import { Button } from "../../../components/ui/button";
+import { Card } from "../../../components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../../../components/ui/table";
 import { listPosts } from "../../../lib/api/notes";
 import type { PostResponse } from "../../../lib/api/types";
-import styles from "../dashboard.module.css";
 
 const DraftsPage = () => {
   const { lang, isAr, entitlements } = useDashboard();
@@ -34,58 +43,72 @@ const DraftsPage = () => {
   }, [loadDrafts]);
 
   return (
-    <main lang={lang} dir={isAr ? "rtl" : "ltr"}>
-      <div className={styles.pageHeader}>
+    <main className="flex flex-col gap-6" lang={lang} dir={isAr ? "rtl" : "ltr"}>
+      <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div>
-          <h1 className={styles.pageTitle}>{t.drafts.title}</h1>
-          <p className={styles.pageSubtitle}>{t.drafts.subtitle}</p>
+          <h1 className="m-0 text-[1.75rem] font-semibold leading-[1.2]">{t.drafts.title}</h1>
+          <p className="m-0 text-[0.9rem] text-[#5b6474]">{t.drafts.subtitle}</p>
         </div>
       </div>
 
       {!entitlements.canSchedule ? (
-        <div className={styles.upsell}>
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-[12px] border border-dashed border-[rgba(15,23,42,0.25)] bg-white p-3 text-[0.85rem] text-[#5b6474]">
           <span>{t.drafts.upsell}</span>
-          <a className={styles.upsellLink} href="/dashboard/billing">
+          <a
+            className="font-semibold text-[var(--ns-accent)] hover:underline"
+            href="/dashboard/billing"
+          >
             {t.note.upgradeCta}
           </a>
         </div>
       ) : null}
 
-      <div className={styles.card}>
+      <Card className="rounded-2xl border border-[rgba(15,23,42,0.1)] bg-white p-[18px] shadow-[0_10px_28px_rgba(15,23,42,0.08)]">
         {loading ? (
-          <div className={styles.emptyState}>{t.common.loading}</div>
+          <div className="rounded-2xl border border-dashed border-[rgba(15,23,42,0.2)] p-6 text-center text-[#5b6474]">
+            {t.common.loading}
+          </div>
         ) : error ? (
-          <div className={styles.emptyState} role="alert">
+          <div
+            className="rounded-2xl border border-dashed border-[rgba(15,23,42,0.2)] p-6 text-center text-[#5b6474]"
+            role="alert"
+          >
             <p>{t.common.error}</p>
-            <button type="button" className={styles.pillButton} onClick={() => void loadDrafts()}>
+            <Button type="button" variant="outline" onClick={() => void loadDrafts()}>
               {t.common.retry}
-            </button>
+            </Button>
           </div>
         ) : drafts.length === 0 ? (
-          <div className={styles.emptyState}>{t.drafts.empty}</div>
+          <div className="rounded-2xl border border-dashed border-[rgba(15,23,42,0.2)] p-6 text-center text-[#5b6474]">
+            {t.drafts.empty}
+          </div>
         ) : (
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th>{t.table.note}</th>
-                <th>{t.table.provider}</th>
-                <th>{t.table.updated}</th>
-              </tr>
-            </thead>
-            <tbody>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="uppercase tracking-widest text-xs">{t.table.note}</TableHead>
+                <TableHead className="uppercase tracking-widest text-xs">
+                  {t.table.provider}
+                </TableHead>
+                <TableHead className="uppercase tracking-widest text-xs">
+                  {t.table.updated}
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {drafts.map((draft) => (
-                <tr key={draft.postId}>
-                  <td>
+                <TableRow key={draft.postId}>
+                  <TableCell>
                     <Link href={`/dashboard/notes/${draft.noteId}`}>{draft.noteId}</Link>
-                  </td>
-                  <td>{draft.provider}</td>
-                  <td>{new Date(draft.updatedAt).toLocaleDateString()}</td>
-                </tr>
+                  </TableCell>
+                  <TableCell>{draft.provider}</TableCell>
+                  <TableCell>{new Date(draft.updatedAt).toLocaleDateString()}</TableCell>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         )}
-      </div>
+      </Card>
     </main>
   );
 };
