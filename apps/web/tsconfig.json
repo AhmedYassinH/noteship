@@ -7,6 +7,11 @@
     "paths": {
       "@noteship/domain": ["../../packages/domain/src"],
       "@noteship/utils": ["../../packages/utils/src"],
+      "@/*": ["./*"],
+      "@/components/*": ["components/*"],
+      "@/components/ui/*": ["components/ui/*"],
+      "@/lib/*": ["lib/*"],
+      "@/hooks/*": ["hooks/*"],
       "@ui/*": ["components/ui/*"],
       "@features/*": ["components/features/*"],
       "@data/*": ["data/*"]
