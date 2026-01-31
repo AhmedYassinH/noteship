@@ -112,11 +112,9 @@ const PricingPage = () => {
             <Table>
               <TableHeader className="bg-[#f5f7fa]">
                 <TableRow>
-                  <TableHead className="font-semibold">
-                    {isAr ? "OU,U.USOÃ½Oc" : "Feature"}
-                  </TableHead>
-                  <TableHead className="font-semibold">{isAr ? "U.OÂªOU+US" : "Free"}</TableHead>
-                  <TableHead className="font-semibold">{isAr ? 'O"OÃ±U^' : "Pro"}</TableHead>
+                  <TableHead className="font-semibold">{isAr ? "الميزة" : "Feature"}</TableHead>
+                  <TableHead className="font-semibold">{isAr ? "مجاني" : "Free"}</TableHead>
+                  <TableHead className="font-semibold">{isAr ? "برو" : "Pro"}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

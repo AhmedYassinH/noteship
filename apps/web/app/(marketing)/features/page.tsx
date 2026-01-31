@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useMemo } from "react";
 import Link from "next/link";
@@ -171,7 +171,7 @@ const FeaturesPage = () => {
             </h3>
             <p className="m-0 text-[var(--ns-muted)] leading-[1.6] rtl:leading-[1.85]">
               {isAr
-                ? "U+O'OÃ± U^OÂªO_U^U,Oc U.O1 O-OU,OOÂ¦ U^OOO-Oc."
+                ? "انشر وجدّل مع تحديثات حالة واضحة."
                 : "Publish and schedule with clear status updates."}
             </p>
           </article>
@@ -181,18 +181,16 @@ const FeaturesPage = () => {
             </h3>
             <p className="m-0 text-[var(--ns-muted)] leading-[1.6] rtl:leading-[1.85]">
               {isAr
-                ? 'OÃ¦USOOÂ§Oc OÃºU^USU,Oc OU,U.O_U% U.U+ O_U^U+ OÂ¦O"O_USU, OU,OÅ“O_U^OOÂ¦.'
+                ? "صياغة طويلة المدى من دون تبديل الأدوات."
                 : "Long-form publishing without switching tools."}
             </p>
           </article>
           <article className="rounded-[18px] border border-[rgba(15,23,42,0.08)] bg-white p-[18px] shadow-[0_14px_28px_rgba(15,23,42,0.08)]">
             <h3 className="m-0 mb-2 text-[1.05rem] font-semibold font-headline leading-[1.25]">
-              {isAr ? 'OU,U.OÃ½USO_ U,OÃ±USO"OU<' : "More soon"}
+              {isAr ? "المزيد قريباً" : "More soon"}
             </h3>
             <p className="m-0 text-[var(--ns-muted)] leading-[1.6] rtl:leading-[1.85]">
-              {isAr
-                ? 'O"U^OO"OOÂ¦ U+O\'OÃ± OÂOOU?USOc O-O3O" OU,O-OOÂªOc.'
-                : "More publishing endpoints as you scale."}
+              {isAr ? "بوابات نشر إضافية حسب الحاجة." : "More publishing endpoints as you scale."}
             </p>
           </article>
         </div>
