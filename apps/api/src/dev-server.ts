@@ -62,6 +62,7 @@ const toApiEvent = (req: express.Request): APIGatewayProxyEventV2 => {
     rawQueryString: req.url.split("?")[1] || "",
     headers: req.headers as Record<string, string>,
     queryStringParameters: req.query as Record<string, string>,
+    pathParameters: req.params as Record<string, string>,
     body: req.body ? JSON.stringify(req.body) : undefined,
     requestContext: {
       accountId: "000000000000",
