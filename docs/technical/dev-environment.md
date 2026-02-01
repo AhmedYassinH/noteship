@@ -67,7 +67,66 @@ Use the dev API URL from your deployed stack output as `NEXT_PUBLIC_API_BASE_URL
 
 ## 7) API/workers local notes
 
-There is no local Lambda runtime harness yet. Use these for fast checks:
+### Option A: Local dev server (recommended for debugging)
+
+Run the API locally with hot-reload and debugger support:
+
+```sh
+# Make sure emulators are running first
+.\scripts\start-local.ps1  # or ./scripts/start-local.sh
+
+# Load local env vars
+cat .env.local | %{ if ($_ -match '^([^#].+?)=(.+)$') { [System.Environment]::SetEnvironmentVariable($matches[1], $matches[2], 'Process') } }
+
+# Install dependencies
+pnpm install
+
+# Run API dev server on http://localhost:3001
+pnpm --filter @noteship/api dev
+```
+
+The dev server:
+
+- Wraps Lambda handlers in Express routes
+- Uses local DynamoDB, S3, SQS from `.env.local`
+- Accepts real JWT tokens from Auth0 or uses fallback local user
+- Supports hot-reload via `tsx watch`
+
+**To debug with breakpoints:**
+
+1. Run with inspector enabled:
+
+   ```sh
+   NODE_OPTIONS='--inspect' pnpm --filter @noteship/api dev
+   ```
+
+2. In VS Code, add to `.vscode/launch.json`:
+
+   ```json
+   {
+     "type": "node",
+     "request": "attach",
+     "name": "Attach to API",
+     "port": 9229,
+     "restart": true,
+     "skipFiles": ["<node_internals>/**"]
+   }
+   ```
+
+3. Start debugging: **Run > Start Debugging** or **F5**
+
+4. Set breakpoints in handler files and make API calls
+
+**Point your web app to the local API:**
+
+```env
+# In apps/web/.env.local
+NEXT_PUBLIC_API_BASE_URL=http://localhost:3001
+```
+
+### Option B: Build and deploy to AWS dev stack
+
+For end-to-end verification against real AWS services:
 
 ```sh
 pnpm --filter @noteship/api build
@@ -76,7 +135,7 @@ pnpm --filter @noteship/api test
 pnpm --filter @noteship/workers test
 ```
 
-For end-to-end verification, deploy to the dev stack and call the API.
+Deploy and call the dev API endpoint.
 
 ## 8) Optional emulators (fast loops)
 
