@@ -95,7 +95,9 @@ const DashboardPage = () => {
                 {recentNotes.map((note) => (
                   <tr key={note.noteId}>
                     <td>
-                      <Link href={`/dashboard/notes/${note.noteId}`}>{note.title}</Link>
+                      <Link href={`/dashboard/notes?noteId=${encodeURIComponent(note.noteId)}`}>
+                        {note.title}
+                      </Link>
                     </td>
                     <td>{new Date(note.updatedAt).toLocaleDateString()}</td>
                   </tr>

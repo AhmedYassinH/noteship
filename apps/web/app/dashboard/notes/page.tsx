@@ -2,9 +2,10 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import dashboardCopy from "../../../data/dashboard";
 import { useDashboard } from "../../../components/dashboard/DashboardShell";
+import NoteDetail from "../../../components/dashboard/NoteDetail";
 import { createNote, listNotes } from "../../../lib/api/notes";
 import type { NoteResponse } from "../../../lib/api/types";
 import styles from "../dashboard.module.css";
@@ -13,6 +14,8 @@ const NotesPage = () => {
   const { lang, isAr, refreshNotes } = useDashboard();
   const t = useMemo(() => dashboardCopy[lang], [lang]);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const selectedNoteId = searchParams?.get("noteId") ?? "";
   const [notes, setNotes] = useState<NoteResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -49,11 +52,15 @@ const NotesPage = () => {
         editorFormat: "tiptap",
       });
       await refreshNotes();
-      router.push(`/dashboard/notes/${response.noteId}`);
+      router.push(`/dashboard/notes?noteId=${encodeURIComponent(response.noteId)}`);
     } catch {
       // ignore for now
     }
   };
+
+  if (selectedNoteId) {
+    return <NoteDetail noteId={selectedNoteId} />;
+  }
 
   return (
     <main lang={lang} dir={isAr ? "rtl" : "ltr"}>
@@ -101,7 +108,9 @@ const NotesPage = () => {
               {notes.map((note) => (
                 <tr key={note.noteId}>
                   <td>
-                    <Link href={`/dashboard/notes/${note.noteId}`}>{note.title}</Link>
+                    <Link href={`/dashboard/notes?noteId=${encodeURIComponent(note.noteId)}`}>
+                      {note.title}
+                    </Link>
                   </td>
                   <td>
                     <span className={`${styles.statusPill} ${statusClass(note.embeddingStatus)}`}>

@@ -1,10 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useParams } from "next/navigation";
-import dashboardCopy from "../../../../data/dashboard";
-import { useDashboard } from "../../../../components/dashboard/DashboardShell";
-import NoteEditor from "../../../../components/dashboard/NoteEditor";
+import dashboardCopy from "../../data/dashboard";
+import { useDashboard } from "./DashboardShell";
+import NoteEditor from "./NoteEditor";
 import {
   createPost,
   generateDrafts,
@@ -12,12 +11,15 @@ import {
   publishPost,
   schedulePost,
   updateNote,
-} from "../../../../lib/api/notes";
-import type { DraftResponse, NoteWithContentResponse } from "../../../../lib/api/types";
-import styles from "../../dashboard.module.css";
+} from "../../lib/api/notes";
+import type { DraftResponse, NoteWithContentResponse } from "../../lib/api/types";
+import styles from "../../app/dashboard/dashboard.module.css";
 
-const NotePage = () => {
-  const { noteId } = useParams<{ noteId: string }>();
+type NoteDetailProps = {
+  noteId: string;
+};
+
+const NoteDetail = ({ noteId }: NoteDetailProps) => {
   const { lang, isAr, entitlements } = useDashboard();
   const t = useMemo(() => dashboardCopy[lang], [lang]);
   const [note, setNote] = useState<NoteWithContentResponse | null>(null);
@@ -43,13 +45,19 @@ const NotePage = () => {
   }, [noteId]);
 
   useEffect(() => {
+    if (!noteId) return;
+    setDrafts([]);
+    setSelectedDraft(null);
+    setScheduleAt("");
+    setStatus("idle");
+    setDraftStatus("idle");
     void loadNote();
     return () => {
       if (saveTimer.current) {
         clearTimeout(saveTimer.current);
       }
     };
-  }, [loadNote]);
+  }, [loadNote, noteId]);
 
   const scheduleSave = (updates: Partial<NoteWithContentResponse>) => {
     if (!note) return;
@@ -272,4 +280,4 @@ const NotePage = () => {
   );
 };
 
-export default NotePage;
+export default NoteDetail;
