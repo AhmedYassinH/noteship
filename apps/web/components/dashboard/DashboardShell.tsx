@@ -173,7 +173,7 @@ const DashboardShellInner = ({ children }: { children: ReactNode }) => {
         editorFormat: "tiptap",
       });
       await refreshNotes();
-      router.push(`/dashboard/notes/${response.noteId}`);
+      router.push(`/dashboard/notes?noteId=${encodeURIComponent(response.noteId)}`);
     } catch {
       // no-op, surface error in page if needed
     }
@@ -265,7 +265,7 @@ const DashboardShellInner = ({ children }: { children: ReactNode }) => {
                 recentNotes.map((note) => (
                   <Link
                     key={note.noteId}
-                    href={`/dashboard/notes/${note.noteId}`}
+                    href={`/dashboard/notes?noteId=${encodeURIComponent(note.noteId)}`}
                     className={styles.noteItem}
                   >
                     <span className={styles.noteTitle}>{note.title}</span>

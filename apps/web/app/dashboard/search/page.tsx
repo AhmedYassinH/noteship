@@ -70,7 +70,9 @@ const SearchPage = () => {
             {results.map((result) => (
               <article key={result.noteId} className={styles.panelItem}>
                 <div className={styles.panelItemTitle}>
-                  <Link href={`/dashboard/notes/${result.noteId}`}>{result.title}</Link>
+                  <Link href={`/dashboard/notes?noteId=${encodeURIComponent(result.noteId)}`}>
+                    {result.title}
+                  </Link>
                 </div>
                 <p className={styles.muted}>{result.preview ?? ""}</p>
               </article>

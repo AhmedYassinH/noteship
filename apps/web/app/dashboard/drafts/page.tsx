@@ -76,7 +76,9 @@ const DraftsPage = () => {
               {drafts.map((draft) => (
                 <tr key={draft.postId}>
                   <td>
-                    <Link href={`/dashboard/notes/${draft.noteId}`}>{draft.noteId}</Link>
+                    <Link href={`/dashboard/notes?noteId=${encodeURIComponent(draft.noteId)}`}>
+                      {draft.noteId}
+                    </Link>
                   </td>
                   <td>{draft.provider}</td>
                   <td>{new Date(draft.updatedAt).toLocaleDateString()}</td>

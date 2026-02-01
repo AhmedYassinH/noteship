@@ -84,7 +84,9 @@ const PublishingPage = () => {
               {posts.map((post) => (
                 <tr key={post.postId}>
                   <td>
-                    <Link href={`/dashboard/notes/${post.noteId}`}>{post.noteId}</Link>
+                    <Link href={`/dashboard/notes?noteId=${encodeURIComponent(post.noteId)}`}>
+                      {post.noteId}
+                    </Link>
                   </td>
                   <td>{post.provider}</td>
                   <td>
