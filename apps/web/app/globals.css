@@ -1,19 +1,30 @@
 @import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Lora:wght@600&family=Noto+Naskh+Arabic:wght@500;600&display=swap");
 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 :root {
-  --bg: #f2f6f4;
-  --surface: #ffffff;
-  --ink: #0b0f14;
-  --muted: #4b5563;
-  --accent: #0f766e;
-  --accent-strong: #0b4c4a;
-  --border: rgba(15, 23, 42, 0.12);
-  --shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
-  --radius: 24px;
+  --ns-bg: #f2f6f4;
+  --ns-surface: #ffffff;
+  --ns-ink: #0b0f14;
+  --ns-muted: #4b5563;
+  --ns-accent: #0f766e;
+  --ns-accent-strong: #0b4c4a;
+  --ns-border: rgba(15, 23, 42, 0.12);
+  --ns-shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
+  --ns-radius: 24px;
   --font-body-en: "IBM Plex Sans", "Helvetica Neue", "Segoe UI", sans-serif;
   --font-body-ar: "IBM Plex Sans Arabic", "Segoe UI", "Arial", sans-serif;
   --font-headline-en: "Lora", "Georgia", serif;
   --font-headline-ar: "Noto Naskh Arabic", "Times New Roman", serif;
+  --font-body: var(--font-body-en);
+  --font-headline: var(--font-headline-en);
+}
+
+:root[dir="rtl"] {
+  --font-body: var(--font-body-ar);
+  --font-headline: var(--font-headline-ar);
 }
 
 *,
@@ -29,12 +40,77 @@ body {
 
 body {
   margin: 0;
-  background: var(--bg);
-  color: var(--ink);
-  font-family: var(--font-body-en);
+  background: var(--ns-bg);
+  color: var(--ns-ink);
+  font-family: var(--font-body);
   line-height: 1.5;
 }
 
 button {
   font-family: inherit;
+}
+
+@layer base {
+  :root {
+    --background: 150 18% 96%;
+    --foreground: 213 29% 6%;
+    --card: 0 0% 100%;
+    --card-foreground: 213 29% 6%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 213 29% 6%;
+    --primary: 175 77% 26%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 225 20% 96%;
+    --secondary-foreground: 213 29% 6%;
+    --muted: 225 20% 96%;
+    --muted-foreground: 215 14% 34%;
+    --accent: 176 39% 93%;
+    --accent-foreground: 213 29% 6%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 175 77% 26%;
+    --chart-1: 175 77% 26%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+    --radius: 1rem;
+  }
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
 }

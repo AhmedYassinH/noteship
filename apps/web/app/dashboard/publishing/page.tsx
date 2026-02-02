@@ -4,9 +4,19 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import dashboardCopy from "../../../data/dashboard";
 import { useDashboard } from "../../../components/dashboard/DashboardShell";
+import { Badge } from "../../../components/ui/Badge";
+import { Button } from "../../../components/ui/Button";
+import { Card } from "../../../components/ui/Card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../../../components/ui/Table";
 import { listPosts } from "../../../lib/api/notes";
 import type { PostResponse } from "../../../lib/api/types";
-import styles from "../dashboard.module.css";
 
 const PublishingPage = () => {
   const { lang, isAr, entitlements } = useDashboard();
@@ -16,9 +26,9 @@ const PublishingPage = () => {
   const [error, setError] = useState(false);
 
   const statusClass = (status: PostResponse["status"]) => {
-    if (status === "published") return styles.statusSuccess;
-    if (status === "failed") return styles.statusDanger;
-    if (status === "scheduled") return styles.statusWarning;
+    if (status === "published") return "bg-emerald-100 text-emerald-700";
+    if (status === "failed") return "bg-red-100 text-red-700";
+    if (status === "scheduled") return "bg-amber-100 text-amber-700";
     return "";
   };
 
@@ -41,64 +51,83 @@ const PublishingPage = () => {
   }, [loadPosts]);
 
   return (
-    <main lang={lang} dir={isAr ? "rtl" : "ltr"}>
-      <div className={styles.pageHeader}>
+    <main className="flex flex-col gap-6" lang={lang} dir={isAr ? "rtl" : "ltr"}>
+      <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div>
-          <h1 className={styles.pageTitle}>{t.publishing.title}</h1>
-          <p className={styles.pageSubtitle}>{t.publishing.subtitle}</p>
+          <h1 className="m-0 text-[1.75rem] font-semibold leading-[1.2]">{t.publishing.title}</h1>
+          <p className="m-0 text-[0.9rem] text-[#5b6474]">{t.publishing.subtitle}</p>
         </div>
       </div>
 
       {!entitlements.canSchedule ? (
-        <div className={styles.upsell}>
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-[12px] border border-dashed border-[rgba(15,23,42,0.25)] bg-white p-3 text-[0.85rem] text-[#5b6474]">
           <span>{t.publishing.upsell}</span>
-          <a className={styles.upsellLink} href="/dashboard/billing">
+          <a
+            className="font-semibold text-[var(--ns-accent)] hover:underline"
+            href="/dashboard/billing"
+          >
             {t.note.upgradeCta}
           </a>
         </div>
       ) : null}
 
-      <div className={styles.card}>
+      <Card className="rounded-2xl border border-[rgba(15,23,42,0.1)] bg-white p-[18px] shadow-[0_10px_28px_rgba(15,23,42,0.08)]">
         {loading ? (
-          <div className={styles.emptyState}>{t.common.loading}</div>
+          <div className="rounded-2xl border border-dashed border-[rgba(15,23,42,0.2)] p-6 text-center text-[#5b6474]">
+            {t.common.loading}
+          </div>
         ) : error ? (
-          <div className={styles.emptyState} role="alert">
+          <div
+            className="rounded-2xl border border-dashed border-[rgba(15,23,42,0.2)] p-6 text-center text-[#5b6474]"
+            role="alert"
+          >
             <p>{t.common.error}</p>
-            <button type="button" className={styles.pillButton} onClick={() => void loadPosts()}>
+            <Button type="button" variant="outline" onClick={() => void loadPosts()}>
               {t.common.retry}
-            </button>
+            </Button>
           </div>
         ) : posts.length === 0 ? (
-          <div className={styles.emptyState}>{t.publishing.empty}</div>
+          <div className="rounded-2xl border border-dashed border-[rgba(15,23,42,0.2)] p-6 text-center text-[#5b6474]">
+            {t.publishing.empty}
+          </div>
         ) : (
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th>{t.table.note}</th>
-                <th>{t.table.provider}</th>
-                <th>{t.table.status}</th>
-                <th>{t.table.updated}</th>
-              </tr>
-            </thead>
-            <tbody>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="uppercase tracking-widest text-xs">{t.table.note}</TableHead>
+                <TableHead className="uppercase tracking-widest text-xs">
+                  {t.table.provider}
+                </TableHead>
+                <TableHead className="uppercase tracking-widest text-xs">
+                  {t.table.status}
+                </TableHead>
+                <TableHead className="uppercase tracking-widest text-xs">
+                  {t.table.updated}
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {posts.map((post) => (
-                <tr key={post.postId}>
-                  <td>
+                <TableRow key={post.postId}>
+                  <TableCell>
                     <Link href={`/dashboard/notes/${post.noteId}`}>{post.noteId}</Link>
-                  </td>
-                  <td>{post.provider}</td>
-                  <td>
-                    <span className={`${styles.statusPill} ${statusClass(post.status)}`}>
+                  </TableCell>
+                  <TableCell>{post.provider}</TableCell>
+                  <TableCell>
+                    <Badge
+                      variant="secondary"
+                      className={`rounded-full ${statusClass(post.status)}`}
+                    >
                       {post.status}
-                    </span>
-                  </td>
-                  <td>{new Date(post.updatedAt).toLocaleDateString()}</td>
-                </tr>
+                    </Badge>
+                  </TableCell>
+                  <TableCell>{new Date(post.updatedAt).toLocaleDateString()}</TableCell>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         )}
-      </div>
+      </Card>
     </main>
   );
 };

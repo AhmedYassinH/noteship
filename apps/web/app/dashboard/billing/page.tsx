@@ -3,8 +3,9 @@
 import { useMemo } from "react";
 import dashboardCopy from "../../../data/dashboard";
 import { useDashboard } from "../../../components/dashboard/DashboardShell";
+import { Button } from "../../../components/ui/Button";
+import { Card } from "../../../components/ui/Card";
 import { createPortalSession } from "../../../lib/api/notes";
-import styles from "../dashboard.module.css";
 
 const BillingPage = () => {
   const { lang, isAr, me } = useDashboard();
@@ -20,35 +21,33 @@ const BillingPage = () => {
   };
 
   return (
-    <main lang={lang} dir={isAr ? "rtl" : "ltr"}>
-      <div className={styles.pageHeader}>
+    <main className="flex flex-col gap-6" lang={lang} dir={isAr ? "rtl" : "ltr"}>
+      <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div>
-          <h1 className={styles.pageTitle}>{t.billing.title}</h1>
-          <p className={styles.pageSubtitle}>{t.billing.subtitle}</p>
+          <h1 className="m-0 text-[1.75rem] font-semibold leading-[1.2]">{t.billing.title}</h1>
+          <p className="m-0 text-[0.9rem] text-[#5b6474]">{t.billing.subtitle}</p>
         </div>
       </div>
 
-      <div className={styles.card}>
-        <div className={styles.grid}>
+      <Card className="rounded-2xl border border-[rgba(15,23,42,0.1)] bg-white p-[18px] shadow-[0_10px_28px_rgba(15,23,42,0.08)]">
+        <div className="grid gap-4 md:grid-cols-[1fr_auto] md:items-center">
           <div>
-            <p className={styles.cardTitle}>{t.billing.currentPlanLabel}</p>
-            <p className={styles.statValue}>{me?.planId ?? "free"}</p>
-            <p className={styles.muted}>{me?.subscriptionStatus ?? t.billing.defaultStatus}</p>
+            <p className="m-0 mb-2 text-[0.95rem] font-semibold">{t.billing.currentPlanLabel}</p>
+            <p className="m-0 text-[1.4rem] font-semibold">{me?.planId ?? "free"}</p>
+            <p className="m-0 text-[0.85rem] text-[#5b6474]">
+              {me?.subscriptionStatus ?? t.billing.defaultStatus}
+            </p>
           </div>
-          <div className={styles.inlineActions}>
-            <button
-              type="button"
-              className={`${styles.pillButton} ${styles.primaryButton}`}
-              onClick={handlePortal}
-            >
+          <div className="flex flex-wrap gap-2">
+            <Button type="button" size="pill" onClick={handlePortal}>
               {t.billing.upgrade}
-            </button>
-            <button type="button" className={styles.pillButton} onClick={handlePortal}>
+            </Button>
+            <Button type="button" variant="outline" size="pill" onClick={handlePortal}>
               {t.billing.manage}
-            </button>
+            </Button>
           </div>
         </div>
-      </div>
+      </Card>
     </main>
   );
 };

@@ -3,13 +3,15 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import dashboardCopy from "../../../data/dashboard";
 import { useDashboard } from "../../../components/dashboard/DashboardShell";
+import { Badge } from "../../../components/ui/Badge";
+import { Button } from "../../../components/ui/Button";
+import { Card } from "../../../components/ui/Card";
 import {
   connectIntegration,
   disconnectIntegration,
   listIntegrations,
 } from "../../../lib/api/notes";
 import type { IntegrationAccountResponse, IntegrationProvider } from "../../../lib/api/types";
-import styles from "../dashboard.module.css";
 
 const providers: IntegrationProvider[] = ["linkedin", "medium"];
 
@@ -60,51 +62,57 @@ const IntegrationsPage = () => {
     items.find((item) => item.provider === provider)?.status ?? "revoked";
 
   return (
-    <main lang={lang} dir={isAr ? "rtl" : "ltr"}>
-      <div className={styles.pageHeader}>
+    <main className="flex flex-col gap-6" lang={lang} dir={isAr ? "rtl" : "ltr"}>
+      <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div>
-          <h1 className={styles.pageTitle}>{t.integrations.title}</h1>
-          <p className={styles.pageSubtitle}>{t.integrations.subtitle}</p>
+          <h1 className="m-0 text-[1.75rem] font-semibold leading-[1.2]">{t.integrations.title}</h1>
+          <p className="m-0 text-[0.9rem] text-[#5b6474]">{t.integrations.subtitle}</p>
         </div>
       </div>
 
-      <div className={styles.grid}>
+      <div className="grid gap-4 md:grid-cols-2">
         {loading ? (
-          <div className={styles.emptyState}>{t.common.loading}</div>
+          <div className="rounded-2xl border border-dashed border-[rgba(15,23,42,0.2)] p-6 text-center text-[#5b6474]">
+            {t.common.loading}
+          </div>
         ) : error ? (
-          <div className={styles.emptyState} role="alert">
+          <div
+            className="rounded-2xl border border-dashed border-[rgba(15,23,42,0.2)] p-6 text-center text-[#5b6474]"
+            role="alert"
+          >
             <p>{t.common.error}</p>
-            <button type="button" className={styles.pillButton} onClick={() => void load()}>
+            <Button type="button" variant="outline" onClick={() => void load()}>
               {t.common.retry}
-            </button>
+            </Button>
           </div>
         ) : (
           providers.map((provider) => {
             const status = statusFor(provider);
             return (
-              <div key={provider} className={styles.card}>
-                <h2 className={styles.cardTitle}>{provider}</h2>
-                <span className={styles.statusPill}>{status}</span>
-                <div className={styles.inlineActions}>
+              <Card
+                key={provider}
+                className="grid gap-3 rounded-2xl border border-[rgba(15,23,42,0.1)] bg-white p-[18px] shadow-[0_10px_28px_rgba(15,23,42,0.08)]"
+              >
+                <h2 className="m-0 text-[0.95rem] font-semibold">{provider}</h2>
+                <Badge variant="secondary" className="rounded-full">
+                  {status}
+                </Badge>
+                <div className="flex flex-wrap gap-2">
                   {status === "connected" ? (
-                    <button
+                    <Button
                       type="button"
-                      className={styles.pillButton}
+                      variant="outline"
                       onClick={() => handleDisconnect(provider)}
                     >
                       {t.integrations.disconnect}
-                    </button>
+                    </Button>
                   ) : (
-                    <button
-                      type="button"
-                      className={`${styles.pillButton} ${styles.primaryButton}`}
-                      onClick={() => handleConnect(provider)}
-                    >
+                    <Button type="button" size="pill" onClick={() => handleConnect(provider)}>
                       {t.integrations.connect}
-                    </button>
+                    </Button>
                   )}
                 </div>
-              </div>
+              </Card>
             );
           })
         )}

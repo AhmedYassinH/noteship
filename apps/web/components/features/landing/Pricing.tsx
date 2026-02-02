@@ -1,30 +1,36 @@
-import Button from "../../ui/Button";
+﻿import { Button } from "../../ui/Button";
 import { LandingCopy } from "../../../data/landing";
-import styles from "../../../app/page.module.css";
 
 type Props = {
   copy: LandingCopy;
 };
 
 const Pricing = ({ copy }: Props) => (
-  <section className={styles.section} id="pricing">
-    <div className={styles.sectionHeader}>
-      <h2 className={styles.sectionTitle}>{copy.pricingTitle}</h2>
-      <p className={styles.sectionLead}>{copy.pricingSub}</p>
+  <section className="flex flex-col gap-4" id="pricing">
+    <div className="grid gap-2">
+      <h2 className="m-0 font-headline text-[1.6rem] leading-[1.25] text-slate-900">
+        {copy.pricingTitle}
+      </h2>
+      <p className="m-0 text-[1rem] leading-[1.65] text-[var(--ns-muted)]">{copy.pricingSub}</p>
     </div>
-    <div className={styles.pricing}>
+    <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(260px,1fr))]">
       {copy.plans.map((plan) => (
-        <article key={plan.name} className={styles.priceCard}>
-          <div className={styles.priceHeader}>
-            <div className={styles.priceName}>{plan.name}</div>
-            <div className={styles.priceValue}>{plan.price}</div>
+        <article
+          key={plan.name}
+          className="grid gap-2.5 rounded-[16px] border border-[var(--ns-border)] bg-white p-[18px] shadow-[0_12px_22px_rgba(15,23,42,0.08)]"
+        >
+          <div className="flex items-center justify-between">
+            <div className="text-[1rem] font-bold">{plan.name}</div>
+            <div className="font-bold">{plan.price}</div>
           </div>
-          <ul className={styles.priceList}>
+          <ul className="m-0 grid list-none gap-2 p-0 text-[var(--ns-muted)]">
             {plan.items.map((item) => (
               <li key={item}>{item}</li>
             ))}
           </ul>
-          <Button variant="primary">{plan.cta}</Button>
+          <Button variant="default" size="pill">
+            {plan.cta}
+          </Button>
         </article>
       ))}
     </div>
