@@ -5,10 +5,20 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import dashboardCopy from "../../../data/dashboard";
 import { useDashboard } from "../../../components/dashboard/DashboardShell";
+import { Badge } from "../../../components/ui/Badge";
+import { Button } from "../../../components/ui/Button";
+import { Card } from "../../../components/ui/Card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../../../components/ui/Table";
 import NoteDetail from "../../../components/dashboard/NoteDetail";
 import { createNote, listNotes } from "../../../lib/api/notes";
 import type { NoteResponse } from "../../../lib/api/types";
-import styles from "../dashboard.module.css";
 
 const NotesPage = () => {
   const { lang, isAr, refreshNotes } = useDashboard();
@@ -21,9 +31,9 @@ const NotesPage = () => {
   const [error, setError] = useState(false);
 
   const statusClass = (status: NoteResponse["embeddingStatus"]) => {
-    if (status === "ready") return styles.statusSuccess;
-    if (status === "failed") return styles.statusDanger;
-    return styles.statusWarning;
+    if (status === "ready") return "bg-emerald-100 text-emerald-700";
+    if (status === "failed") return "bg-red-100 text-red-700";
+    return "bg-amber-100 text-amber-700";
   };
 
   const loadNotes = useCallback(async () => {
@@ -63,67 +73,73 @@ const NotesPage = () => {
   }
 
   return (
-    <main lang={lang} dir={isAr ? "rtl" : "ltr"}>
-      <div className={styles.pageHeader}>
+    <main className="flex flex-col gap-6" lang={lang} dir={isAr ? "rtl" : "ltr"}>
+      <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div>
-          <h1 className={styles.pageTitle}>{t.notes.title}</h1>
-          <p className={styles.pageSubtitle}>{t.notes.subtitle}</p>
+          <h1 className="m-0 text-[1.75rem] font-semibold leading-[1.2]">{t.notes.title}</h1>
+          <p className="m-0 text-[0.9rem] text-[#5b6474]">{t.notes.subtitle}</p>
         </div>
-        <div className={styles.inlineActions}>
-          <button
-            type="button"
-            className={`${styles.pillButton} ${styles.primaryButton}`}
-            onClick={handleCreate}
-          >
+        <div className="flex flex-wrap gap-2">
+          <Button type="button" size="pill" onClick={handleCreate}>
             {t.notes.createCta}
-          </button>
+          </Button>
         </div>
       </div>
 
-      <div className={styles.card}>
+      <Card className="rounded-2xl border border-[rgba(15,23,42,0.1)] bg-white p-[18px] shadow-[0_10px_28px_rgba(15,23,42,0.08)]">
         {loading ? (
-          <div className={styles.emptyState}>{t.common.loading}</div>
+          <div className="rounded-2xl border border-dashed border-[rgba(15,23,42,0.2)] p-6 text-center text-[#5b6474]">
+            {t.common.loading}
+          </div>
         ) : error ? (
-          <div className={styles.emptyState} role="alert">
+          <div
+            className="rounded-2xl border border-dashed border-[rgba(15,23,42,0.2)] p-6 text-center text-[#5b6474]"
+            role="alert"
+          >
             <p>{t.common.error}</p>
-            <button type="button" className={styles.pillButton} onClick={() => void loadNotes()}>
+            <Button type="button" variant="outline" onClick={() => void loadNotes()}>
               {t.common.retry}
-            </button>
+            </Button>
           </div>
         ) : notes.length === 0 ? (
-          <div className={styles.emptyState}>
+          <div className="rounded-2xl border border-dashed border-[rgba(15,23,42,0.2)] p-6 text-center text-[#5b6474]">
             <strong>{t.notes.emptyTitle}</strong>
-            <p className={styles.muted}>{t.notes.emptyCopy}</p>
+            <p className="m-0 text-[0.85rem] text-[#5b6474]">{t.notes.emptyCopy}</p>
           </div>
         ) : (
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th>{t.table.title}</th>
-                <th>{t.table.status}</th>
-                <th>{t.table.updated}</th>
-              </tr>
-            </thead>
-            <tbody>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="uppercase tracking-widest text-xs">{t.table.title}</TableHead>
+                <TableHead className="uppercase tracking-widest text-xs">
+                  {t.table.status}
+                </TableHead>
+                <TableHead className="uppercase tracking-widest text-xs">
+                  {t.table.updated}
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {notes.map((note) => (
-                <tr key={note.noteId}>
-                  <td>
-                    <Link href={`/dashboard/notes?noteId=${encodeURIComponent(note.noteId)}`}>
-                      {note.title}
-                    </Link>
-                  </td>
-                  <td>
-                    <span className={`${styles.statusPill} ${statusClass(note.embeddingStatus)}`}>
+                <TableRow key={note.noteId}>
+                  <TableCell>
+                    <Link href={`/dashboard/notes/${note.noteId}`}>{note.title}</Link>
+                  </TableCell>
+                  <TableCell>
+                    <Badge
+                      variant="secondary"
+                      className={`rounded-full ${statusClass(note.embeddingStatus)}`}
+                    >
                       {note.embeddingStatus}
-                    </span>
-                  </td>
-                  <td>{new Date(note.updatedAt).toLocaleDateString()}</td>
-                </tr>
+                    </Badge>
+                  </TableCell>
+                  <TableCell>{new Date(note.updatedAt).toLocaleDateString()}</TableCell>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         )}
-      </div>
+      </Card>
     </main>
   );
 };

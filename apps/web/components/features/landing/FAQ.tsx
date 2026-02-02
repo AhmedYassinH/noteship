@@ -1,20 +1,24 @@
-import { LandingCopy } from "../../../data/landing";
-import styles from "../../../app/page.module.css";
+﻿import { LandingCopy } from "../../../data/landing";
 
 type Props = {
   copy: LandingCopy;
 };
 
 const FAQ = ({ copy }: Props) => (
-  <section className={styles.section} id="faq">
-    <div className={styles.sectionHeader}>
-      <h2 className={styles.sectionTitle}>{copy.faqTitle}</h2>
+  <section className="flex flex-col gap-4" id="faq">
+    <div className="grid gap-2">
+      <h2 className="m-0 font-headline text-[1.6rem] leading-[1.25] text-slate-900">
+        {copy.faqTitle}
+      </h2>
     </div>
-    <div className={styles.faq}>
+    <div className="grid gap-3">
       {copy.faq.map((item) => (
-        <article key={item.q} className={styles.faqItem}>
-          <h3 className={styles.faqQ}>{item.q}</h3>
-          <p className={styles.faqA}>{item.a}</p>
+        <article
+          key={item.q}
+          className="rounded-[12px] border border-[var(--ns-border)] bg-white p-[14px]"
+        >
+          <h3 className="m-0 mb-1.5 font-bold">{item.q}</h3>
+          <p className="m-0 text-[var(--ns-muted)] leading-[1.6]">{item.a}</p>
         </article>
       ))}
     </div>
