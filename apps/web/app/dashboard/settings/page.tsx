@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import dashboardCopy from "../../../data/dashboard";
 import { useDashboard } from "../../../components/dashboard/DashboardShell";
-import { Card } from "../../../components/ui/card";
+import { Card } from "../../../components/ui/Card";
 import LanguageToggle from "../../../components/ui/LanguageToggle";
 
 const SettingsPage = () => {

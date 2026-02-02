@@ -1,6 +1,6 @@
 import { Lang } from "../../data/marketing-shared";
 import { cn } from "@/lib/utils";
-import { Button } from "./button";
+import { Button } from "./Button";
 
 type Props = {
   lang: Lang;

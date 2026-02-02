@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import Link from "next/link";
 import { useMarketingLanguage } from "../../../components/marketing/MarketingShell";
-import { Button } from "../../../components/ui/button";
+import { Button } from "../../../components/ui/Button";
 import featuresCopy from "../../../data/marketing-features";
 
 const FeaturesPage = () => {

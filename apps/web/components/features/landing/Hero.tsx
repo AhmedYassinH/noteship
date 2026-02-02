@@ -1,5 +1,5 @@
 ﻿import Image from "next/image";
-import { Button } from "../../ui/button";
+import { Button } from "../../ui/Button";
 import { LandingCopy } from "../../../data/landing";
 
 type Props = {

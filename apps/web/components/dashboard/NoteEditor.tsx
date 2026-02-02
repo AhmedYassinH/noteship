@@ -8,7 +8,7 @@ import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
 import { Markdown } from "tiptap-markdown";
 import EditorToolbar from "./EditorToolbar";
-import { Input } from "../ui/input";
+import { Input } from "../ui/Input";
 import { createNoteUpload } from "../../lib/api/notes";
 import { cn } from "@/lib/utils";
 

@@ -3,8 +3,8 @@
 import { useMemo } from "react";
 import dashboardCopy from "../../../data/dashboard";
 import { useDashboard } from "../../../components/dashboard/DashboardShell";
-import { Button } from "../../../components/ui/button";
-import { Card } from "../../../components/ui/card";
+import { Button } from "../../../components/ui/Button";
+import { Card } from "../../../components/ui/Card";
 import { createPortalSession } from "../../../lib/api/notes";
 
 const BillingPage = () => {

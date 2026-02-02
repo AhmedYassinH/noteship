@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import LanguageToggle from "../../ui/LanguageToggle";
-import { Button } from "../../ui/button";
+import { Button } from "../../ui/Button";
 import { Lang, LandingCopy } from "../../../data/landing";
 
 type Props = {

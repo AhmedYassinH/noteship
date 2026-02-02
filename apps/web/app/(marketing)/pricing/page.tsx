@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import Link from "next/link";
 import { useMarketingLanguage } from "../../../components/marketing/MarketingShell";
-import { Button } from "../../../components/ui/button";
+import { Button } from "../../../components/ui/Button";
 import {
   Table,
   TableBody,
@@ -11,7 +11,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../../../components/ui/table";
+} from "../../../components/ui/Table";
 import pricingCopy from "../../../data/marketing-pricing";
 
 const PricingPage = () => {

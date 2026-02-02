@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useMarketingLanguage } from "../../components/marketing/MarketingShell";
-import { Button } from "../../components/ui/button";
+import { Button } from "../../components/ui/Button";
 import homeCopy from "../../data/marketing-home";
 
 const HomePage = () => {

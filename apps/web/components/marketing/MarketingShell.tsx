@@ -8,7 +8,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "../auth/AuthProvider";
 import sharedCopy, { Lang } from "../../data/marketing-shared";
-import { Button } from "../ui/button";
+import { Button } from "../ui/Button";
 import LanguageToggle from "../ui/LanguageToggle";
 import { cn } from "@/lib/utils";
 
