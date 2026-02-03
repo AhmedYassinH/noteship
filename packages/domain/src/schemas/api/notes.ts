@@ -7,15 +7,15 @@ export const listNotesQuerySchema = z.object({
 });
 
 export const noteCreateSchema = z.object({
-  title: nonEmptyStringSchema,
-  content: nonEmptyStringSchema,
+  title: z.string(),
+  content: z.string(),
   tags: z.array(z.string().min(1)).optional(),
   editorFormat: z.enum(["tiptap", "markdown"]).optional(),
 });
 
 export const noteUpdateSchema = z.object({
   title: nonEmptyStringSchema.optional(),
-  content: nonEmptyStringSchema.optional(),
+  content: z.string().optional(),
   tags: z.array(z.string().min(1)).optional(),
   editorFormat: z.enum(["tiptap", "markdown"]).optional(),
 });
@@ -47,7 +47,7 @@ export const noteResponseSchema = z.object({
 });
 
 export const noteWithContentResponseSchema = noteResponseSchema.extend({
-  content: nonEmptyStringSchema,
+  content: z.string(),
 });
 
 export const noteListResponseSchema = z.object({
