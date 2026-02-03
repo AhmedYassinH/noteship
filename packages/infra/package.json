@@ -8,10 +8,12 @@
     "build": "tsc -p tsconfig.json",
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
     "synth": "dotenv -e ../../.env -- cdk synth",
-    "bootstrap": "dotenv -e ../../.env -- cdk bootstrap --no-app",
+    "bootstrap": "dotenv -e ../../.env -- cdk bootstrap -c env=dev -c region=us-east-1 --profile noteship-dev",
     "deploy:dev": "dotenv -e ../../.env -- cdk deploy -c env=dev -c region=us-east-1",
     "deploy:core:dev": "dotenv -e ../../.env -- cdk deploy NoteshipCore-dev -c env=dev -c region=us-east-1 --profile noteship-dev",
-    "deploy:api:dev": "dotenv -e ../../.env -- cdk deploy NoteshipApi-dev -c env=dev -c region=us-east-1 --profile noteship-dev"
+    "deploy:api:dev": "dotenv -e ../../.env -- cdk deploy NoteshipApi-dev -c env=dev -c region=us-east-1 --profile noteship-dev",
+    "deploy:web:dev": "dotenv -e ../../.env -- cdk deploy NoteshipWeb-dev -c env=dev -c region=us-east-1 --profile noteship-dev",
+    "deploy:guardrails:dev": "dotenv -e ../../.env -- cdk deploy NoteshipOpsGuardrails-dev -c env=dev -c region=us-east-1 --profile noteship-dev"
   },
   "dependencies": {
     "aws-cdk-lib": "^2.151.0",
