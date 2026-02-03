@@ -2,18 +2,24 @@ import * as cdk from "aws-cdk-lib";
 import { Duration, Stack, type StackProps, Tags } from "aws-cdk-lib";
 import { Rule, Schedule } from "aws-cdk-lib/aws-events";
 import { LambdaFunction } from "aws-cdk-lib/aws-events-targets";
-import { Table } from "aws-cdk-lib/aws-dynamodb";
+import type { Table } from "aws-cdk-lib/aws-dynamodb";
 import { Runtime } from "aws-cdk-lib/aws-lambda";
 import { SqsEventSource } from "aws-cdk-lib/aws-lambda-event-sources";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
-import { Bucket } from "aws-cdk-lib/aws-s3";
-import { Queue } from "aws-cdk-lib/aws-sqs";
+import type { Bucket } from "aws-cdk-lib/aws-s3";
+import type { Queue } from "aws-cdk-lib/aws-sqs";
 import type { Construct } from "constructs";
 import path from "path";
 import type { NoteshipEnv } from "../config";
 
 export interface NoteshipWorkersStackProps extends StackProps {
   envConfig: NoteshipEnv;
+  contentBucket: Bucket;
+  notesTable: Table;
+  postsTable: Table;
+  integrationsTable: Table;
+  usageTable: Table;
+  jobsQueue: Queue;
 }
 
 const requireEnv = (key: string): string => {
@@ -46,23 +52,8 @@ export class NoteshipWorkersStack extends Stack {
     Tags.of(this).add("env", envName);
     const repoRoot = path.resolve(__dirname, "../../../..");
 
-    const bucketName = `noteship-content-${envName}`;
-    const contentBucket = Bucket.fromBucketName(this, "ContentBucket", bucketName);
-
-    const notesTable = Table.fromTableName(this, "NotesTable", `noteship-notes-${envName}`);
-    const postsTable = Table.fromTableName(this, "PostsTable", `noteship-posts-${envName}`);
-    const integrationsTable = Table.fromTableName(
-      this,
-      "IntegrationsTable",
-      `noteship-integrations-${envName}`,
-    );
-    const usageTable = Table.fromTableName(this, "UsageTable", `noteship-usage-${envName}`);
-
-    const queueName = `noteship-jobs-${envName}`;
-    const jobsQueue = Queue.fromQueueAttributes(this, "JobsQueue", {
-      queueArn: cdk.Stack.of(this).formatArn({ service: "sqs", resource: queueName }),
-      queueUrl: `https://sqs.${cdk.Aws.REGION}.amazonaws.com/${cdk.Aws.ACCOUNT_ID}/${queueName}`,
-    });
+    const { contentBucket, notesTable, postsTable, integrationsTable, usageTable, jobsQueue } =
+      props;
 
     const powertoolsLogLevel = envName === "prod" ? "INFO" : "DEBUG";
 

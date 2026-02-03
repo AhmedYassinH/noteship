@@ -8,17 +8,25 @@ import {
 } from "aws-cdk-lib/aws-apigatewayv2";
 import { HttpJwtAuthorizer } from "aws-cdk-lib/aws-apigatewayv2-authorizers";
 import { HttpLambdaIntegration } from "aws-cdk-lib/aws-apigatewayv2-integrations";
-import { Table } from "aws-cdk-lib/aws-dynamodb";
+import type { Table } from "aws-cdk-lib/aws-dynamodb";
 import { Runtime } from "aws-cdk-lib/aws-lambda";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
-import { Bucket } from "aws-cdk-lib/aws-s3";
-import { Queue } from "aws-cdk-lib/aws-sqs";
+import type { Bucket } from "aws-cdk-lib/aws-s3";
+import type { Queue } from "aws-cdk-lib/aws-sqs";
 import type { Construct } from "constructs";
 import path from "path";
 import type { NoteshipEnv } from "../config";
 
 export interface NoteshipApiStackProps extends StackProps {
   envConfig: NoteshipEnv;
+  contentBucket: Bucket;
+  usersTable: Table;
+  notesTable: Table;
+  postsTable: Table;
+  integrationsTable: Table;
+  usageTable: Table;
+  jobsTable: Table;
+  jobsQueue: Queue;
 }
 
 type RouteConfig = {
@@ -58,25 +66,16 @@ export class NoteshipApiStack extends Stack {
     Tags.of(this).add("app", "noteship");
     Tags.of(this).add("env", envName);
 
-    const bucketName = `noteship-content-${envName}`;
-    const contentBucket = Bucket.fromBucketName(this, "ContentBucket", bucketName);
-
-    const usersTable = Table.fromTableName(this, "UsersTable", `noteship-users-${envName}`);
-    const notesTable = Table.fromTableName(this, "NotesTable", `noteship-notes-${envName}`);
-    const postsTable = Table.fromTableName(this, "PostsTable", `noteship-posts-${envName}`);
-    const integrationsTable = Table.fromTableName(
-      this,
-      "IntegrationsTable",
-      `noteship-integrations-${envName}`,
-    );
-    const usageTable = Table.fromTableName(this, "UsageTable", `noteship-usage-${envName}`);
-    const jobsTable = Table.fromTableName(this, "JobsTable", `noteship-jobs-${envName}`);
-
-    const queueName = `noteship-jobs-${envName}`;
-    const jobsQueue = Queue.fromQueueAttributes(this, "JobsQueue", {
-      queueArn: cdk.Stack.of(this).formatArn({ service: "sqs", resource: queueName }),
-      queueUrl: `https://sqs.${cdk.Aws.REGION}.amazonaws.com/${cdk.Aws.ACCOUNT_ID}/${queueName}`,
-    });
+    const {
+      contentBucket,
+      usersTable,
+      notesTable,
+      postsTable,
+      integrationsTable,
+      usageTable,
+      jobsTable,
+      jobsQueue,
+    } = props;
 
     const powertoolsLogLevel = envName === "prod" ? "INFO" : "DEBUG";
 
@@ -129,7 +128,14 @@ export class NoteshipApiStack extends Stack {
       defaultAuthorizer: jwtAuthorizer,
       corsPreflight: {
         allowHeaders: ["authorization", "content-type"],
-        allowMethods: [CorsHttpMethod.ANY],
+        allowMethods: [
+          CorsHttpMethod.GET,
+          CorsHttpMethod.POST,
+          CorsHttpMethod.PUT,
+          CorsHttpMethod.PATCH,
+          CorsHttpMethod.DELETE,
+          CorsHttpMethod.OPTIONS,
+        ],
         allowOrigins: [requireEnv("NOTESHIP_WEB_ORIGIN")],
         allowCredentials: true,
       },

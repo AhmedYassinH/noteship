@@ -14,16 +14,30 @@ const envConfig = resolveEnv({
   accountEnv: process.env.CDK_DEFAULT_ACCOUNT,
 });
 
-new NoteshipCoreStack(app, `NoteshipCore-${envConfig.envName}`, {
+const coreStack = new NoteshipCoreStack(app, `NoteshipCore-${envConfig.envName}`, {
   envConfig,
 });
 
 new NoteshipApiStack(app, `NoteshipApi-${envConfig.envName}`, {
   envConfig,
+  contentBucket: coreStack.contentBucket,
+  usersTable: coreStack.usersTable,
+  notesTable: coreStack.notesTable,
+  postsTable: coreStack.postsTable,
+  integrationsTable: coreStack.integrationsTable,
+  usageTable: coreStack.usageTable,
+  jobsTable: coreStack.jobsTable,
+  jobsQueue: coreStack.jobsQueue,
 });
 
 new NoteshipWorkersStack(app, `NoteshipWorkers-${envConfig.envName}`, {
   envConfig,
+  contentBucket: coreStack.contentBucket,
+  notesTable: coreStack.notesTable,
+  postsTable: coreStack.postsTable,
+  integrationsTable: coreStack.integrationsTable,
+  usageTable: coreStack.usageTable,
+  jobsQueue: coreStack.jobsQueue,
 });
 
 new NoteshipWebStack(app, `NoteshipWeb-${envConfig.envName}`, {

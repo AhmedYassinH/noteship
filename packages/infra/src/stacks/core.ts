@@ -24,6 +24,14 @@ type CapacityCaps = {
 };
 
 export class NoteshipCoreStack extends Stack {
+  public readonly contentBucket: Bucket;
+  public readonly usersTable: Table;
+  public readonly notesTable: Table;
+  public readonly postsTable: Table;
+  public readonly integrationsTable: Table;
+  public readonly usageTable: Table;
+  public readonly jobsTable: Table;
+  public readonly jobsQueue: Queue;
   constructor(scope: Construct, id: string, props: NoteshipCoreStackProps) {
     super(scope, id, {
       ...props,
@@ -51,7 +59,7 @@ export class NoteshipCoreStack extends Stack {
       jobs: { minRead: 1, maxRead: 2, minWrite: 1, maxWrite: 2 },
     } satisfies Record<string, CapacityCaps>;
 
-    const contentBucket = new Bucket(this, "ContentBucket", {
+    this.contentBucket = new Bucket(this, "ContentBucket", {
       bucketName: `noteship-content-${envName}`,
       versioned: true,
       encryption: BucketEncryption.S3_MANAGED,
@@ -61,22 +69,22 @@ export class NoteshipCoreStack extends Stack {
       autoDeleteObjects: false,
     });
 
-    const usersTable = this.createTable("UsersTable", {
+    this.usersTable = this.createTable("UsersTable", {
       tableName: `noteship-users-${envName}`,
       partitionKey: { name: "userId", type: AttributeType.STRING },
       readCapacity: capacityCaps.users.minRead,
       writeCapacity: capacityCaps.users.minWrite,
     });
-    this.configureTableAutoScaling(usersTable, capacityCaps.users);
+    this.configureTableAutoScaling(this.usersTable, capacityCaps.users);
 
-    const notesTable = this.createTable("NotesTable", {
+    this.notesTable = this.createTable("NotesTable", {
       tableName: `noteship-notes-${envName}`,
       partitionKey: { name: "userId", type: AttributeType.STRING },
       sortKey: { name: "noteId", type: AttributeType.STRING },
       readCapacity: capacityCaps.notes.minRead,
       writeCapacity: capacityCaps.notes.minWrite,
     });
-    notesTable.addGlobalSecondaryIndex({
+    this.notesTable.addGlobalSecondaryIndex({
       indexName: "GSI1",
       partitionKey: { name: "userId", type: AttributeType.STRING },
       sortKey: { name: "updatedAt", type: AttributeType.STRING },
@@ -84,17 +92,17 @@ export class NoteshipCoreStack extends Stack {
       readCapacity: capacityCaps.notesByUpdatedAt.minRead,
       writeCapacity: capacityCaps.notesByUpdatedAt.minWrite,
     });
-    this.configureTableAutoScaling(notesTable, capacityCaps.notes);
-    this.configureGsiAutoScaling(notesTable, "GSI1", capacityCaps.notesByUpdatedAt);
+    this.configureTableAutoScaling(this.notesTable, capacityCaps.notes);
+    this.configureGsiAutoScaling(this.notesTable, "GSI1", capacityCaps.notesByUpdatedAt);
 
-    const postsTable = this.createTable("PostsTable", {
+    this.postsTable = this.createTable("PostsTable", {
       tableName: `noteship-posts-${envName}`,
       partitionKey: { name: "userId", type: AttributeType.STRING },
       sortKey: { name: "postId", type: AttributeType.STRING },
       readCapacity: capacityCaps.posts.minRead,
       writeCapacity: capacityCaps.posts.minWrite,
     });
-    postsTable.addGlobalSecondaryIndex({
+    this.postsTable.addGlobalSecondaryIndex({
       indexName: "GSI1",
       partitionKey: { name: "userId", type: AttributeType.STRING },
       sortKey: { name: "statusUpdatedAt", type: AttributeType.STRING },
@@ -102,7 +110,7 @@ export class NoteshipCoreStack extends Stack {
       readCapacity: capacityCaps.postsByStatusUpdatedAt.minRead,
       writeCapacity: capacityCaps.postsByStatusUpdatedAt.minWrite,
     });
-    postsTable.addGlobalSecondaryIndex({
+    this.postsTable.addGlobalSecondaryIndex({
       indexName: "GSI2",
       partitionKey: { name: "scheduleStatus", type: AttributeType.STRING },
       sortKey: { name: "scheduledAt", type: AttributeType.STRING },
@@ -110,43 +118,43 @@ export class NoteshipCoreStack extends Stack {
       readCapacity: capacityCaps.postsBySchedule.minRead,
       writeCapacity: capacityCaps.postsBySchedule.minWrite,
     });
-    this.configureTableAutoScaling(postsTable, capacityCaps.posts);
-    this.configureGsiAutoScaling(postsTable, "GSI1", capacityCaps.postsByStatusUpdatedAt);
-    this.configureGsiAutoScaling(postsTable, "GSI2", capacityCaps.postsBySchedule);
+    this.configureTableAutoScaling(this.postsTable, capacityCaps.posts);
+    this.configureGsiAutoScaling(this.postsTable, "GSI1", capacityCaps.postsByStatusUpdatedAt);
+    this.configureGsiAutoScaling(this.postsTable, "GSI2", capacityCaps.postsBySchedule);
 
-    const integrationsTable = this.createTable("IntegrationsTable", {
+    this.integrationsTable = this.createTable("IntegrationsTable", {
       tableName: `noteship-integrations-${envName}`,
       partitionKey: { name: "userId", type: AttributeType.STRING },
       sortKey: { name: "providerAccountId", type: AttributeType.STRING },
       readCapacity: capacityCaps.integrations.minRead,
       writeCapacity: capacityCaps.integrations.minWrite,
     });
-    this.configureTableAutoScaling(integrationsTable, capacityCaps.integrations);
+    this.configureTableAutoScaling(this.integrationsTable, capacityCaps.integrations);
 
-    const usageTable = this.createTable("UsageTable", {
+    this.usageTable = this.createTable("UsageTable", {
       tableName: `noteship-usage-${envName}`,
       partitionKey: { name: "userId", type: AttributeType.STRING },
       sortKey: { name: "periodStart", type: AttributeType.STRING },
       readCapacity: capacityCaps.usage.minRead,
       writeCapacity: capacityCaps.usage.minWrite,
     });
-    this.configureTableAutoScaling(usageTable, capacityCaps.usage);
+    this.configureTableAutoScaling(this.usageTable, capacityCaps.usage);
 
-    const jobsTable = this.createTable("JobsTable", {
+    this.jobsTable = this.createTable("JobsTable", {
       tableName: `noteship-jobs-${envName}`,
       partitionKey: { name: "userId", type: AttributeType.STRING },
       sortKey: { name: "jobId", type: AttributeType.STRING },
       readCapacity: capacityCaps.jobs.minRead,
       writeCapacity: capacityCaps.jobs.minWrite,
     });
-    this.configureTableAutoScaling(jobsTable, capacityCaps.jobs);
+    this.configureTableAutoScaling(this.jobsTable, capacityCaps.jobs);
 
     const dlq = new Queue(this, "JobsDlq", {
       queueName: `noteship-jobs-dlq-${envName}`,
       retentionPeriod: cdk.Duration.days(14),
     });
 
-    const jobsQueue = new Queue(this, "JobsQueue", {
+    this.jobsQueue = new Queue(this, "JobsQueue", {
       queueName: `noteship-jobs-${envName}`,
       visibilityTimeout: cdk.Duration.minutes(2),
       retentionPeriod: cdk.Duration.days(4),
@@ -156,14 +164,14 @@ export class NoteshipCoreStack extends Stack {
       },
     });
 
-    new cdk.CfnOutput(this, "ContentBucketName", { value: contentBucket.bucketName });
-    new cdk.CfnOutput(this, "UsersTableName", { value: usersTable.tableName });
-    new cdk.CfnOutput(this, "NotesTableName", { value: notesTable.tableName });
-    new cdk.CfnOutput(this, "PostsTableName", { value: postsTable.tableName });
-    new cdk.CfnOutput(this, "IntegrationsTableName", { value: integrationsTable.tableName });
-    new cdk.CfnOutput(this, "UsageTableName", { value: usageTable.tableName });
-    new cdk.CfnOutput(this, "JobsTableName", { value: jobsTable.tableName });
-    new cdk.CfnOutput(this, "JobsQueueUrl", { value: jobsQueue.queueUrl });
+    new cdk.CfnOutput(this, "ContentBucketName", { value: this.contentBucket.bucketName });
+    new cdk.CfnOutput(this, "UsersTableName", { value: this.usersTable.tableName });
+    new cdk.CfnOutput(this, "NotesTableName", { value: this.notesTable.tableName });
+    new cdk.CfnOutput(this, "PostsTableName", { value: this.postsTable.tableName });
+    new cdk.CfnOutput(this, "IntegrationsTableName", { value: this.integrationsTable.tableName });
+    new cdk.CfnOutput(this, "UsageTableName", { value: this.usageTable.tableName });
+    new cdk.CfnOutput(this, "JobsTableName", { value: this.jobsTable.tableName });
+    new cdk.CfnOutput(this, "JobsQueueUrl", { value: this.jobsQueue.queueUrl });
     new cdk.CfnOutput(this, "JobsDlqUrl", { value: dlq.queueUrl });
   }
 
