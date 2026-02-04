@@ -7,80 +7,85 @@ const DYNAMODB_ENDPOINT = process.env.NOTESHIP_DYNAMODB_ENDPOINT || "http://loca
 const S3_ENDPOINT = process.env.NOTESHIP_S3_ENDPOINT || "http://localhost:4566";
 const SQS_ENDPOINT = process.env.NOTESHIP_SQS_ENDPOINT || "http://localhost:4566";
 
-const ddb = new DynamoDBClient({ endpoint: DYNAMODB_ENDPOINT, region: AWS_REGION });
-const s3 = new S3Client({ endpoint: S3_ENDPOINT, forcePathStyle: true, region: AWS_REGION });
-const sqs = new SQSClient({ endpoint: SQS_ENDPOINT, region: AWS_REGION });
+const credentials = {
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID || "test",
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || "test",
+};
+
+const ddb = new DynamoDBClient({ endpoint: DYNAMODB_ENDPOINT, region: AWS_REGION, credentials });
+const s3 = new S3Client({ endpoint: S3_ENDPOINT, forcePathStyle: true, region: AWS_REGION, credentials });
+const sqs = new SQSClient({ endpoint: SQS_ENDPOINT, region: AWS_REGION, credentials });
 
 const TABLES = [
   {
     TableName: "Users",
-    KeySchema: [{ AttributeName: "userId", KeyType: "HASH" }],
-    AttributeDefinitions: [{ AttributeName: "userId", AttributeType: "S" }],
+    KeySchema: [{ AttributeName: "userId", KeyType: "HASH" as const }],
+    AttributeDefinitions: [{ AttributeName: "userId", AttributeType: "S" as const }],
   },
   {
     TableName: "Notes",
     KeySchema: [
-      { AttributeName: "userId", KeyType: "HASH" },
-      { AttributeName: "noteId", KeyType: "RANGE" },
+      { AttributeName: "userId", KeyType: "HASH" as const },
+      { AttributeName: "noteId", KeyType: "RANGE" as const },
     ],
     AttributeDefinitions: [
-      { AttributeName: "userId", AttributeType: "S" },
-      { AttributeName: "noteId", AttributeType: "S" },
-      { AttributeName: "updatedAt", AttributeType: "S" },
+      { AttributeName: "userId", AttributeType: "S" as const },
+      { AttributeName: "noteId", AttributeType: "S" as const },
+      { AttributeName: "updatedAt", AttributeType: "S" as const },
     ],
     GlobalSecondaryIndexes: [
       {
         IndexName: "GSI1",
         KeySchema: [
-          { AttributeName: "userId", KeyType: "HASH" },
-          { AttributeName: "updatedAt", KeyType: "RANGE" },
+          { AttributeName: "userId", KeyType: "HASH" as const },
+          { AttributeName: "updatedAt", KeyType: "RANGE" as const },
         ],
-        Projection: { ProjectionType: "ALL" },
+        Projection: { ProjectionType: "ALL" as const },
       },
     ],
   },
   {
     TableName: "Posts",
     KeySchema: [
-      { AttributeName: "userId", KeyType: "HASH" },
-      { AttributeName: "postId", KeyType: "RANGE" },
+      { AttributeName: "userId", KeyType: "HASH" as const },
+      { AttributeName: "postId", KeyType: "RANGE" as const },
     ],
     AttributeDefinitions: [
-      { AttributeName: "userId", AttributeType: "S" },
-      { AttributeName: "postId", AttributeType: "S" },
+      { AttributeName: "userId", AttributeType: "S" as const },
+      { AttributeName: "postId", AttributeType: "S" as const },
     ],
   },
   {
     TableName: "IntegrationAccounts",
     KeySchema: [
-      { AttributeName: "userId", KeyType: "HASH" },
-      { AttributeName: "providerAccountId", KeyType: "RANGE" },
+      { AttributeName: "userId", KeyType: "HASH" as const },
+      { AttributeName: "providerAccountId", KeyType: "RANGE" as const },
     ],
     AttributeDefinitions: [
-      { AttributeName: "userId", AttributeType: "S" },
-      { AttributeName: "providerAccountId", AttributeType: "S" },
+      { AttributeName: "userId", AttributeType: "S" as const },
+      { AttributeName: "providerAccountId", AttributeType: "S" as const },
     ],
   },
   {
     TableName: "Usage",
     KeySchema: [
-      { AttributeName: "userId", KeyType: "HASH" },
-      { AttributeName: "periodStart", KeyType: "RANGE" },
+      { AttributeName: "userId", KeyType: "HASH" as const },
+      { AttributeName: "periodStart", KeyType: "RANGE" as const },
     ],
     AttributeDefinitions: [
-      { AttributeName: "userId", AttributeType: "S" },
-      { AttributeName: "periodStart", AttributeType: "S" },
+      { AttributeName: "userId", AttributeType: "S" as const },
+      { AttributeName: "periodStart", AttributeType: "S" as const },
     ],
   },
   {
     TableName: "Jobs",
     KeySchema: [
-      { AttributeName: "userId", KeyType: "HASH" },
-      { AttributeName: "jobId", KeyType: "RANGE" },
+      { AttributeName: "userId", KeyType: "HASH" as const },
+      { AttributeName: "jobId", KeyType: "RANGE" as const },
     ],
     AttributeDefinitions: [
-      { AttributeName: "userId", AttributeType: "S" },
-      { AttributeName: "jobId", AttributeType: "S" },
+      { AttributeName: "userId", AttributeType: "S" as const },
+      { AttributeName: "jobId", AttributeType: "S" as const },
     ],
   },
 ];
