@@ -27,6 +27,17 @@ export type HomeCopy = {
   finalCopy: string;
   finalPrimary: string;
   finalSecondary: string;
+  waitlistTitle: string;
+  waitlistKicker: string;
+  waitlistLead: string;
+  waitlistNote: string;
+  waitlistEmailLabel: string;
+  waitlistEmailPlaceholder: string;
+  waitlistCta: string;
+  waitlistCtaLoading: string;
+  waitlistSuccessTitle: string;
+  waitlistSuccessCopy: string;
+  waitlistErrorCopy: string;
 };
 
 const homeCopy: Record<Lang, HomeCopy> = {
@@ -35,10 +46,9 @@ const homeCopy: Record<Lang, HomeCopy> = {
     heroTitle: "Find ideas by meaning. Ship posts without rewrites.",
     heroSub:
       "Noteship turns your notes into LinkedIn and Medium drafts with meaning-based recall, calm editing, and simple scheduling.",
-    primaryCta: "Start free",
-    secondaryCta: "Explore pricing",
-    heroImage:
-      "/annotated%20screenshot%20of%20English%20UI%20%2C%20showing%20publish%20status%20timeline..png",
+    primaryCta: "Join the waitlist",
+    secondaryCta: "Get updates",
+    heroImage: "/hero_en.png",
     heroImageAlt: "English UI showing recall and publish timeline",
     heroHighlights: [
       { label: "Drafts in", value: "<5 min" },
@@ -95,30 +105,40 @@ const homeCopy: Record<Lang, HomeCopy> = {
         price: "Starter",
         desc: "For capturing ideas and drafting on your own schedule.",
         items: ["Recall by meaning", "Export anytime", "AI drafts (low quota)", "Manual publish"],
-        cta: "Start free",
+        cta: "Join the waitlist",
       },
       {
         name: "Pro",
         price: "$18/mo",
         desc: "For consultants who publish regularly and need consistency.",
         items: ["Higher AI drafts", "Scheduling", "Clear status", "More notes & storage"],
-        cta: "Upgrade to Pro",
+        cta: "Join the waitlist",
       },
     ],
     finalTitle: "Ready to ship your ideas?",
     finalCopy: "Recall by meaning, draft fast, and publish with consistency.",
-    finalPrimary: "Start free",
-    finalSecondary: "See pricing",
+    finalPrimary: "Join the waitlist",
+    finalSecondary: "Get updates",
+    waitlistTitle: "Join the Noteship waitlist",
+    waitlistKicker: "Early access",
+    waitlistLead: "Be first to know when early access opens. We'll keep it short and practical.",
+    waitlistNote: "No spam. Unsubscribe anytime.",
+    waitlistEmailLabel: "Email",
+    waitlistEmailPlaceholder: "you@company.com",
+    waitlistCta: "Join the waitlist",
+    waitlistCtaLoading: "Joining...",
+    waitlistSuccessTitle: "You're on the list",
+    waitlistSuccessCopy: "Thanks for joining. We'll reach out as soon as early access opens.",
+    waitlistErrorCopy: "Something went wrong. Please try again.",
   },
   ar: {
     heroKicker: "استرجاع بالمعنى للمستشارين المستقلين",
     heroTitle: "اعثر على الأفكار بالمعنى. انشر دون إعادة كتابة.",
     heroSub:
       "يحوّل Noteship ملاحظاتك إلى مسودات جاهزة لـ LinkedIn و Medium مع استرجاع بالمعنى، تحرير هادئ، وجدولة بسيطة.",
-    primaryCta: "ابدأ مجاناً",
-    secondaryCta: "استكشف التسعير",
-    heroImage:
-      "/%D9%84%D9%82%D8%B7%D8%A9%20%D9%86%D8%B8%D9%8A%D9%81%D8%A9%20%D9%84%D9%88%D8%A7%D8%AC%D9%87%D8%A9%20%D8%B9%D8%B1%D8%A8%D9%8A%D8%A9%20%D9%85%D8%B9%20%D9%86%D8%AA%D8%A7%D8%A6%D8%AC%20%D8%A8%D8%AD%D8%AB%20%D8%AF%D9%84%D8%A7%D9%84%D9%8A%20%D8%B9%D9%84%D9%89%20%D8%A7%D9%84%D9%8A%D9%85%D9%8A%D9%86%20%D9%88%D9%85%D8%B3%D9%88%D8%AF%D8%A9%20%D9%84%D9%8A%D9%86%D9%83%D8%AF%D8%A5%D9%86%20%D8%B9%D9%84%D9%89%20%D8%A7%D9%84%D9%8A%D8%B3%D8%A7%D8%B1%20(%D9%88%D8%A7%D8%AC%D9%87%D8%A9%20RTL)..png",
+    primaryCta: "انضم إلى القائمة",
+    secondaryCta: "تابع التحديثات",
+    heroImage: "/hero_ar.png",
     heroImageAlt: "واجهة عربية مع الاسترجاع بالمعنى وخط النشر",
     heroHighlights: [
       { label: "الوقت لأول مسودة", value: "<5 دقائق" },
@@ -174,20 +194,31 @@ const homeCopy: Record<Lang, HomeCopy> = {
           "مسودات بالذكاء الاصطناعي (حصة منخفضة)",
           "نشر يدوي",
         ],
-        cta: "ابدأ مجاناً",
+        cta: "انضم إلى القائمة",
       },
       {
         name: "Pro",
         price: "$18 / شهر",
         desc: "لمن ينشر بانتظام ويحتاج إلى ثبات.",
         items: ["مسودات أكثر بالذكاء الاصطناعي", "جدولة", "حالة واضحة", "ملاحظات وتخزين أكثر"],
-        cta: "الترقية إلى Pro",
+        cta: "انضم إلى القائمة",
       },
     ],
     finalTitle: "جاهز لنشر أفكارك؟",
     finalCopy: "استرجع بالمعنى، اكتب بسرعة، وانشر بثبات.",
-    finalPrimary: "ابدأ مجاناً",
-    finalSecondary: "عرض التسعير",
+    finalPrimary: "انضم إلى القائمة",
+    finalSecondary: "تابع التحديثات",
+    waitlistTitle: "انضم إلى قائمة الانتظار",
+    waitlistKicker: "الوصول المبكر",
+    waitlistLead: "كن أول من يعرف عند فتح الوصول المبكر. رسائل قصيرة وواضحة.",
+    waitlistNote: "لا رسائل مزعجة. يمكنك الإلغاء في أي وقت.",
+    waitlistEmailLabel: "البريد الإلكتروني",
+    waitlistEmailPlaceholder: "you@example.com",
+    waitlistCta: "انضم إلى القائمة",
+    waitlistCtaLoading: "جارٍ الإرسال...",
+    waitlistSuccessTitle: "تم تسجيلك",
+    waitlistSuccessCopy: "شكراً لانضمامك. سنراسلك عند فتح الوصول المبكر.",
+    waitlistErrorCopy: "حدث خطأ. حاول مرة أخرى.",
   },
 };
 
