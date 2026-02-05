@@ -31,8 +31,8 @@ const featuresCopy: Record<Lang, FeaturesCopy> = {
     heroTitle: "Your ideas, now ready to ship.",
     heroSub:
       "Noteship keeps your notes recallable by meaning and turns them into drafts that match your voice.",
-    primaryCta: "Start free",
-    secondaryCta: "See pricing",
+    primaryCta: "Join the waitlist",
+    secondaryCta: "Get updates",
     pillarsTitle: "Core capabilities",
     pillarsLead: "Everything you need to go from idea to publish-ready post.",
     pillars: [
@@ -99,15 +99,15 @@ const featuresCopy: Record<Lang, FeaturesCopy> = {
       "Noteship is built for independent consultants who publish often, care about their voice, and need clarity without tooling sprawl.",
     ctaTitle: "Bring your ideas to the surface",
     ctaCopy: "Keep everything recallable, draft fast, and publish on your cadence.",
-    ctaPrimary: "Start free",
-    ctaSecondary: "View pricing",
+    ctaPrimary: "Join the waitlist",
+    ctaSecondary: "Get updates",
   },
   ar: {
     heroKicker: "المزايا",
     heroTitle: "أفكارك جاهزة للنشر.",
     heroSub: "يجعل Noteship ملاحظاتك قابلة للاسترجاع بالمعنى ويحوّلها إلى مسودات بصوتك.",
-    primaryCta: "ابدأ مجاناً",
-    secondaryCta: "عرض التسعير",
+    primaryCta: "انضم إلى القائمة",
+    secondaryCta: "تابع التحديثات",
     pillarsTitle: "القدرات الأساسية",
     pillarsLead: "كل ما تحتاجه للانتقال من فكرة إلى منشور جاهز للنشر.",
     pillars: [
@@ -166,8 +166,8 @@ const featuresCopy: Record<Lang, FeaturesCopy> = {
       "Noteship مبني للمستشارين المستقلين الذين ينشرون كثيراً، يهتمون بصوتهم، ويحتاجون إلى وضوح دون تعقيد.",
     ctaTitle: "أخرج أفكارك إلى السطح",
     ctaCopy: "اجعل كل شيء قابلاً للاسترجاع، اكتب بسرعة، وانشر وفق إيقاعك.",
-    ctaPrimary: "ابدأ مجاناً",
-    ctaSecondary: "عرض التسعير",
+    ctaPrimary: "انضم إلى القائمة",
+    ctaSecondary: "تابع التحديثات",
   },
 };
 

@@ -1,8 +1,10 @@
 ﻿"use client";
 
 import { useMemo } from "react";
-import Link from "next/link";
-import { useMarketingLanguage } from "../../../components/marketing/MarketingShell";
+import {
+  useMarketingLanguage,
+  useWaitlistModal,
+} from "../../../components/marketing/MarketingShell";
 import { Button } from "../../../components/ui/Button";
 import {
   Table,
@@ -16,6 +18,7 @@ import pricingCopy from "../../../data/marketing-pricing";
 
 const PricingPage = () => {
   const { lang } = useMarketingLanguage();
+  const { openWaitlist } = useWaitlistModal();
   const t = useMemo(() => pricingCopy[lang], [lang]);
   const isAr = lang === "ar";
 
@@ -37,16 +40,22 @@ const PricingPage = () => {
             {t.heroSub}
           </p>
           <div className="flex flex-wrap gap-3">
-            <Button asChild size="pill" className="shadow-[0_14px_28px_rgba(15,118,110,0.22)]">
-              <Link href="/login">{t.primaryCta}</Link>
+            <Button
+              type="button"
+              size="pill"
+              onClick={openWaitlist}
+              className="shadow-[0_14px_28px_rgba(15,118,110,0.22)]"
+            >
+              {t.primaryCta}
             </Button>
             <Button
-              asChild
+              type="button"
               variant="outline"
               size="pill"
+              onClick={openWaitlist}
               className="border-[rgba(15,23,42,0.12)] bg-white text-slate-900 shadow-[0_12px_24px_rgba(15,23,42,0.12)]"
             >
-              <Link href="/pricing#faq">{t.secondaryCta}</Link>
+              {t.secondaryCta}
             </Button>
           </div>
         </div>
@@ -90,8 +99,13 @@ const PricingPage = () => {
                   <li key={item}>{item}</li>
                 ))}
               </ul>
-              <Button asChild size="pill" className="shadow-[0_14px_28px_rgba(15,118,110,0.22)]">
-                <Link href="/login">{plan.cta}</Link>
+              <Button
+                type="button"
+                size="pill"
+                onClick={openWaitlist}
+                className="shadow-[0_14px_28px_rgba(15,118,110,0.22)]"
+              >
+                {plan.cta}
               </Button>
             </article>
           ))}
@@ -160,16 +174,22 @@ const PricingPage = () => {
           <p className="m-0 mt-1 text-slate-200 leading-[1.6] rtl:leading-[1.85]">{t.finalCopy}</p>
         </div>
         <div className="flex flex-wrap gap-3">
-          <Button asChild size="pill" className="shadow-[0_14px_28px_rgba(15,118,110,0.22)]">
-            <Link href="/login">{t.finalPrimary}</Link>
+          <Button
+            type="button"
+            size="pill"
+            onClick={openWaitlist}
+            className="shadow-[0_14px_28px_rgba(15,118,110,0.22)]"
+          >
+            {t.finalPrimary}
           </Button>
           <Button
-            asChild
+            type="button"
             variant="outline"
             size="pill"
+            onClick={openWaitlist}
             className="border-white/40 bg-transparent text-slate-50 hover:bg-white/10"
           >
-            <Link href="/features">{t.finalSecondary}</Link>
+            {t.finalSecondary}
           </Button>
         </div>
       </section>

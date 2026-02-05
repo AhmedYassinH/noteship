@@ -1,13 +1,16 @@
 "use client";
 
 import { useMemo } from "react";
-import Link from "next/link";
-import { useMarketingLanguage } from "../../../components/marketing/MarketingShell";
+import {
+  useMarketingLanguage,
+  useWaitlistModal,
+} from "../../../components/marketing/MarketingShell";
 import { Button } from "../../../components/ui/Button";
 import featuresCopy from "../../../data/marketing-features";
 
 const FeaturesPage = () => {
   const { lang } = useMarketingLanguage();
+  const { openWaitlist } = useWaitlistModal();
   const t = useMemo(() => featuresCopy[lang], [lang]);
   const isAr = lang === "ar";
 
@@ -29,16 +32,22 @@ const FeaturesPage = () => {
             {t.heroSub}
           </p>
           <div className="flex flex-wrap gap-3">
-            <Button asChild size="pill" className="shadow-[0_14px_28px_rgba(15,118,110,0.22)]">
-              <Link href="/login">{t.primaryCta}</Link>
+            <Button
+              type="button"
+              size="pill"
+              onClick={openWaitlist}
+              className="shadow-[0_14px_28px_rgba(15,118,110,0.22)]"
+            >
+              {t.primaryCta}
             </Button>
             <Button
-              asChild
+              type="button"
               variant="outline"
               size="pill"
+              onClick={openWaitlist}
               className="border-[rgba(15,23,42,0.12)] bg-white text-slate-900 shadow-[0_12px_24px_rgba(15,23,42,0.12)]"
             >
-              <Link href="/pricing">{t.secondaryCta}</Link>
+              {t.secondaryCta}
             </Button>
           </div>
         </div>
@@ -204,16 +213,22 @@ const FeaturesPage = () => {
           <p className="m-0 mt-1 text-slate-200 leading-[1.6] rtl:leading-[1.85]">{t.ctaCopy}</p>
         </div>
         <div className="flex flex-wrap gap-3">
-          <Button asChild size="pill" className="shadow-[0_14px_28px_rgba(15,118,110,0.22)]">
-            <Link href="/login">{t.ctaPrimary}</Link>
+          <Button
+            type="button"
+            size="pill"
+            onClick={openWaitlist}
+            className="shadow-[0_14px_28px_rgba(15,118,110,0.22)]"
+          >
+            {t.ctaPrimary}
           </Button>
           <Button
-            asChild
+            type="button"
             variant="outline"
             size="pill"
+            onClick={openWaitlist}
             className="border-white/40 bg-transparent text-slate-50 hover:bg-white/10"
           >
-            <Link href="/pricing">{t.ctaSecondary}</Link>
+            {t.ctaSecondary}
           </Button>
         </div>
       </section>

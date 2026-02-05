@@ -2,13 +2,14 @@
 
 import { useMemo } from "react";
 import Image from "next/image";
-import Link from "next/link";
-import { useMarketingLanguage } from "../../components/marketing/MarketingShell";
+import { useMarketingLanguage, useWaitlistModal } from "../../components/marketing/MarketingShell";
+import WaitlistForm from "../../components/marketing/WaitlistForm";
 import { Button } from "../../components/ui/Button";
 import homeCopy from "../../data/marketing-home";
 
 const HomePage = () => {
   const { lang } = useMarketingLanguage();
+  const { openWaitlist } = useWaitlistModal();
   const t = useMemo(() => homeCopy[lang], [lang]);
   const isAr = lang === "ar";
 
@@ -30,16 +31,22 @@ const HomePage = () => {
             {t.heroSub}
           </p>
           <div className="flex flex-wrap gap-3">
-            <Button asChild size="pill" className="shadow-[0_14px_28px_rgba(15,118,110,0.22)]">
-              <Link href="/login">{t.primaryCta}</Link>
+            <Button
+              type="button"
+              size="pill"
+              onClick={openWaitlist}
+              className="shadow-[0_14px_28px_rgba(15,118,110,0.22)]"
+            >
+              {t.primaryCta}
             </Button>
             <Button
-              asChild
+              type="button"
               variant="outline"
               size="pill"
+              onClick={openWaitlist}
               className="border-[rgba(15,23,42,0.12)] bg-white text-slate-900 shadow-[0_12px_24px_rgba(15,23,42,0.12)]"
             >
-              <Link href="/pricing">{t.secondaryCta}</Link>
+              {t.secondaryCta}
             </Button>
           </div>
           <div className="mt-5 grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(160px,1fr))]">
@@ -197,11 +204,46 @@ const HomePage = () => {
                   <li key={item}>{item}</li>
                 ))}
               </ul>
-              <Button asChild size="pill" className="shadow-[0_14px_28px_rgba(15,118,110,0.22)]">
-                <Link href="/pricing">{plan.cta}</Link>
+              <Button
+                type="button"
+                size="pill"
+                onClick={openWaitlist}
+                className="shadow-[0_14px_28px_rgba(15,118,110,0.22)]"
+              >
+                {plan.cta}
               </Button>
             </article>
           ))}
+        </div>
+      </section>
+
+      <section
+        id="waitlist"
+        className="relative overflow-hidden rounded-[28px] border border-[rgba(15,23,42,0.08)] bg-white/92 p-9 shadow-[0_18px_36px_rgba(15,23,42,0.08)] max-[720px]:p-7"
+      >
+        <div className="grid items-start gap-8 [grid-template-columns:repeat(auto-fit,minmax(260px,1fr))]">
+          <div className="grid gap-4">
+            <span className="inline-flex w-fit items-center rounded-full border border-[rgba(15,23,42,0.12)] px-3 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.32em] text-[var(--ns-muted)]">
+              {t.waitlistKicker}
+            </span>
+            <div className="grid gap-2">
+              <h2 className="m-0 font-headline text-[clamp(1.6rem,2.6vw,2.1rem)] font-semibold leading-[1.25]">
+                {t.waitlistTitle}
+              </h2>
+              <p className="m-0 text-[1rem] leading-[1.7] text-[var(--ns-muted)] rtl:leading-[1.85]">
+                {t.waitlistLead}
+              </p>
+            </div>
+            <div className="rounded-[16px] border border-[rgba(15,23,42,0.08)] bg-[#f7f8f9] p-4">
+              <p className="m-0 text-[0.95rem] text-[var(--ns-muted)] leading-[1.6] rtl:leading-[1.85]">
+                {t.waitlistNote}
+              </p>
+            </div>
+          </div>
+
+          <div className="rounded-[22px] border border-[rgba(15,23,42,0.08)] bg-white p-6 shadow-[0_14px_28px_rgba(15,23,42,0.08)]">
+            <WaitlistForm lang={lang} source="marketing-home-section" />
+          </div>
         </div>
       </section>
 
@@ -213,16 +255,22 @@ const HomePage = () => {
           <p className="m-0 mt-1 text-slate-200 leading-[1.6] rtl:leading-[1.85]">{t.finalCopy}</p>
         </div>
         <div className="flex flex-wrap gap-3">
-          <Button asChild size="pill" className="shadow-[0_14px_28px_rgba(15,118,110,0.22)]">
-            <Link href="/login">{t.finalPrimary}</Link>
+          <Button
+            type="button"
+            size="pill"
+            onClick={openWaitlist}
+            className="shadow-[0_14px_28px_rgba(15,118,110,0.22)]"
+          >
+            {t.finalPrimary}
           </Button>
           <Button
-            asChild
+            type="button"
             variant="outline"
             size="pill"
+            onClick={openWaitlist}
             className="border-white/40 bg-transparent text-slate-50 hover:bg-white/10"
           >
-            <Link href="/pricing">{t.finalSecondary}</Link>
+            {t.finalSecondary}
           </Button>
         </div>
       </section>
