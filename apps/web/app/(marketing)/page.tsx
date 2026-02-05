@@ -39,15 +39,6 @@ const HomePage = () => {
             >
               {t.primaryCta}
             </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="pill"
-              onClick={openWaitlist}
-              className="border-[rgba(15,23,42,0.12)] bg-white text-slate-900 shadow-[0_12px_24px_rgba(15,23,42,0.12)]"
-            >
-              {t.secondaryCta}
-            </Button>
           </div>
           <div className="mt-5 grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(160px,1fr))]">
             {t.heroHighlights.map((item) => (
@@ -219,10 +210,10 @@ const HomePage = () => {
 
       <section
         id="waitlist"
-        className="relative overflow-hidden rounded-[28px] border border-[rgba(15,23,42,0.08)] bg-white/92 p-9 shadow-[0_18px_36px_rgba(15,23,42,0.08)] max-[720px]:p-7"
+        className="relative overflow-hidden rounded-[28px] border border-[rgba(15,23,42,0.08)] bg-white/92 p-7 shadow-[0_18px_36px_rgba(15,23,42,0.08)] max-[720px]:p-6"
       >
-        <div className="grid items-start gap-8 [grid-template-columns:repeat(auto-fit,minmax(260px,1fr))]">
-          <div className="grid gap-4">
+        <div className="grid items-start gap-6 [grid-template-columns:repeat(auto-fit,minmax(260px,1fr))]">
+          <div className="grid gap-3">
             <span className="inline-flex w-fit items-center rounded-full border border-[rgba(15,23,42,0.12)] px-3 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.32em] text-[var(--ns-muted)]">
               {t.waitlistKicker}
             </span>
@@ -234,14 +225,16 @@ const HomePage = () => {
                 {t.waitlistLead}
               </p>
             </div>
-            <div className="rounded-[16px] border border-[rgba(15,23,42,0.08)] bg-[#f7f8f9] p-4">
-              <p className="m-0 text-[0.95rem] text-[var(--ns-muted)] leading-[1.6] rtl:leading-[1.85]">
-                {t.waitlistNote}
-              </p>
-            </div>
+            {t.waitlistNote ? (
+              <div className="rounded-[16px] border border-[rgba(15,23,42,0.08)] bg-[#f7f8f9] p-4">
+                <p className="m-0 text-[0.95rem] text-[var(--ns-muted)] leading-[1.6] rtl:leading-[1.85]">
+                  {t.waitlistNote}
+                </p>
+              </div>
+            ) : null}
           </div>
 
-          <div className="rounded-[22px] border border-[rgba(15,23,42,0.08)] bg-white p-6 shadow-[0_14px_28px_rgba(15,23,42,0.08)]">
+          <div className="rounded-[22px] border border-[rgba(15,23,42,0.08)] bg-white p-5 shadow-[0_14px_28px_rgba(15,23,42,0.08)]">
             <WaitlistForm lang={lang} source="marketing-home-section" />
           </div>
         </div>
@@ -254,7 +247,7 @@ const HomePage = () => {
           </h2>
           <p className="m-0 mt-1 text-slate-200 leading-[1.6] rtl:leading-[1.85]">{t.finalCopy}</p>
         </div>
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-wrap justify-end gap-3 rtl:justify-start">
           <Button
             type="button"
             size="pill"
@@ -262,15 +255,6 @@ const HomePage = () => {
             className="shadow-[0_14px_28px_rgba(15,118,110,0.22)]"
           >
             {t.finalPrimary}
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            size="pill"
-            onClick={openWaitlist}
-            className="border-white/40 bg-transparent text-slate-50 hover:bg-white/10"
-          >
-            {t.finalSecondary}
           </Button>
         </div>
       </section>

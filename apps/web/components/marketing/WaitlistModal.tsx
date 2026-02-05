@@ -100,11 +100,13 @@ const WaitlistModal = ({ open, onClose, lang }: WaitlistModalProps) => {
                 {t.waitlistLead}
               </p>
             </div>
-            <div className="rounded-[16px] border border-[rgba(15,23,42,0.08)] bg-[#f7f8f9] p-4">
-              <p className="m-0 text-[0.95rem] text-[var(--ns-muted)] leading-[1.6] rtl:leading-[1.85]">
-                {t.waitlistNote}
-              </p>
-            </div>
+            {t.waitlistNote ? (
+              <div className="rounded-[16px] border border-[rgba(15,23,42,0.08)] bg-[#f7f8f9] p-4">
+                <p className="m-0 text-[0.95rem] text-[var(--ns-muted)] leading-[1.6] rtl:leading-[1.85]">
+                  {t.waitlistNote}
+                </p>
+              </div>
+            ) : null}
           </div>
           <div className="rounded-[22px] border border-[rgba(15,23,42,0.08)] bg-white p-5 shadow-[0_14px_28px_rgba(15,23,42,0.08)]">
             <WaitlistForm lang={lang} source="marketing-modal" />

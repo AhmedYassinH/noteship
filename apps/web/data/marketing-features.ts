@@ -106,7 +106,7 @@ const featuresCopy: Record<Lang, FeaturesCopy> = {
     heroKicker: "المزايا",
     heroTitle: "أفكارك جاهزة للنشر.",
     heroSub: "يجعل Noteship ملاحظاتك قابلة للاسترجاع بالمعنى ويحوّلها إلى مسودات بصوتك.",
-    primaryCta: "انضم إلى القائمة",
+    primaryCta: "انضم إلى قائمة الانتظار",
     secondaryCta: "تابع التحديثات",
     pillarsTitle: "القدرات الأساسية",
     pillarsLead: "كل ما تحتاجه للانتقال من فكرة إلى منشور جاهز للنشر.",
@@ -166,7 +166,7 @@ const featuresCopy: Record<Lang, FeaturesCopy> = {
       "Noteship مبني للمستشارين المستقلين الذين ينشرون كثيراً، يهتمون بصوتهم، ويحتاجون إلى وضوح دون تعقيد.",
     ctaTitle: "أخرج أفكارك إلى السطح",
     ctaCopy: "اجعل كل شيء قابلاً للاسترجاع، اكتب بسرعة، وانشر وفق إيقاعك.",
-    ctaPrimary: "انضم إلى القائمة",
+    ctaPrimary: "انضم إلى قائمة الانتظار",
     ctaSecondary: "تابع التحديثات",
   },
 };

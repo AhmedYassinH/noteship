@@ -63,7 +63,7 @@ const WaitlistForm = ({ lang, source }: WaitlistFormProps) => {
       onSubmit={handleSubmit}
       action="https://formspree.io/f/mreqjovo"
       method="POST"
-      className="grid gap-3"
+      className="grid gap-4"
     >
       <label htmlFor={`waitlist-email-${source}`} className="text-[0.95rem] font-semibold">
         {t.waitlistEmailLabel}
@@ -91,7 +91,7 @@ const WaitlistForm = ({ lang, source }: WaitlistFormProps) => {
         type="submit"
         size="pill"
         disabled={status === "loading" || status === "success"}
-        className="h-12 shadow-[0_14px_28px_rgba(15,118,110,0.22)]"
+        className="mt-1 h-12 w-full shadow-[0_14px_28px_rgba(15,118,110,0.22)]"
       >
         {status === "loading" ? t.waitlistCtaLoading : t.waitlistCta}
       </Button>

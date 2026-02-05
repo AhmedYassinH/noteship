@@ -40,15 +40,6 @@ const FeaturesPage = () => {
             >
               {t.primaryCta}
             </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="pill"
-              onClick={openWaitlist}
-              className="border-[rgba(15,23,42,0.12)] bg-white text-slate-900 shadow-[0_12px_24px_rgba(15,23,42,0.12)]"
-            >
-              {t.secondaryCta}
-            </Button>
           </div>
         </div>
         <div className="rounded-[20px] border border-[rgba(15,23,42,0.08)] bg-white/95 p-5 shadow-[0_16px_32px_rgba(15,23,42,0.08)]">
@@ -220,15 +211,6 @@ const FeaturesPage = () => {
             className="shadow-[0_14px_28px_rgba(15,118,110,0.22)]"
           >
             {t.ctaPrimary}
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            size="pill"
-            onClick={openWaitlist}
-            className="border-white/40 bg-transparent text-slate-50 hover:bg-white/10"
-          >
-            {t.ctaSecondary}
           </Button>
         </div>
       </section>
