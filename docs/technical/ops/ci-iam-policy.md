@@ -54,12 +54,7 @@ Create this policy in IAM (or via IaC). This policy **allows** API/Workers/Web d
         "cloudformation:ExecuteChangeSet",
         "cloudformation:DeleteChangeSet"
       ],
-      "Resource": "arn:aws:cloudformation:*:*:changeSet/*",
-      "Condition": {
-        "StringLike": {
-          "cloudformation:StackName": ["NoteshipApi-*", "NoteshipWorkers-*", "NoteshipWeb-*"]
-        }
-      }
+      "Resource": "arn:aws:cloudformation:*:*:changeSet/*"
     },
     {
       "Sid": "AllowCloudFormationList",
@@ -212,7 +207,7 @@ Create this policy in IAM (or via IaC). This policy **allows** API/Workers/Web d
         "s3:DeleteBucket",
         "s3:GetBucketLocation",
         "s3:ListBucket",
-        "s3:PutBucketEncryption",
+        "s3:PutEncryptionConfiguration",
         "s3:PutBucketPublicAccessBlock",
         "s3:PutBucketPolicy",
         "s3:GetBucketPolicy",
@@ -302,7 +297,7 @@ aws iam create-open-id-connect-provider \
     {
       "Effect": "Allow",
       "Principal": {
-        "Federated": "arn:aws:iam::992382836240:oidc-provider/token.actions.githubusercontent.com"
+        "Federated": "arn:aws:iam::8498754357:oidc-provider/token.actions.githubusercontent.com"
       },
       "Action": "sts:AssumeRoleWithWebIdentity",
       "Condition": {
