@@ -81,7 +81,7 @@ const NoteDetail = ({ noteId }: NoteDetailProps) => {
           content: updates.content ?? note.content,
           editorFormat: "tiptap",
         });
-        setNote(updated);
+        setNote((prev) => (prev ? { ...prev, ...updated } : prev));
         setStatus("saved");
       } catch {
         setStatus("error");
