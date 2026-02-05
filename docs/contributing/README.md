@@ -26,4 +26,4 @@ They align with the HLD/LLD and the MVP testing strategy.
 
 - `docs/technical/noteship-system-architecture.md` (HLD)
 - `docs/technical/noteship-low-level-design.md` (LLD)
-- `docs/technical/detailed/16-testing-and-quality-strategy.md` (MVP testing strategy)
+- `docs/technical/index.md` (Testing)

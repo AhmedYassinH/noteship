@@ -1,7 +1,7 @@
 # Testing Strategy (Source of Truth)
 
-This doc operationalizes `docs/technical/detailed/16-testing-and-quality-strategy.md` for day-to-day contributions.
-When in doubt, that document and the HLD/LLD win.
+This doc operationalizes `docs/technical/index.md` (Testing) for day-to-day contributions.
+When in doubt, the testing strategy and the HLD/LLD win.
 
 ## Goals
 

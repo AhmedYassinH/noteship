@@ -10,7 +10,7 @@
 - Reliable async workflows (publishing, embedding)
 - Clear separation: **content** vs **metadata** vs **indexes** vs **billing**
 
-Details: `docs/technical/detailed/03-mvp-scope-and-feature-definition.md`, `docs/technical/detailed/05-functional-requirements.md`, `docs/technical/detailed/06-non-functional-requirements.md`.
+Details: see `docs/technical/index.md`.
 
 ---
 
@@ -75,7 +75,7 @@ flowchart LR
   WORKER --> SM
 ```
 
-Details: `docs/technical/detailed/07-system-high-level-architecture.md`.
+Details: see `docs/technical/index.md`.
 
 ---
 
@@ -105,7 +105,7 @@ Details: `docs/technical/detailed/07-system-high-level-architecture.md`.
 - Never call vendor APIs directly (LinkedIn/Medium)
 - Never store secrets/tokens in the browser
 
-Details: `docs/technical/detailed/08-frontend-architecture.md`.
+Details: see `docs/technical/index.md`.
 
 ---
 
@@ -138,7 +138,7 @@ Details: `docs/technical/detailed/08-frontend-architecture.md`.
    - Noteship persists subscription state and derives entitlements
    - Webhooks update plan status; app does not trust client claims
 
-Details: `docs/technical/detailed/09-backend-architecture.md`, `docs/technical/detailed/11-api-design-and-contracts.md`, `docs/technical/detailed/14-billing-and-stripe-integration.md`.
+Details: see `docs/technical/index.md`.
 
 ---
 
@@ -164,13 +164,13 @@ Details: `docs/technical/detailed/09-backend-architecture.md`, `docs/technical/d
 - Chunk embeddings with metadata `{userId, noteId, chunkIndex, version}`
 - Rebuilt anytime; never treated as canonical
 
-Details: `docs/technical/detailed/10-data-architecture.md`.
+Details: see `docs/technical/index.md`.
 
 ---
 
 ## 5) Key flows (request + async)
 
-Details: `docs/technical/detailed/11-api-design-and-contracts.md`, `docs/technical/detailed/12-connector-and-integration-architecture.md`, `docs/technical/detailed/13-embedding-and-semantic-search-design.md`.
+Details: see `docs/technical/index.md`.
 
 ### 5.1 Create / update a note
 
@@ -345,13 +345,13 @@ flowchart LR
   Job --> Future --> X
 ````
 
-Details: `docs/technical/detailed/12-connector-and-integration-architecture.md`.
+Details: see `docs/technical/index.md`.
 
 ---
 
 ## 7) Deployment topology (MVP)
 
-Details: `docs/technical/detailed/15-deployment-and-infrastructure.md`.
+Details: see `docs/technical/index.md`.
 
 ### Environments
 
@@ -425,7 +425,7 @@ flowchart LR
 
 ## 8) Operational principles (HLD-level)
 
-Details: `docs/technical/detailed/06-non-functional-requirements.md`.
+Details: see `docs/technical/index.md`.
 
 ### Security
 

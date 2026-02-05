@@ -2,7 +2,7 @@
 
 ## Required flows (MVP)
 
-Based on `docs/technical/detailed/16-testing-and-quality-strategy.md`:
+Based on `docs/technical/index.md` (Testing):
 
 1. Login/signup
 2. Create note

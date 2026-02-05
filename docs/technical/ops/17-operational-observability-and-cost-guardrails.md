@@ -126,4 +126,4 @@ Guardrails stack uses:
 
 ## 10) Notes on placement
 
-- **File location:** keep this under `docs/technical/detailed/` as the operational plan and reference it from deployment/runbooks and production checklist.
+- **File location:** keep this under `docs/technical/ops/` and reference it from deployment/runbooks and the production checklist (or point to `docs/technical/index.md`).

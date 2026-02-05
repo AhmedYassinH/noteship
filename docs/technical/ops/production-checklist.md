@@ -26,12 +26,12 @@ Use `docs/technical/ops/deployment.md` as the source of truth. This checklist mi
 - [ ] Enable PITR for all tables (disabled in MVP for cost control).
 - [ ] Update docs after enabling PITR:
   - `docs/technical/noteship-low-level-design.md`
-  - `docs/technical/detailed/10-data-architecture.md`
+  - `docs/technical/index.md` (Backend -> Data architecture)
   - `docs/technical/ops/deployment.md`
 - [ ] Review provisioned auto scaling caps; raise for expected production traffic.
 - [ ] Update docs after changing caps:
   - `docs/technical/noteship-low-level-design.md`
-  - `docs/technical/detailed/10-data-architecture.md`
+  - `docs/technical/index.md` (Backend -> Data architecture)
   - `docs/technical/ops/deployment.md`
 
 ## 4) Web hosting (AWS S3 + CloudFront)
@@ -76,7 +76,7 @@ Use `docs/technical/ops/deployment.md` as the source of truth. This checklist mi
 ## 7) Observability + cost guardrails
 
 - [ ] Verify CloudWatch alarms (DLQ, DynamoDB throttles, API errors).
-- [ ] Configure AWS Budgets + alerts; confirm guardrails procedure (see `docs/technical/detailed/17-operational-observability-and-cost-guardrails.md`).
+- [ ] Configure AWS Budgets + alerts; confirm guardrails procedure (see `docs/technical/index.md` (Ops)).
 - [ ] Review S3 lifecycle/retention and versioning costs.
 
 ## 8) Smoke checks

@@ -13,29 +13,40 @@
 - docs/technical/noteship-system-architecture.md (HLD)
 - docs/technical/noteship-low-level-design.md (LLD)
 
-## Product and requirements
+## Foundation (product + system)
 
 - docs/noteship-product-definition.md
-- docs/technical/detailed/01-product-vision-and-positioning.md
-- docs/technical/detailed/02-user-personas-and-jtbd.md
-- docs/technical/detailed/03-mvp-scope-and-feature-definition.md
-- docs/technical/detailed/04-pricing-plans-and-entitlements.md
-- docs/technical/detailed/05-functional-requirements.md
-- docs/technical/detailed/06-non-functional-requirements.md
+- docs/technical/foundation/01-product-vision-and-positioning.md
+- docs/technical/foundation/02-user-personas-and-jtbd.md
+- docs/technical/foundation/03-mvp-scope-and-feature-definition.md
+- docs/technical/foundation/04-pricing-plans-and-entitlements.md
+- docs/technical/foundation/05-functional-requirements.md
+- docs/technical/foundation/06-non-functional-requirements.md
+- docs/technical/foundation/07-system-high-level-architecture.md
 
-## Architecture and design (deep dives)
+## Deep dives (by domain)
 
-- docs/technical/detailed/07-system-high-level-architecture.md
-- docs/technical/detailed/08-frontend-architecture.md
-- docs/technical/detailed/09-backend-architecture.md
-- docs/technical/detailed/10-data-architecture.md
-- docs/technical/detailed/11-api-design-and-contracts.md
-- docs/technical/detailed/12-connector-and-integration-architecture.md
-- docs/technical/detailed/13-embedding-and-semantic-search-design.md
-- docs/technical/detailed/14-billing-and-stripe-integration.md
-- docs/technical/detailed/15-deployment-and-infrastructure.md
-- docs/technical/detailed/16-testing-and-quality-strategy.md
-- docs/technical/detailed/17-operational-observability-and-cost-guardrails.md
+### Frontend
+
+- docs/technical/frontend/08-frontend-architecture.md
+
+### Backend (includes API + data)
+
+- docs/technical/backend/09-backend-architecture.md
+- docs/technical/backend/10-data-architecture.md
+- docs/technical/backend/11-api-design-and-contracts.md
+- docs/technical/backend/12-connector-and-integration-architecture.md
+- docs/technical/backend/13-embedding-and-semantic-search-design.md
+- docs/technical/backend/14-billing-and-stripe-integration.md
+
+### Testing
+
+- docs/technical/testing/16-testing-and-quality-strategy.md
+
+### Ops (includes infra)
+
+- docs/technical/ops/15-deployment-and-infrastructure.md
+- docs/technical/ops/17-operational-observability-and-cost-guardrails.md
 
 ## Technical entrypoints
 
@@ -88,30 +99,35 @@
 
 If multiple docs are plausible, ask the user to choose before updating.
 
-### API
+### Foundation (product + system)
 
-- Consult: HLD/LLD, backend architecture, API design, data architecture, billing/entitlements if touched.
-- Update when: endpoint contracts, auth/entitlements, or API behavior changes.
+- Consult: product definition, foundation docs, HLD/LLD.
+- Update when: MVP scope, pricing/entitlements, system framing, or user journeys change.
 
-### Web
+### Frontend (web)
 
 - Consult: HLD/LLD, frontend architecture, brand docs (language, layout, typography).
 - Update when: UX flows, i18n/RTL, or public-facing pages change.
+
+### Backend (includes API + data)
+
+- Consult: backend architecture, API design, data architecture, billing/entitlements.
+- Update when: endpoint contracts, auth/entitlements, data model, or integrations change.
 
 ### Workers
 
 - Consult: backend architecture, embedding/search design, connectors, billing (if publish logic changes).
 - Update when: job types, retries/DLQ, or publish/embedding behavior changes.
 
-### Infra/Deployment
+### Ops (deployment/infra)
 
-- Consult: deployment guide, CI/IAM policy, observability/guardrails, infra architecture.
+- Consult: deployment guide, CI/IAM policy, observability/guardrails.
 - Update when: stack topology, permissions, CI deploy steps, or ops guardrails change.
 
-### Product/Requirements
+### Testing
 
-- Consult: product definition and requirements docs.
-- Update when: MVP scope, pricing/entitlements, or user journeys change.
+- Consult: testing strategy.
+- Update when: test scope, quality gates, or tooling changes.
 
 ### Brand/Marketing
 
@@ -139,7 +155,8 @@ If multiple docs are plausible, ask the user to choose before updating.
 ## Doc placement conventions
 
 - Keep `/docs/technical` as the top-level technical entrypoint.
-- Deep-dive architecture docs live under `/docs/technical/detailed` (numbered).
-- Operational runbooks live under `/docs/technical/ops`.
+- Use domain folders: `foundation`, `frontend`, `backend`, `testing`, `ops`.
 - Keep numbered prefixes (`01-`, `02-`) and update `docs/technical/index.md` when adding new docs.
+- Prefer linking to `docs/technical/index.md` when referencing other technical docs.
+- Ops runbooks and infra/deploy content live under `/docs/technical/ops`.
 - Do not duplicate env var lists; use `.env.example` and `docs/technical/ops/deployment.md` as the source of truth.
