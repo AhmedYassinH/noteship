@@ -5,6 +5,7 @@ Use `docs/technical/deployment.md` as the source of truth. This checklist mirror
 ## 1) Pre-flight
 
 - [ ] Confirm `docs/technical/deployment.md` reflects the latest deployment steps.
+- [ ] Review `docs/technical/ci-iam-policy.md` and update CI/CD web deploy settings for prod (bucket, distribution ID, role/credentials).
 - [ ] Confirm AWS SSO profile for prod access is configured.
 - [ ] Confirm tagging strategy (same AWS account, env tags for prod).
 
