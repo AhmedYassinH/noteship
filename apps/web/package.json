@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "deploy:assets:dev": "node -e \"const { execSync } = require('child_process'); execSync('aws s3 sync out s3://noteship-web-dev --delete', { stdio: 'inherit' }); const id = execSync('aws cloudformation describe-stacks --stack-name NoteshipWeb-dev --query \\\"Stacks[0].Outputs[?OutputKey==\\\\\\'WebDistributionId\\\\\\'].OutputValue\\\" --output text', { encoding: 'utf8' }).trim(); if (!id) { throw new Error('WebDistributionId not found on NoteshipWeb-dev stack'); } execSync('aws cloudfront create-invalidation --distribution-id ' + id + ' --paths \\\"/*\\\"', { stdio: 'inherit' });\"",
+    "deploy:assets:dev": "node scripts/deploy-assets.js dev",
     "start": "next start",
     "lint": "next lint",
     "test": "node -e \"if (!process.env.RUN_E2E) { console.log('Skipping E2E (set RUN_E2E=1 to enable)'); process.exit(0); } require('child_process').execSync('playwright test', { stdio: 'inherit' });\"",
