@@ -109,7 +109,6 @@ jobs:
         working-directory: packages/infra
       - name: Build web
         run: pnpm --filter @noteship/web build
-      - name: Export web
-        run: pnpm --filter @noteship/web export
+
       - name: Publish web assets
         run: pnpm --filter @noteship/web deploy:assets:dev
