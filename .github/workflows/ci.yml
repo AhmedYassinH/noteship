@@ -99,11 +99,9 @@ jobs:
       - name: Install
         run: pnpm install --frozen-lockfile
       - name: Deploy API stack
-        run: pnpm dlx aws-cdk@2.151.0 deploy NoteshipApi-dev -c env=dev -c region=$AWS_REGION --require-approval never
-        working-directory: packages/infra
+        run: pnpm --filter @noteship/infra cdk deploy NoteshipApi-dev -c env=dev -c region=$AWS_REGION --require-approval never
       - name: Deploy workers stack
-        run: pnpm dlx aws-cdk@2.151.0 deploy NoteshipWorkers-dev -c env=dev -c region=$AWS_REGION --require-approval never
-        working-directory: packages/infra
+        run: pnpm --filter @noteship/infra cdk deploy NoteshipWorkers-dev -c env=dev -c region=$AWS_REGION --require-approval never
       # - name: Deploy web stack
       #   run: pnpm dlx aws-cdk@2.151.0 deploy NoteshipWeb-dev -c env=dev -c region=$AWS_REGION --require-approval never
       #   working-directory: packages/infra

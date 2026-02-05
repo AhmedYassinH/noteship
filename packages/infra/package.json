@@ -17,12 +17,13 @@
     "deploy:guardrails:dev": "dotenv -e ../../.env -- cdk deploy NoteshipOpsGuardrails-dev -c env=dev -c region=us-east-1"
   },
   "dependencies": {
-    "aws-cdk-lib": "^2.151.0",
+    "aws-cdk-lib": "2.151.0",
     "constructs": "^10.3.0"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.147",
     "@types/node": "^22.16.5",
+    "aws-cdk": "2.151.0",
     "aws-sdk": "^2.1693.0",
     "dotenv-cli": "^7.4.2",
     "esbuild": "^0.25.10",
