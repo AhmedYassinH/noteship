@@ -33,7 +33,7 @@ This file tracks what is done vs what remains from the agreed plan.
     - `apps/web/components/dashboard/DashboardShell.tsx`
     - `.env.example`
     - `docs/technical/detailed/11-api-design-and-contracts.md`
-    - `docs/technical/deployment.md`
+    - `docs/technical/ops/deployment.md`
 
 - **TipTap editor (MVP)**
   - TipTap React editor integrated for notes with Markdown serialization (canonical storage remains Markdown).

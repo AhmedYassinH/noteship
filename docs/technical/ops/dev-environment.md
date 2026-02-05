@@ -1,6 +1,6 @@
 # Dev Environment Runbook
 
-Use this document to set up a working dev environment. Deployment steps and env definitions are sourced from `docs/technical/deployment.md`.
+Use this document to set up a working dev environment. Deployment steps and env definitions are sourced from `docs/technical/ops/deployment.md`.
 
 ## 1) Prerequisites
 
@@ -51,7 +51,7 @@ cdk deploy NoteshipOpsGuardrails-dev -c env=dev -c region=us-east-1
 ## 5) Local env vars
 
 - Copy `.env.example` to `.env` and populate values.
-- Use `docs/technical/deployment.md` as the authoritative list of required env vars and secret keys.
+- Use `docs/technical/ops/deployment.md` as the authoritative list of required env vars and secret keys.
 - For the web app, set `NEXT_PUBLIC_*` values for Auth0 SPA and `NEXT_PUBLIC_API_BASE_URL`.
 - For API/workers, set the runtime env vars listed in `.env.example`.
 - Optional logging env vars for API/workers (Powertools): `POWERTOOLS_LOG_LEVEL`, `POWERTOOLS_LOGGER_SAMPLE_RATE`, `POWERTOOLS_SERVICE_NAME` (override), and `NOTESHIP_ENV_NAME`.

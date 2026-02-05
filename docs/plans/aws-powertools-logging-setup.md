@@ -52,7 +52,7 @@ Use this checklist during implementation so updates aren’t missed.
 
 - [x] **Doc B1** — If new env vars are added, update:
   - docs/contributing/ENV-AND-SECRETS.md (add `POWERTOOLS_SERVICE_NAME`, `POWERTOOLS_LOG_LEVEL`, optional `POWERTOOLS_LOGGER_SAMPLE_RATE`)
-  - docs/technical/dev-environment.md (note required env vars for local API/workers)
+  - docs/technical/ops/dev-environment.md (note required env vars for local API/workers)
 
 ### API/Workers runbooks
 

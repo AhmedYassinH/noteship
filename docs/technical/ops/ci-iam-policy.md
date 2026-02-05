@@ -325,7 +325,7 @@ aws iam create-open-id-connect-provider \
    - Deploy API/Workers/Web stacks with `--require-approval never`
    - Build/export the web app and publish assets
 
-Provide required runtime variables via GitHub Secrets or Environment variables. Refer to `.env.example` and `docs/technical/deployment.md` for the current set of required keys.
+Provide required runtime variables via GitHub Secrets or Environment variables. Refer to `.env.example` and `docs/technical/ops/deployment.md` for the current set of required keys.
 
 ### Option 2: IAM User (access keys)
 

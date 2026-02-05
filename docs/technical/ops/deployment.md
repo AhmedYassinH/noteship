@@ -2,7 +2,7 @@
 
 Use this as the source of truth for deploying infrastructure and apps. Update it when deployment steps or configuration change. Dev and production runbooks should mirror this doc.
 
-Related: `docs/technical/dev-environment.md`.
+Related: `docs/technical/ops/dev-environment.md`.
 
 ## Environments & naming
 
@@ -83,7 +83,7 @@ Provisioned (aligns to HLD/LLD):
 ## DynamoDB defaults (MVP)
 
 - **Capacity mode:** Provisioned with auto scaling caps to stay within Always Free limits. Adjust caps for production traffic.
-- **PITR:** Disabled for cost control; enable for production (see `PRODUCTION-CHECKLIST.md`).
+- **PITR:** Disabled for cost control; enable for production (see `docs/technical/ops/production-checklist.md`).
 
 ## Config & secrets (env vars)
 

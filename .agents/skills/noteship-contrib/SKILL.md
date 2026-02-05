@@ -50,4 +50,4 @@ CI uses `.github/workflows/ci.yml`. Do not claim done without green gates.
 
 ## References
 
-See `references/doc-map.md` for policy docs.
+See `references/doc-map.md` for doc triage and placement conventions.

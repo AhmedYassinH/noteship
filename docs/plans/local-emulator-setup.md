@@ -467,7 +467,7 @@ Write-Host "To stop emulators: docker compose -f docker-compose.local.yml down"
 
 ## Step 7: Update docs
 
-**File:** `docs/technical/dev-environment.md`
+**File:** `docs/technical/ops/dev-environment.md`
 
 **Actions:**
 
@@ -618,7 +618,7 @@ Ensure these are ignored:
 
 #### Step 7: Documentation update
 
-- Updated `docs/technical/dev-environment.md`
+- Updated `docs/technical/ops/dev-environment.md`
 - Added section "9) Quick-start local emulators"
 - Included instructions for both bash and PowerShell
 - Explained what the launcher does and how to use `.env.local`
@@ -661,7 +661,7 @@ Ensure these are ignored:
 
 - `apps/api/src/adapters/dynamodb/client.ts` (added endpoint override)
 - `apps/api/src/runtime/deps.ts` (added S3/SQS endpoint overrides)
-- `docs/technical/dev-environment.md` (added section 9)
+- `docs/technical/ops/dev-environment.md` (added section 9)
 
 ---
 

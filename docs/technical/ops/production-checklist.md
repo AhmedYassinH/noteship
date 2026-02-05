@@ -1,11 +1,11 @@
 # Production Deployment Checklist
 
-Use `docs/technical/deployment.md` as the source of truth. This checklist mirrors the critical production steps.
+Use `docs/technical/ops/deployment.md` as the source of truth. This checklist mirrors the critical production steps.
 
 ## 1) Pre-flight
 
-- [ ] Confirm `docs/technical/deployment.md` reflects the latest deployment steps.
-- [ ] Review `docs/technical/ci-iam-policy.md` and update CI/CD web deploy settings for prod (bucket, distribution ID, role/credentials).
+- [ ] Confirm `docs/technical/ops/deployment.md` reflects the latest deployment steps.
+- [ ] Review `docs/technical/ops/ci-iam-policy.md` and update CI/CD web deploy settings for prod (bucket, distribution ID, role/credentials).
 - [ ] Confirm AWS SSO profile for prod access is configured.
 - [ ] Confirm tagging strategy (same AWS account, env tags for prod).
 
@@ -19,7 +19,7 @@ Use `docs/technical/deployment.md` as the source of truth. This checklist mirror
 - [ ] Deploy Workers stack: `NoteshipWorkers-prod`.
 - [ ] Deploy Web stack: `NoteshipWeb-prod`.
 - [ ] Validate stack outputs (API URL, bucket/table names).
-- [ ] Confirm Auth0/Stripe/Qdrant/etc env vars are set in the shell before `cdk deploy` (see `docs/technical/deployment.md`).
+- [ ] Confirm Auth0/Stripe/Qdrant/etc env vars are set in the shell before `cdk deploy` (see `docs/technical/ops/deployment.md`).
 
 ## 3) DynamoDB production controls
 
@@ -27,12 +27,12 @@ Use `docs/technical/deployment.md` as the source of truth. This checklist mirror
 - [ ] Update docs after enabling PITR:
   - `docs/technical/noteship-low-level-design.md`
   - `docs/technical/detailed/10-data-architecture.md`
-  - `docs/technical/deployment.md`
+  - `docs/technical/ops/deployment.md`
 - [ ] Review provisioned auto scaling caps; raise for expected production traffic.
 - [ ] Update docs after changing caps:
   - `docs/technical/noteship-low-level-design.md`
   - `docs/technical/detailed/10-data-architecture.md`
-  - `docs/technical/deployment.md`
+  - `docs/technical/ops/deployment.md`
 
 ## 4) Web hosting (AWS S3 + CloudFront)
 

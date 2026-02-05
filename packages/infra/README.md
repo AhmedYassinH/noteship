@@ -1,7 +1,7 @@
 # Noteship Infra (Status + TODO)
 
 This package currently defines the **core** and **API** stacks.
-See `docs/technical/deployment.md` and `docs/technical/detailed/15-deployment-and-infrastructure.md` for the target layout.
+See `docs/technical/ops/deployment.md` and `docs/technical/detailed/15-deployment-and-infrastructure.md` for the target layout.
 
 ## Current
 

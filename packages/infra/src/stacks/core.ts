@@ -46,7 +46,7 @@ export class NoteshipCoreStack extends Stack {
     Tags.of(this).add("env", envName);
 
     // Keep total max RCUs/WCUs across tables + GSIs within Always Free (25/25).
-    // Adjust caps for prod traffic; see PRODUCTION-CHECKLIST.md.
+    // Adjust caps for prod traffic; see docs/technical/ops/production-checklist.md.
     const capacityCaps = {
       users: { minRead: 1, maxRead: 2, minWrite: 1, maxWrite: 2 },
       notes: { minRead: 1, maxRead: 4, minWrite: 1, maxWrite: 4 },
@@ -193,7 +193,7 @@ export class NoteshipCoreStack extends Stack {
       readCapacity: props.readCapacity ?? 1,
       writeCapacity: props.writeCapacity ?? 1,
       encryption: TableEncryption.AWS_MANAGED,
-      // PITR is disabled for cost control; enable for prod (see PRODUCTION-CHECKLIST.md).
+      // PITR is disabled for cost control; enable for prod (see docs/technical/ops/production-checklist.md).
       pointInTimeRecovery: false,
       removalPolicy: RemovalPolicy.RETAIN,
     });

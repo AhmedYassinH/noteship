@@ -22,7 +22,7 @@ Read `AGENTS.md` and the docs in `docs/` before making changes.
 
 ## Deployment docs
 
-- See `docs/deployment.md` for CDK commands, env conventions, and app deployment notes.
+- See `docs/technical/ops/deployment.md` for CDK commands, env conventions, and app deployment notes.
 
 ## Infra (CDK)
 

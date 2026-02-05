@@ -17,7 +17,7 @@ Never commit secrets.
 
 ## Source of truth
 
-- Deployment env keys and expected values: `docs/technical/deployment.md`.
+- Deployment env keys and expected values: `docs/technical/ops/deployment.md`.
 
 ## Logging (Lambda Powertools)
 
