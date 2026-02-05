@@ -123,7 +123,9 @@ const NotesPage = () => {
               {notes.map((note) => (
                 <TableRow key={note.noteId}>
                   <TableCell>
-                    <Link href={`/dashboard/notes/${note.noteId}`}>{note.title}</Link>
+                    <Link href={`/dashboard/notes?noteId=${encodeURIComponent(note.noteId)}`}>
+                      {note.title}
+                    </Link>
                   </TableCell>
                   <TableCell>
                     <Badge
