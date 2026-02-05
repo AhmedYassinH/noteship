@@ -136,7 +136,9 @@ export class NoteshipApiStack extends Stack {
           CorsHttpMethod.DELETE,
           CorsHttpMethod.OPTIONS,
         ],
-        allowOrigins: [requireEnv("NOTESHIP_WEB_ORIGIN")],
+        allowOrigins: requireEnv("NOTESHIP_WEB_ORIGIN")
+          .split(",")
+          .map((origin) => origin.trim()),
         allowCredentials: true,
       },
     });
