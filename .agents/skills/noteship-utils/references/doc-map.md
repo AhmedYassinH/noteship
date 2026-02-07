@@ -2,14 +2,15 @@
 
 ## Always authoritative
 
+- docs/technical/index.md (technical docs navigation)
 - docs/technical/noteship-system-architecture.md (HLD)
 - docs/technical/noteship-low-level-design.md (LLD)
 
 ## Open when needed
 
-- Backend layering and DI: docs/technical/detailed/09-backend-architecture.md
-- Non-functional requirements: docs/technical/detailed/06-non-functional-requirements.md
-- Testing expectations: docs/technical/detailed/16-testing-and-quality-strategy.md
+- Backend layering and DI: docs/technical/backend/09-backend-architecture.md
+- Non-functional requirements: docs/technical/foundation/06-non-functional-requirements.md
+- Testing expectations: docs/technical/testing/16-testing-and-quality-strategy.md
 
 ## Contributing policy
 
