@@ -1,14 +1,15 @@
-﻿"use client";
+"use client";
 
 import type { ReactNode } from "react";
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { DirectionProvider } from "@radix-ui/react-direction";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Check, ChevronDown, Languages } from "lucide-react";
 import sharedCopy, { Lang } from "../../data/marketing-shared";
-import LanguageToggle from "../ui/LanguageToggle";
 import WaitlistModal from "./WaitlistModal";
+import { Button } from "../ui/Button";
 import { cn } from "@/lib/utils";
 
 type MarketingLanguageState = {
@@ -45,6 +46,8 @@ const MarketingShell = ({ children }: { children: ReactNode }) => {
   const copy = useMemo(() => sharedCopy[lang], [lang]);
   const isAr = lang === "ar";
   const [isWaitlistOpen, setIsWaitlistOpen] = useState(false);
+  const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
+  const langMenuRef = useRef<HTMLDivElement | null>(null);
 
   const openWaitlist = () => {
     setIsWaitlistOpen(true);
@@ -55,9 +58,33 @@ const MarketingShell = ({ children }: { children: ReactNode }) => {
   };
 
   useEffect(() => {
+    const browserLang = navigator.language.toLowerCase();
+    if (browserLang.startsWith("ar")) {
+      setLang("ar");
+    }
+  }, []);
+
+  useEffect(() => {
     document.documentElement.lang = lang;
     document.documentElement.dir = isAr ? "rtl" : "ltr";
   }, [lang, isAr]);
+
+  useEffect(() => {
+    if (!isLangMenuOpen) {
+      return;
+    }
+
+    const onPointerDown = (event: PointerEvent) => {
+      if (!langMenuRef.current?.contains(event.target as Node)) {
+        setIsLangMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => {
+      document.removeEventListener("pointerdown", onPointerDown);
+    };
+  }, [isLangMenuOpen]);
 
   return (
     <MarketingLanguageContext.Provider value={{ lang, setLang }}>
@@ -65,43 +92,25 @@ const MarketingShell = ({ children }: { children: ReactNode }) => {
         <DirectionProvider dir={isAr ? "rtl" : "ltr"}>
           <div
             className={cn(
-              "relative min-h-screen overflow-hidden bg-[linear-gradient(140deg,#f3f6f4_0%,#eef2f7_45%,#f9f5ee_100%)] px-6 pb-20 pt-6 text-[var(--ns-ink)]",
+              "relative min-h-screen bg-[linear-gradient(180deg,#f8f9f8_0%,#f4f6f8_55%,#f8f7f4_100%)] px-6 pb-16 pt-6 text-[var(--ns-ink)]",
               "font-body text-left rtl:text-right",
             )}
           >
-            <span
-              aria-hidden="true"
-              className={cn(
-                "pointer-events-none absolute top-[-180px] z-0 h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle_at_30%_30%,#7dd3c7,transparent_65%)] opacity-35",
-                isAr ? "left-[-120px]" : "right-[-120px]",
-              )}
-            />
-            <span
-              aria-hidden="true"
-              className={cn(
-                "pointer-events-none absolute bottom-[-220px] z-0 h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle_at_60%_40%,#f3b664,transparent_60%)] opacity-35",
-                isAr ? "right-[-160px]" : "left-[-160px]",
-              )}
-            />
-
-            <header className="relative z-10 mx-auto flex w-full max-w-[1200px] items-center justify-between gap-4 rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white/90 px-5 py-4 shadow-[0_20px_55px_rgba(15,23,42,0.15)] backdrop-blur-md max-[960px]:flex-col max-[960px]:items-stretch">
+            <header className="relative z-40 mx-auto flex w-full max-w-[1160px] items-center justify-between gap-4 border-b border-[rgba(15,23,42,0.12)] pb-4 max-[1020px]:flex-wrap">
               <Link
                 href="/"
                 className="inline-flex items-center gap-3 text-inherit no-underline"
                 aria-label="Noteship home"
               >
-                <span className="grid h-[52px] w-[52px] place-items-center rounded-2xl border border-[rgba(15,118,110,0.2)] bg-[radial-gradient(circle_at_30%_30%,rgba(15,118,110,0.15),#ffffff)] shadow-[0_12px_28px_rgba(15,118,110,0.2)]">
-                  <Image src="/noteship-mark.svg" alt="" width={44} height={44} priority />
+                <span className="grid h-11 w-11 place-items-center rounded-xl border border-[rgba(15,118,110,0.18)] bg-white">
+                  <Image src="/noteship-mark.svg" alt="" width={34} height={34} priority />
                 </span>
-                <span className="grid gap-1">
-                  <span className="text-[1.06rem] font-semibold tracking-[0.01em]">Noteship</span>
-                  <span className="text-[0.92rem] text-[var(--ns-muted)]">{copy.brandTagline}</span>
-                </span>
+                <span className="text-[1.04rem] font-semibold">Noteship</span>
               </Link>
 
               <nav
-                className="flex flex-wrap items-center gap-3"
-                aria-label={isAr ? "OU,OAÃU+U,U, OU,OAÃ±OA?USO3US" : "Main navigation"}
+                className="flex flex-wrap items-center gap-2"
+                aria-label={isAr ? "التنقل الرئيسي" : "Main navigation"}
               >
                 {copy.navLinks.map((link) => {
                   const isActive = pathname === link.href;
@@ -109,8 +118,8 @@ const MarketingShell = ({ children }: { children: ReactNode }) => {
                     <Link
                       key={link.href}
                       className={cn(
-                        "rounded-full px-3 py-2 text-[var(--ns-muted)] font-semibold transition-colors hover:bg-[rgba(15,118,110,0.1)] hover:text-slate-900",
-                        isActive && "bg-[rgba(15,118,110,0.1)] text-slate-900",
+                        "rounded-full px-3 py-1.5 text-[0.9rem] font-medium text-[var(--ns-muted)] transition-colors hover:text-slate-900",
+                        isActive && "bg-[rgba(15,23,42,0.06)] text-slate-900",
                       )}
                       href={link.href}
                       aria-current={isActive ? "page" : undefined}
@@ -121,22 +130,84 @@ const MarketingShell = ({ children }: { children: ReactNode }) => {
                 })}
               </nav>
 
-              <div className="flex flex-wrap items-center gap-2.5 max-[960px]:justify-between">
-                <LanguageToggle lang={lang} onChange={setLang} />
+              <div className="flex items-center gap-2">
+                <Button type="button" size="pill" onClick={openWaitlist}>
+                  {copy.ctas.primary}
+                </Button>
+
+                <div className="relative z-[80]" ref={langMenuRef}>
+                  <button
+                    type="button"
+                    onClick={() => setIsLangMenuOpen((open) => !open)}
+                    className="inline-flex h-9 items-center gap-1.5 rounded-full border border-[rgba(15,23,42,0.14)] bg-white px-2.5 text-[var(--ns-muted)] transition-colors hover:text-slate-900"
+                    aria-label={isAr ? "اختيار اللغة" : "Choose language"}
+                    aria-haspopup="menu"
+                    aria-expanded={isLangMenuOpen}
+                  >
+                    <Languages className="h-4 w-4" aria-hidden="true" />
+                    <ChevronDown className="h-3.5 w-3.5" aria-hidden="true" />
+                  </button>
+
+                  {isLangMenuOpen ? (
+                    <div
+                      role="menu"
+                      className="absolute end-0 z-[90] mt-2 w-[210px] overflow-hidden rounded-xl border border-[rgba(15,23,42,0.14)] bg-white p-1.5 shadow-[0_12px_28px_rgba(15,23,42,0.14)]"
+                    >
+                      <button
+                        type="button"
+                        className="flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-left text-[0.92rem] transition-colors hover:bg-[rgba(15,23,42,0.06)]"
+                        onClick={() => {
+                          setLang("en");
+                          setIsLangMenuOpen(false);
+                        }}
+                        role="menuitem"
+                      >
+                        <span className="inline-flex items-center gap-2">
+                          <span aria-hidden="true">🇺🇸</span>
+                          <span>English</span>
+                        </span>
+                        {lang === "en" ? (
+                          <Check className="h-3.5 w-3.5" aria-hidden="true" />
+                        ) : null}
+                      </button>
+
+                      <button
+                        type="button"
+                        className="flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-left text-[0.92rem] transition-colors hover:bg-[rgba(15,23,42,0.06)]"
+                        onClick={() => {
+                          setLang("ar");
+                          setIsLangMenuOpen(false);
+                        }}
+                        role="menuitem"
+                      >
+                        <span className="inline-flex items-center gap-2">
+                          <span aria-hidden="true">🇸🇦</span>
+                          <span>العربية</span>
+                        </span>
+                        {lang === "ar" ? (
+                          <Check className="h-3.5 w-3.5" aria-hidden="true" />
+                        ) : null}
+                      </button>
+                    </div>
+                  ) : null}
+                </div>
               </div>
             </header>
 
-            <div className="relative z-10 mx-auto mt-12 flex w-full max-w-[1200px] flex-col gap-14">
+            <div className="relative z-10 mx-auto mt-12 flex w-full max-w-[1160px] flex-col gap-14">
               {children}
             </div>
 
-            <footer className="relative z-10 mx-auto mt-[72px] grid w-full max-w-[1200px] gap-6 rounded-[24px] border border-[rgba(15,23,42,0.08)] bg-white/90 p-7 shadow-[0_18px_36px_rgba(15,23,42,0.08)] max-[720px]:p-[22px]">
+            <footer
+              id="contact"
+              className="relative z-10 mx-auto mt-20 grid w-full max-w-[1160px] gap-6 border-t border-[rgba(15,23,42,0.12)] pt-8"
+            >
               <div className="grid gap-2.5">
                 <div className="flex items-center gap-2.5">
-                  <Image src="/noteship-mark.svg" alt="" width={36} height={36} />
-                  <span className="text-[1.1rem] font-semibold">Noteship</span>
+                  <Image src="/noteship-mark.svg" alt="" width={30} height={30} />
+                  <span className="text-[1rem] font-semibold">Noteship</span>
                 </div>
-                <p className="m-0 text-[var(--ns-muted)]">{copy.footer.summary}</p>
+                <p className="m-0 max-w-[640px] text-[var(--ns-muted)]">{copy.footer.summary}</p>
               </div>
 
               <div className="grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-[18px]">
@@ -147,7 +218,7 @@ const MarketingShell = ({ children }: { children: ReactNode }) => {
                       <Link
                         key={link.href}
                         href={link.href}
-                        className="text-[var(--ns-muted)] no-underline hover:text-slate-900"
+                        className="w-fit text-[var(--ns-muted)] underline-offset-4 transition-colors hover:text-slate-900 hover:underline"
                       >
                         {link.label}
                       </Link>
@@ -156,7 +227,7 @@ const MarketingShell = ({ children }: { children: ReactNode }) => {
                 ))}
               </div>
 
-              <div className="text-[0.9rem] text-[var(--ns-muted)]">{copy.footer.bottom}</div>
+              <div className="text-[0.88rem] text-[var(--ns-muted)]">{copy.footer.bottom}</div>
             </footer>
           </div>
         </DirectionProvider>
