@@ -1,6 +1,7 @@
-﻿"use client";
+"use client";
 
 import { useMemo } from "react";
+import Link from "next/link";
 import {
   useMarketingLanguage,
   useWaitlistModal,
@@ -28,64 +29,52 @@ const PricingPage = () => {
       lang={lang}
       dir={isAr ? "rtl" : "ltr"}
     >
-      <section className="grid items-center gap-8 rounded-[28px] border border-[rgba(15,23,42,0.08)] bg-white/90 p-9 shadow-[0_30px_60px_rgba(15,23,42,0.12)] [grid-template-columns:repeat(auto-fit,minmax(280px,1fr))] max-[720px]:p-7">
-        <div>
-          <p className="m-0 mb-2 text-[0.72rem] uppercase tracking-[0.3em] text-[var(--ns-muted)]">
-            {t.heroKicker}
-          </p>
-          <h1 className="m-0 mb-3 font-headline text-[clamp(2.4rem,4vw,3.4rem)] font-semibold leading-[1.15]">
-            {t.heroTitle}
-          </h1>
-          <p className="m-0 mb-4 text-[1.05rem] leading-[1.75] text-[var(--ns-muted)] rtl:leading-[1.85]">
-            {t.heroSub}
-          </p>
-          <div className="flex flex-wrap gap-3">
-            <Button
-              type="button"
-              size="pill"
-              onClick={openWaitlist}
-              className="shadow-[0_14px_28px_rgba(15,118,110,0.22)]"
-            >
-              {t.primaryCta}
-            </Button>
-          </div>
-        </div>
-        <div className="rounded-[20px] border border-[rgba(15,23,42,0.08)] bg-white/95 p-5 shadow-[0_16px_32px_rgba(15,23,42,0.08)]">
-          <h3 className="m-0 mb-2 text-[0.95rem] font-semibold font-headline leading-[1.25]">
-            {t.plansTitle}
-          </h3>
-          <p className="m-0 text-[var(--ns-muted)] leading-[1.6] rtl:leading-[1.85]">
-            {t.plansLead}
-          </p>
+      <section className="grid gap-4 border-b border-[rgba(15,23,42,0.12)] pb-10">
+        <p className="m-0 text-[0.75rem] font-semibold uppercase tracking-[0.2em] text-[var(--ns-muted)]">
+          {t.heroKicker}
+        </p>
+        <h1 className="m-0 max-w-[17ch] font-headline text-[clamp(2.2rem,4.2vw,3.15rem)] leading-[1.14]">
+          {t.heroTitle}
+        </h1>
+        <p className="m-0 max-w-[58ch] text-[1.02rem] text-[var(--ns-muted)] leading-[1.72] rtl:leading-[1.9]">
+          {t.heroSub}
+        </p>
+        <div className="flex flex-wrap gap-3">
+          <Button type="button" size="pill" onClick={openWaitlist}>
+            {t.primaryCta}
+          </Button>
+          <Button type="button" size="pill" variant="outline" asChild>
+            <Link href="/#how-it-works">{t.secondaryCta}</Link>
+          </Button>
         </div>
       </section>
 
       <section className="flex flex-col gap-6">
         <header className="grid gap-2">
-          <h2 className="m-0 font-headline text-[clamp(1.6rem,2.6vw,2.1rem)] font-semibold leading-[1.25]">
+          <h2 className="m-0 font-headline text-[clamp(1.6rem,2.8vw,2.2rem)] leading-[1.2]">
             {t.plansTitle}
           </h2>
-          <p className="m-0 text-[1rem] leading-[1.7] text-[var(--ns-muted)] rtl:leading-[1.85]">
+          <p className="m-0 text-[1rem] text-[var(--ns-muted)] leading-[1.72] rtl:leading-[1.9]">
             {t.plansLead}
           </p>
         </header>
-        <div className="grid gap-[18px] [grid-template-columns:repeat(auto-fit,minmax(260px,1fr))]">
-          {t.plans.map((plan) => (
+        <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(250px,1fr))]">
+          {t.plans.map((plan, index) => (
             <article
               key={plan.name}
-              className="grid gap-3 rounded-[22px] border border-[rgba(15,23,42,0.08)] bg-white p-[22px] shadow-[0_20px_40px_rgba(15,23,42,0.1)]"
+              className="grid gap-3 rounded-xl border border-[rgba(15,23,42,0.1)] bg-white p-6 shadow-[0_6px_20px_rgba(15,23,42,0.06)]"
             >
               {plan.badge ? (
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-[rgba(15,118,110,0.12)] px-2.5 py-1 text-[0.78rem] uppercase tracking-[0.2em] text-[var(--ns-accent-strong)]">
+                <span className="inline-flex w-fit items-center rounded-full bg-[rgba(15,118,110,0.12)] px-2.5 py-1 text-[0.74rem] font-semibold tracking-[0.06em] text-[var(--ns-accent-strong)]">
                   {plan.badge}
                 </span>
               ) : null}
-              <div className="text-[1.1rem] font-semibold">{plan.name}</div>
-              <div className="text-[2rem] font-semibold">{plan.price}</div>
-              <p className="m-0 text-[var(--ns-muted)] leading-[1.6] rtl:leading-[1.85]">
+              <div className="text-[1.05rem] font-semibold">{plan.name}</div>
+              <div className="text-[1.95rem] font-semibold">{plan.price}</div>
+              <p className="m-0 text-[0.95rem] text-[var(--ns-muted)] leading-[1.65] rtl:leading-[1.85]">
                 {plan.desc}
               </p>
-              <ul className="m-0 grid list-disc gap-2 pl-4 text-[var(--ns-muted)] leading-[1.6] rtl:pl-0 rtl:pr-4 rtl:leading-[1.85]">
+              <ul className="m-0 grid list-disc gap-1.5 pl-4 text-[0.92rem] text-[var(--ns-muted)] rtl:pl-0 rtl:pr-4">
                 {plan.items.map((item) => (
                   <li key={item}>{item}</li>
                 ))}
@@ -93,8 +82,8 @@ const PricingPage = () => {
               <Button
                 type="button"
                 size="pill"
+                variant={index === 0 ? "outline" : "default"}
                 onClick={openWaitlist}
-                className="shadow-[0_14px_28px_rgba(15,118,110,0.22)]"
               >
                 {plan.cta}
               </Button>
@@ -105,73 +94,66 @@ const PricingPage = () => {
 
       <section className="flex flex-col gap-6">
         <header className="grid gap-2">
-          <h2 className="m-0 font-headline text-[clamp(1.6rem,2.6vw,2.1rem)] font-semibold leading-[1.25]">
+          <h2 className="m-0 font-headline text-[clamp(1.6rem,2.8vw,2.2rem)] leading-[1.2]">
             {t.comparisonTitle}
           </h2>
-          <p className="m-0 text-[1rem] leading-[1.7] text-[var(--ns-muted)] rtl:leading-[1.85]">
+          <p className="m-0 text-[1rem] text-[var(--ns-muted)] leading-[1.72] rtl:leading-[1.9]">
             {t.comparisonLead}
           </p>
         </header>
-        <div className="rounded-[20px] border border-[rgba(15,23,42,0.08)] bg-white p-5 shadow-[0_16px_32px_rgba(15,23,42,0.08)]">
-          <div className="overflow-hidden rounded-[18px] border border-[rgba(15,23,42,0.08)] bg-white">
-            <Table>
-              <TableHeader className="bg-[#f5f7fa]">
-                <TableRow>
-                  <TableHead className="font-semibold">{isAr ? "الميزة" : "Feature"}</TableHead>
-                  <TableHead className="font-semibold">{isAr ? "مجاني" : "Free"}</TableHead>
-                  <TableHead className="font-semibold">{isAr ? "برو" : "Pro"}</TableHead>
+        <div className="overflow-hidden rounded-xl border border-[rgba(15,23,42,0.12)] bg-white">
+          <Table>
+            <TableHeader className="bg-[#f8f9fb]">
+              <TableRow>
+                <TableHead className="font-semibold">{isAr ? "الميزة" : "Feature"}</TableHead>
+                <TableHead className="font-semibold">{isAr ? "مجاني" : "Free"}</TableHead>
+                <TableHead className="font-semibold">Pro</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {t.comparison.map((row) => (
+                <TableRow key={row.feature}>
+                  <TableCell>{row.feature}</TableCell>
+                  <TableCell>{row.free}</TableCell>
+                  <TableCell>{row.pro}</TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {t.comparison.map((row) => (
-                  <TableRow key={row.feature}>
-                    <TableCell>{row.feature}</TableCell>
-                    <TableCell>{row.free}</TableCell>
-                    <TableCell>{row.pro}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+              ))}
+            </TableBody>
+          </Table>
         </div>
       </section>
 
-      <section className="flex flex-col gap-6" id="faq">
-        <header className="grid gap-2">
-          <h2 className="m-0 font-headline text-[clamp(1.6rem,2.6vw,2.1rem)] font-semibold leading-[1.25]">
-            {t.faqTitle}
-          </h2>
-        </header>
-        <div className="grid gap-3.5">
+      <section className="flex flex-col gap-5">
+        <h2 className="m-0 font-headline text-[clamp(1.6rem,2.8vw,2.2rem)] leading-[1.2]">
+          {t.faqTitle}
+        </h2>
+        <div className="grid gap-3">
           {t.faq.map((item) => (
-            <div
-              key={item.q}
-              className="rounded-[16px] border border-[rgba(15,23,42,0.08)] bg-white p-4"
-            >
-              <p className="m-0 mb-1.5 font-semibold font-headline leading-[1.25]">{item.q}</p>
-              <p className="m-0 text-[var(--ns-muted)] leading-[1.6] rtl:leading-[1.85]">
+            <details key={item.q} className="group border-b border-[rgba(15,23,42,0.1)] py-3">
+              <summary className="cursor-pointer list-none pe-6 text-[1rem] font-semibold">
+                {item.q}
+              </summary>
+              <p className="m-0 pt-2 text-[0.95rem] text-[var(--ns-muted)] leading-[1.65] rtl:leading-[1.85]">
                 {item.a}
               </p>
-            </div>
+            </details>
           ))}
         </div>
       </section>
 
-      <section className="grid items-center gap-3 rounded-[26px] bg-slate-900 p-7 text-slate-50 shadow-[0_24px_48px_rgba(15,23,42,0.25)] [grid-template-columns:repeat(auto-fit,minmax(220px,1fr))]">
+      <section className="grid items-center gap-4 border border-[rgba(15,23,42,0.12)] bg-white px-6 py-7 [grid-template-columns:repeat(auto-fit,minmax(220px,1fr))]">
         <div>
-          <h2 className="m-0 text-[1.5rem] font-semibold font-headline leading-[1.25]">
-            {t.finalTitle}
-          </h2>
-          <p className="m-0 mt-1 text-slate-200 leading-[1.6] rtl:leading-[1.85]">{t.finalCopy}</p>
+          <h2 className="m-0 font-headline text-[1.55rem] leading-[1.22]">{t.finalTitle}</h2>
+          <p className="m-0 mt-2 text-[0.95rem] text-[var(--ns-muted)] leading-[1.65] rtl:leading-[1.85]">
+            {t.finalCopy}
+          </p>
         </div>
-        <div className="flex flex-wrap gap-3">
-          <Button
-            type="button"
-            size="pill"
-            onClick={openWaitlist}
-            className="shadow-[0_14px_28px_rgba(15,118,110,0.22)]"
-          >
+        <div className="flex flex-wrap justify-end gap-3 rtl:justify-start">
+          <Button type="button" size="pill" onClick={openWaitlist}>
             {t.finalPrimary}
+          </Button>
+          <Button type="button" size="pill" variant="ghost" asChild>
+            <Link href="mailto:me@ahmedyassin.dev">{t.finalSecondary}</Link>
           </Button>
         </div>
       </section>

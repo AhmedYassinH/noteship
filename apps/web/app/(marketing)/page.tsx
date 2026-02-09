@@ -1,9 +1,10 @@
-﻿"use client";
+"use client";
 
 import { useMemo } from "react";
 import Image from "next/image";
+import Link from "next/link";
+import { ShieldCheck, Database, RefreshCw } from "lucide-react";
 import { useMarketingLanguage, useWaitlistModal } from "../../components/marketing/MarketingShell";
-import WaitlistForm from "../../components/marketing/WaitlistForm";
 import { Button } from "../../components/ui/Button";
 import homeCopy from "../../data/marketing-home";
 
@@ -13,248 +14,232 @@ const HomePage = () => {
   const t = useMemo(() => homeCopy[lang], [lang]);
   const isAr = lang === "ar";
 
+  const trustIcons = [ShieldCheck, Database, RefreshCw];
+
   return (
     <main
-      className="flex flex-col gap-16 text-left rtl:text-right"
+      className="flex flex-col gap-20 text-left rtl:text-right"
       lang={lang}
       dir={isAr ? "rtl" : "ltr"}
     >
-      <section className="grid items-center gap-8 rounded-[28px] border border-[rgba(15,23,42,0.08)] bg-white/90 p-9 shadow-[0_30px_60px_rgba(15,23,42,0.12)] [grid-template-columns:repeat(auto-fit,minmax(280px,1fr))] max-[720px]:p-7">
-        <div>
-          <p className="m-0 mb-2 text-[0.72rem] uppercase tracking-[0.3em] text-[var(--ns-muted)]">
+      <section className="grid items-center gap-8 border-b border-[rgba(15,23,42,0.12)] pb-12 [grid-template-columns:repeat(auto-fit,minmax(280px,1fr))]">
+        <div className="grid gap-4">
+          <p className="m-0 text-[0.75rem] font-semibold uppercase tracking-[0.2em] text-[var(--ns-muted)]">
             {t.heroKicker}
           </p>
-          <h1 className="m-0 mb-3 font-headline text-[clamp(2.4rem,4vw,3.4rem)] font-semibold leading-[1.15]">
+          <h1 className="m-0 max-w-[16ch] font-headline text-[clamp(2.25rem,4.8vw,3.35rem)] leading-[1.14]">
             {t.heroTitle}
           </h1>
-          <p className="m-0 mb-4 text-[1.05rem] leading-[1.75] text-[var(--ns-muted)] rtl:leading-[1.85]">
+          <p className="m-0 max-w-[55ch] text-[1.02rem] leading-[1.72] text-[var(--ns-muted)] rtl:leading-[1.9]">
             {t.heroSub}
           </p>
           <div className="flex flex-wrap gap-3">
-            <Button
-              type="button"
-              size="pill"
-              onClick={openWaitlist}
-              className="shadow-[0_14px_28px_rgba(15,118,110,0.22)]"
-            >
-              {t.primaryCta}
+            <Button type="button" size="pill" onClick={openWaitlist}>
+              {t.heroPrimary}
             </Button>
+            <Button type="button" size="pill" variant="outline" asChild>
+              <Link href="#how-it-works">{t.heroSecondary}</Link>
+            </Button>
+            <Link
+              href="#security"
+              className="inline-flex items-center px-1 text-[0.95rem] text-[var(--ns-muted)] underline-offset-4 transition-colors hover:text-slate-900 hover:underline"
+            >
+              {t.heroTertiary}
+            </Link>
           </div>
-          <div className="mt-5 grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(160px,1fr))]">
-            {t.heroHighlights.map((item) => (
-              <div
-                key={item.label}
-                className="rounded-[16px] border border-[rgba(15,23,42,0.08)] bg-[#f5f8f7] p-[14px]"
+          <div className="flex flex-wrap gap-2.5 text-[0.86rem] text-[var(--ns-muted)]">
+            {t.heroProof.map((item) => (
+              <span
+                key={item}
+                className="rounded-full border border-[rgba(15,23,42,0.12)] px-3 py-1"
               >
-                <div className="text-[1.1rem] font-semibold">{item.value}</div>
-                <div className="text-[0.9rem] text-[var(--ns-muted)] leading-[1.6] rtl:leading-[1.85]">
-                  {item.label}
-                </div>
-              </div>
+                {item}
+              </span>
             ))}
           </div>
         </div>
-        <div className="rounded-[22px] border border-[rgba(15,23,42,0.08)] bg-white p-[18px] shadow-[0_18px_36px_rgba(15,23,42,0.1)]">
+        <div className="rounded-2xl border border-[rgba(15,23,42,0.12)] bg-white p-4 shadow-[0_18px_40px_rgba(15,23,42,0.1)]">
           <Image
             src={t.heroImage}
             alt={t.heroImageAlt}
-            width={520}
-            height={420}
-            className="block h-auto w-full rounded-[16px]"
+            width={540}
+            height={410}
+            className="block h-auto w-full rounded-xl"
             priority
           />
         </div>
       </section>
-
-      <section className="flex flex-col gap-6">
-        <header className="grid gap-2">
-          <h2 className="m-0 font-headline text-[clamp(1.6rem,2.6vw,2.1rem)] font-semibold leading-[1.25]">
-            {t.highlightsTitle}
+      <section className="grid gap-6 [grid-template-columns:1.2fr_0.8fr] max-[920px]:grid-cols-1">
+        <div className="grid gap-4">
+          <h2 className="m-0 max-w-[19ch] font-headline text-[clamp(1.7rem,3vw,2.3rem)] leading-[1.2]">
+            {t.problemTitle}
           </h2>
-          <p className="m-0 text-[1rem] leading-[1.7] text-[var(--ns-muted)] rtl:leading-[1.85]">
-            {t.highlightsLead}
+          <p className="m-0 text-[1rem] leading-[1.72] text-[var(--ns-muted)] rtl:leading-[1.9]">
+            {t.problemLead}
           </p>
-        </header>
-        <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(220px,1fr))]">
-          {t.highlights.map((item) => (
-            <article
-              key={item.title}
-              className="rounded-[18px] border border-[rgba(15,23,42,0.08)] bg-white p-[18px] shadow-[0_14px_28px_rgba(15,23,42,0.08)]"
-            >
-              <h3 className="m-0 mb-2 text-[1.05rem] font-semibold font-headline leading-[1.25]">
-                {item.title}
-              </h3>
-              <p className="m-0 text-[var(--ns-muted)] leading-[1.6] rtl:leading-[1.85]">
-                {item.copy}
-              </p>
-            </article>
-          ))}
+          <ul className="m-0 grid list-disc gap-2 pl-5 text-[var(--ns-muted)] leading-[1.68] rtl:pl-0 rtl:pr-5 rtl:leading-[1.9]">
+            {t.problemPoints.map((point) => (
+              <li key={point}>{point}</li>
+            ))}
+          </ul>
         </div>
+        <aside className="self-start border-s-2 border-[rgba(15,118,110,0.35)] bg-white/70 px-5 py-4 text-[1.02rem] text-slate-800 leading-[1.72] rtl:border-s-0 rtl:border-e-2 rtl:leading-[1.9]">
+          {t.problemQuote}
+        </aside>
       </section>
-
-      <section className="flex flex-col gap-6">
+      <section id="how-it-works" className="grid gap-6">
         <header className="grid gap-2">
-          <h2 className="m-0 font-headline text-[clamp(1.6rem,2.6vw,2.1rem)] font-semibold leading-[1.25]">
+          <h2 className="m-0 font-headline text-[clamp(1.7rem,3vw,2.3rem)] leading-[1.2]">
             {t.workflowTitle}
           </h2>
-          <p className="m-0 text-[1rem] leading-[1.7] text-[var(--ns-muted)] rtl:leading-[1.85]">
+          <p className="m-0 max-w-[62ch] text-[1rem] leading-[1.72] text-[var(--ns-muted)] rtl:leading-[1.9]">
             {t.workflowLead}
           </p>
         </header>
-        <div className="grid gap-3.5">
+
+        <div className="grid gap-3.5 border-y border-[rgba(15,23,42,0.12)] py-6">
           {t.workflowSteps.map((step, index) => (
-            <div
+            <article
               key={step.title}
-              className="grid grid-cols-[auto_1fr] gap-3 rounded-[18px] border border-[rgba(15,23,42,0.08)] bg-white p-4 shadow-[0_12px_24px_rgba(15,23,42,0.08)]"
+              className="grid grid-cols-[auto_1fr] gap-3 rounded-xl bg-white px-4 py-3.5"
             >
-              <div className="grid h-[34px] w-[34px] place-items-center rounded-full bg-[rgba(15,118,110,0.12)] font-semibold text-[var(--ns-accent-strong)]">
+              <div className="grid h-8 w-8 place-items-center rounded-full border border-[rgba(15,118,110,0.26)] text-[0.88rem] font-semibold text-[var(--ns-accent-strong)]">
                 {index + 1}
               </div>
               <div>
-                <strong className="block font-semibold font-headline leading-[1.25]">
-                  {step.title}
-                </strong>
-                <p className="m-0 mt-1 text-[var(--ns-muted)] leading-[1.6] rtl:leading-[1.85]">
+                <h3 className="m-0 font-headline text-[1.1rem] leading-[1.25]">{step.title}</h3>
+                <p className="m-0 mt-1 text-[0.96rem] text-[var(--ns-muted)] leading-[1.65] rtl:leading-[1.85]">
                   {step.copy}
                 </p>
               </div>
-            </div>
+            </article>
           ))}
         </div>
+        <p className="m-0 text-[0.92rem] text-[var(--ns-muted)] leading-[1.65] rtl:leading-[1.85]">
+          {t.workflowNote}
+        </p>
       </section>
-
-      <section className="flex flex-col gap-6">
+      <section className="grid gap-6">
         <header className="grid gap-2">
-          <h2 className="m-0 font-headline text-[clamp(1.6rem,2.6vw,2.1rem)] font-semibold leading-[1.25]">
-            {t.proofTitle}
+          <h2 className="m-0 font-headline text-[clamp(1.7rem,3vw,2.3rem)] leading-[1.2]">
+            {t.pillarsTitle}
           </h2>
-        </header>
-        <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(220px,1fr))]">
-          {t.proofStats.map((stat) => (
-            <div
-              key={stat.label}
-              className="rounded-[18px] border border-[rgba(15,23,42,0.08)] bg-white p-[18px] shadow-[0_14px_28px_rgba(15,23,42,0.08)]"
-            >
-              <div className="text-[1.1rem] font-semibold">{stat.value}</div>
-              <div className="text-[0.9rem] text-[var(--ns-muted)] leading-[1.6] rtl:leading-[1.85]">
-                {stat.label}
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section className="flex flex-col gap-6" id="integrations">
-        <header className="grid gap-2">
-          <h2 className="m-0 font-headline text-[clamp(1.6rem,2.6vw,2.1rem)] font-semibold leading-[1.25]">
-            {t.integrationsTitle}
-          </h2>
-          <p className="m-0 text-[1rem] leading-[1.7] text-[var(--ns-muted)] rtl:leading-[1.85]">
-            {t.integrationsLead}
+          <p className="m-0 text-[1rem] text-[var(--ns-muted)] leading-[1.72] rtl:leading-[1.9]">
+            {t.pillarsLead}
           </p>
         </header>
         <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(220px,1fr))]">
-          {t.integrations.map((integration) => (
+          {t.pillars.map((pillar) => (
             <article
-              key={integration.name}
-              className="rounded-[18px] border border-[rgba(15,23,42,0.08)] bg-white p-[18px] shadow-[0_14px_28px_rgba(15,23,42,0.08)]"
+              key={pillar.title}
+              className="grid gap-2 rounded-xl border border-[rgba(15,23,42,0.1)] bg-white p-5 shadow-[0_6px_20px_rgba(15,23,42,0.06)]"
             >
-              <h3 className="m-0 mb-2 text-[1.05rem] font-semibold font-headline leading-[1.25]">
-                {integration.name}
-              </h3>
-              <p className="m-0 text-[var(--ns-muted)] leading-[1.6] rtl:leading-[1.85]">
-                {integration.copy}
+              <h3 className="m-0 font-headline text-[1.15rem] leading-[1.25]">{pillar.title}</h3>
+              <p className="m-0 text-[0.95rem] text-[var(--ns-muted)] leading-[1.65] rtl:leading-[1.85]">
+                {pillar.copy}
               </p>
+              <ul className="m-0 mt-1 grid list-disc gap-1.5 pl-4 text-[0.92rem] text-[var(--ns-muted)] rtl:pl-0 rtl:pr-4">
+                {pillar.bullets.map((bullet) => (
+                  <li key={bullet}>{bullet}</li>
+                ))}
+              </ul>
             </article>
           ))}
         </div>
       </section>
-
-      <section className="flex flex-col gap-6" id="pricing">
+      <section id="security" className="grid gap-6">
         <header className="grid gap-2">
-          <h2 className="m-0 font-headline text-[clamp(1.6rem,2.6vw,2.1rem)] font-semibold leading-[1.25]">
+          <h2 className="m-0 font-headline text-[clamp(1.7rem,3vw,2.3rem)] leading-[1.2]">
+            {t.trustTitle}
+          </h2>
+          <p className="m-0 text-[1rem] text-[var(--ns-muted)] leading-[1.72] rtl:leading-[1.9]">
+            {t.trustLead}
+          </p>
+        </header>
+        <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(220px,1fr))]">
+          {t.trustItems.map((item, index) => {
+            const Icon = trustIcons[index % trustIcons.length];
+            return (
+              <article
+                key={item.title}
+                className="grid gap-2 border border-[rgba(15,23,42,0.1)] bg-white px-5 py-4"
+              >
+                <Icon className="h-4.5 w-4.5 text-[var(--ns-accent-strong)]" aria-hidden="true" />
+                <h3 className="m-0 text-[1rem] font-semibold">{item.title}</h3>
+                <p className="m-0 text-[0.94rem] text-[var(--ns-muted)] leading-[1.65] rtl:leading-[1.85]">
+                  {item.copy}
+                </p>
+              </article>
+            );
+          })}
+        </div>
+      </section>
+      <section className="grid gap-6" id="pricing">
+        <header className="grid gap-2">
+          <h2 className="m-0 font-headline text-[clamp(1.7rem,3vw,2.3rem)] leading-[1.2]">
             {t.pricingTitle}
           </h2>
-          <p className="m-0 text-[1rem] leading-[1.7] text-[var(--ns-muted)] rtl:leading-[1.85]">
+          <p className="m-0 text-[1rem] text-[var(--ns-muted)] leading-[1.72] rtl:leading-[1.9]">
             {t.pricingLead}
           </p>
         </header>
-        <div className="grid gap-[18px] [grid-template-columns:repeat(auto-fit,minmax(260px,1fr))]">
+        <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(240px,1fr))]">
           {t.pricingCards.map((plan) => (
             <article
               key={plan.name}
-              className="grid gap-3 rounded-[22px] border border-[rgba(15,23,42,0.08)] bg-white p-[22px] shadow-[0_20px_40px_rgba(15,23,42,0.1)]"
+              className="grid gap-3 rounded-xl border border-[rgba(15,23,42,0.1)] bg-white p-5 shadow-[0_6px_20px_rgba(15,23,42,0.06)]"
             >
-              <div className="text-[1.1rem] font-semibold">{plan.name}</div>
-              <div className="text-[2rem] font-semibold">{plan.price}</div>
-              <p className="m-0 text-[var(--ns-muted)] leading-[1.6] rtl:leading-[1.85]">
+              <div className="text-[1.05rem] font-semibold">{plan.name}</div>
+              <div className="text-[1.9rem] font-semibold">{plan.price}</div>
+              <p className="m-0 text-[0.95rem] text-[var(--ns-muted)] leading-[1.65] rtl:leading-[1.85]">
                 {plan.desc}
               </p>
-              <ul className="m-0 grid list-disc gap-2 pl-4 text-[var(--ns-muted)] leading-[1.6] rtl:pl-0 rtl:pr-4 rtl:leading-[1.85]">
+              <ul className="m-0 grid list-disc gap-1.5 pl-4 text-[0.92rem] text-[var(--ns-muted)] rtl:pl-0 rtl:pr-4">
                 {plan.items.map((item) => (
                   <li key={item}>{item}</li>
                 ))}
               </ul>
-              <Button
-                type="button"
-                size="pill"
-                onClick={openWaitlist}
-                className="shadow-[0_14px_28px_rgba(15,118,110,0.22)]"
-              >
+              <Button type="button" size="pill" onClick={openWaitlist}>
                 {plan.cta}
               </Button>
             </article>
           ))}
         </div>
+        <Link
+          href="/pricing"
+          className="w-fit text-[0.95rem] text-[var(--ns-muted)] underline-offset-4 transition-colors hover:text-slate-900 hover:underline"
+        >
+          {isAr ? "اعرض مقارنة الخطط" : "Compare plans in detail"}
+        </Link>
       </section>
-
-      <section
-        id="waitlist"
-        className="relative overflow-hidden rounded-[28px] border border-[rgba(15,23,42,0.08)] bg-white/92 p-7 shadow-[0_18px_36px_rgba(15,23,42,0.08)] max-[720px]:p-6"
-      >
-        <div className="grid items-start gap-6 [grid-template-columns:repeat(auto-fit,minmax(260px,1fr))]">
-          <div className="grid gap-3">
-            <span className="inline-flex w-fit items-center rounded-full border border-[rgba(15,23,42,0.12)] px-3 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.32em] text-[var(--ns-muted)]">
-              {t.waitlistKicker}
-            </span>
-            <div className="grid gap-2">
-              <h2 className="m-0 font-headline text-[clamp(1.6rem,2.6vw,2.1rem)] font-semibold leading-[1.25]">
-                {t.waitlistTitle}
-              </h2>
-              <p className="m-0 text-[1rem] leading-[1.7] text-[var(--ns-muted)] rtl:leading-[1.85]">
-                {t.waitlistLead}
-              </p>
-            </div>
-            {t.waitlistNote ? (
-              <div className="rounded-[16px] border border-[rgba(15,23,42,0.08)] bg-[#f7f8f9] p-4">
-                <p className="m-0 text-[0.95rem] text-[var(--ns-muted)] leading-[1.6] rtl:leading-[1.85]">
-                  {t.waitlistNote}
-                </p>
-              </div>
-            ) : null}
-          </div>
-
-          <div className="rounded-[22px] border border-[rgba(15,23,42,0.08)] bg-white p-5 shadow-[0_14px_28px_rgba(15,23,42,0.08)]">
-            <WaitlistForm lang={lang} source="marketing-home-section" />
-          </div>
-        </div>
+      <section id="faq" className="grid gap-4 border-y border-[rgba(15,23,42,0.12)] py-6">
+        <h2 className="m-0 font-headline text-[clamp(1.7rem,3vw,2.3rem)] leading-[1.2]">
+          {t.faqTitle}
+        </h2>
+        {t.faq.map((item) => (
+          <details key={item.q} className="group border-b border-[rgba(15,23,42,0.1)] py-3">
+            <summary className="cursor-pointer list-none pe-6 text-[1rem] font-semibold">
+              {item.q}
+            </summary>
+            <p className="m-0 pt-2 text-[0.95rem] text-[var(--ns-muted)] leading-[1.65] rtl:leading-[1.85]">
+              {item.a}
+            </p>
+          </details>
+        ))}
       </section>
-
-      <section className="grid items-center gap-3 rounded-[26px] bg-slate-900 p-7 text-slate-50 shadow-[0_24px_48px_rgba(15,23,42,0.25)] [grid-template-columns:repeat(auto-fit,minmax(220px,1fr))]">
+      <section className="grid items-center gap-4 border border-[rgba(15,23,42,0.12)] bg-white px-6 py-7 [grid-template-columns:repeat(auto-fit,minmax(220px,1fr))]">
         <div>
-          <h2 className="m-0 text-[1.5rem] font-semibold font-headline leading-[1.25]">
-            {t.finalTitle}
-          </h2>
-          <p className="m-0 mt-1 text-slate-200 leading-[1.6] rtl:leading-[1.85]">{t.finalCopy}</p>
+          <h2 className="m-0 font-headline text-[1.55rem] leading-[1.22]">{t.finalTitle}</h2>
+          <p className="m-0 mt-2 text-[0.96rem] text-[var(--ns-muted)] leading-[1.65] rtl:leading-[1.85]">
+            {t.finalCopy}
+          </p>
         </div>
         <div className="flex flex-wrap justify-end gap-3 rtl:justify-start">
-          <Button
-            type="button"
-            size="pill"
-            onClick={openWaitlist}
-            className="shadow-[0_14px_28px_rgba(15,118,110,0.22)]"
-          >
+          <Button type="button" size="pill" onClick={openWaitlist}>
             {t.finalPrimary}
+          </Button>
+          <Button type="button" size="pill" variant="ghost" asChild>
+            <Link href="mailto:me@ahmedyassin.dev">{t.finalSecondary}</Link>
           </Button>
         </div>
       </section>
