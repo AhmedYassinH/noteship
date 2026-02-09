@@ -1,16 +1,23 @@
 import { z } from "zod";
 import { idSchema, isoDateTimeSchema, nonEmptyStringSchema } from "./common";
 
+export const directionSchema = z.enum(["ltr", "rtl"]);
+export const languageSchema = z.enum(["en", "ar"]);
+
 export const userSchema = z.object({
   userId: idSchema,
   email: z.string().email(),
   name: nonEmptyStringSchema.optional(),
   createdAt: isoDateTimeSchema,
+  language: languageSchema.optional(),
   planId: nonEmptyStringSchema.optional(),
   subscriptionStatus: nonEmptyStringSchema.optional(),
   currentPeriodStart: isoDateTimeSchema.optional(),
   currentPeriodEnd: isoDateTimeSchema.optional(),
   stripeCustomerId: nonEmptyStringSchema.optional(),
+  siteDirection: directionSchema.optional(),
+  editorDirection: directionSchema.optional(),
+  editorDirectionLinkedToSite: z.boolean().optional(),
 });
 
 export type User = z.infer<typeof userSchema>;
