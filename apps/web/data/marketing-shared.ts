@@ -1,10 +1,27 @@
-﻿export type Lang = "en" | "ar";
+export type Lang = "en" | "ar";
 
 export type SharedCopy = {
   brandTagline: string;
   navLinks: { label: string; href: string }[];
-  ctas: { primary: string; secondary: string };
-  auth: { dashboard: string; logout: string };
+  ctas: {
+    primary: string;
+  };
+  access: {
+    kicker: string;
+    title: string;
+    lead: string;
+    emailLabel: string;
+    emailPlaceholder: string;
+    roleLabel: string;
+    rolePlaceholder: string;
+    cadenceLabel: string;
+    cadencePlaceholder: string;
+    cta: string;
+    ctaLoading: string;
+    successTitle: string;
+    successCopy: string;
+    errorCopy: string;
+  };
   footer: {
     summary: string;
     columns: { title: string; links: { label: string; href: string }[] }[];
@@ -14,46 +31,50 @@ export type SharedCopy = {
 
 const sharedCopy: Record<Lang, SharedCopy> = {
   en: {
-    brandTagline: "Recall by meaning. Publish with consistency.",
+    brandTagline: "Capture, preserve, recall, repurpose, publish.",
     navLinks: [
-      { label: "Home", href: "/" },
-      { label: "Features", href: "/features" },
+      { label: "How it works", href: "/#how-it-works" },
       { label: "Pricing", href: "/pricing" },
+      { label: "FAQ", href: "/#faq" },
+      { label: "Contact", href: "/#contact" },
     ],
     ctas: {
-      primary: "Start free",
-      secondary: "Log in",
+      primary: "Request early access",
     },
-    auth: {
-      dashboard: "Dashboard",
-      logout: "Log out",
+    access: {
+      kicker: "Early access",
+      title: "Request early access to Noteship",
+      lead: "Tell us how you publish today. We prioritize active consultants and creators.",
+      emailLabel: "Work email",
+      emailPlaceholder: "you@company.com",
+      roleLabel: "What do you do?",
+      rolePlaceholder: "Consultant, coach, founder...",
+      cadenceLabel: "Publishing cadence",
+      cadencePlaceholder: "Weekly, twice monthly, daily...",
+      cta: "Request early access",
+      ctaLoading: "Sending...",
+      successTitle: "Request received",
+      successCopy: "Thanks. We'll email you with next-step access details.",
+      errorCopy: "Could not send your request. Please try again.",
     },
     footer: {
       summary:
-        "Recall your ideas by meaning, repurpose them into drafts, and publish consistently — grounded in your notes.",
+        "A knowledge system that turns notes into output. Stop rewriting what you already know.",
       columns: [
         {
           title: "Product",
           links: [
-            { label: "Features", href: "/features" },
+            { label: "How it works", href: "/#how-it-works" },
             { label: "Pricing", href: "/pricing" },
-            { label: "Integrations", href: "/features#integrations" },
+            { label: "FAQ", href: "/#faq" },
           ],
         },
         {
           title: "Company",
           links: [
-            { label: "About", href: "/features#about" },
-            { label: "FAQ", href: "/pricing#faq" },
-            { label: "Contact", href: "mailto:hello@noteship.app" },
-          ],
-        },
-        {
-          title: "Resources",
-          links: [
-            { label: "Docs", href: "/features#docs" },
-            { label: "Status", href: "/features#reliability" },
-            { label: "Changelog", href: "/features#changelog" },
+            { label: "Contact", href: "mailto:me@ahmedyassin.dev" },
+            { label: "Privacy", href: "/#security" },
+            { label: "Reliability", href: "/#security" },
           ],
         },
       ],
@@ -61,46 +82,49 @@ const sharedCopy: Record<Lang, SharedCopy> = {
     },
   },
   ar: {
-    brandTagline: "استرجاع بالمعنى ونشر بثبات.",
+    brandTagline: "التقط، احفظ، استرجع، أعد التوظيف، ثم انشر.",
     navLinks: [
-      { label: "الرئيسية", href: "/" },
-      { label: "المزايا", href: "/features" },
-      { label: "التسعير", href: "/pricing" },
+      { label: "كيف يعمل", href: "/#how-it-works" },
+      { label: "الأسعار", href: "/pricing" },
+      { label: "الأسئلة الشائعة", href: "/#faq" },
+      { label: "تواصل", href: "/#contact" },
     ],
     ctas: {
-      primary: "ابدأ مجاناً",
-      secondary: "تسجيل الدخول",
+      primary: "اطلب وصولًا مبكرًا",
     },
-    auth: {
-      dashboard: "لوحة التحكم",
-      logout: "تسجيل الخروج",
+    access: {
+      kicker: "وصول مبكر",
+      title: "اطلب الوصول المبكر إلى Noteship",
+      lead: "أخبرنا كيف تنشر اليوم. نعطي الأولوية للخبراء وصناع المحتوى النشطين.",
+      emailLabel: "بريد العمل",
+      emailPlaceholder: "you@company.com",
+      roleLabel: "ماذا تعمل؟",
+      rolePlaceholder: "مستشار، مدرب، مؤسس...",
+      cadenceLabel: "وتيرة النشر",
+      cadencePlaceholder: "أسبوعي، مرتين شهريًا، يومي...",
+      cta: "اطلب وصولًا مبكرًا",
+      ctaLoading: "جارٍ الإرسال...",
+      successTitle: "تم استلام الطلب",
+      successCopy: "شكرًا لك. سنرسل تفاصيل الخطوة التالية عبر البريد.",
+      errorCopy: "تعذر إرسال الطلب. حاول مرة أخرى.",
     },
     footer: {
-      summary:
-        "استرجع أفكارك بالمعنى، وأعد توظيفها في مسودات، وانشر بثبات — كل ذلك مبني على ملاحظاتك.",
+      summary: "نظام معرفة يحول الملاحظات إلى مخرجات. توقف عن إعادة كتابة ما تعرفه بالفعل.",
       columns: [
         {
           title: "المنتج",
           links: [
-            { label: "المزايا", href: "/features" },
-            { label: "التسعير", href: "/pricing" },
-            { label: "التكاملات", href: "/features#integrations" },
+            { label: "كيف يعمل", href: "/#how-it-works" },
+            { label: "الأسعار", href: "/pricing" },
+            { label: "الأسئلة الشائعة", href: "/#faq" },
           ],
         },
         {
           title: "الشركة",
           links: [
-            { label: "عن Noteship", href: "/features#about" },
-            { label: "الأسئلة الشائعة", href: "/pricing#faq" },
-            { label: "تواصل", href: "mailto:hello@noteship.app" },
-          ],
-        },
-        {
-          title: "الموارد",
-          links: [
-            { label: "الوثائق", href: "/features#docs" },
-            { label: "الحالة", href: "/features#reliability" },
-            { label: "التغييرات", href: "/features#changelog" },
+            { label: "تواصل", href: "mailto:me@ahmedyassin.dev" },
+            { label: "الخصوصية", href: "/#security" },
+            { label: "الاعتمادية", href: "/#security" },
           ],
         },
       ],
