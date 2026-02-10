@@ -9,7 +9,7 @@ import {
   putIntegrationOauthTransaction,
 } from "../adapters/dynamodb/integrations";
 import type { Deps } from "../runtime/deps";
-import { badRequest } from "../runtime/errors";
+import { HttpError, badRequest } from "../runtime/errors";
 import { createConnector, type ConnectorProvider } from "@noteship/connectors";
 import { encryptCredentials } from "../runtime/encryption";
 
@@ -23,6 +23,37 @@ const resolveProvider = (provider: string): ConnectorProvider => {
   }
 
   throw badRequest("Unsupported provider");
+};
+
+const mapExchangeCodeError = (provider: ConnectorProvider, error: unknown): HttpError => {
+  const message = error instanceof Error ? error.message : String(error);
+  const normalizedMessage = message.toLowerCase();
+
+  if (normalizedMessage.includes("revoked by the user")) {
+    return new HttpError(
+      401,
+      "INTEGRATION_REAUTH_REQUIRED",
+      `${provider} authorization was revoked. Reconnect your account and try again.`,
+    );
+  }
+
+  if (
+    normalizedMessage.includes("invalid_grant") ||
+    normalizedMessage.includes("invalid authorization code") ||
+    normalizedMessage.includes("authorization code expired")
+  ) {
+    return new HttpError(
+      400,
+      "INTEGRATION_OAUTH_CODE_INVALID",
+      "OAuth code is invalid or expired. Restart the connection flow and try again.",
+    );
+  }
+
+  return new HttpError(
+    502,
+    "INTEGRATION_PROVIDER_ERROR",
+    `Failed to finalize ${provider} integration: ${message}`,
+  );
 };
 
 export const listIntegrations = async (
@@ -123,10 +154,22 @@ export const handleIntegrationCallback = async (
     apiVersion,
   });
 
-  const result = await connector.exchangeCode({
-    code: input.code,
-    redirectUri,
-  });
+  let result: Awaited<ReturnType<typeof connector.exchangeCode>>;
+  try {
+    result = await connector.exchangeCode({
+      code: input.code,
+      redirectUri,
+    });
+  } catch (error) {
+    await deleteIntegrationOauthTransaction(
+      deps.ddb,
+      deps.tableNames.integrations,
+      userId,
+      provider,
+      input.state,
+    );
+    throw mapExchangeCodeError(provider, error);
+  }
 
   const encrypted = encryptCredentials(
     result.credentials as Record<string, unknown>,
