@@ -322,7 +322,14 @@ Details: see `docs/technical/index.md`.
 #### Attachments
 
 - `POST /notes/{noteId}/uploads` get presigned upload URL
-  - Body: `{ filename, contentType, sizeBytes }`
+  - Body: `{ filename, contentType, sizeBytes, intent, artifactType }`
+  - `intent`: `embed | attach`
+  - `artifactType`: `image | pdf`
+  - Limits:
+    - image (embed/attach): max 5 MB
+    - pdf (embed): max 1 MB
+    - pdf (attach): max 5 MB
+    - video upload: not supported (embed external link instead)
   - Response: `{ uploadUrl, s3Key, artifactId, publicUrl }`
 
 #### Content access
@@ -571,12 +578,18 @@ Cover only business-critical flows:
 
 Details: see `docs/technical/index.md`.
 
-- Languages: English (LTR) and Arabic (RTL) with user toggle; default from browser language, persist per user profile.
+- Languages: English (LTR) and Arabic (RTL) with user toggle; default from browser language, persist in local storage.
 - Apply brand rules: see `docs/brand/noteship-language-guidelines.md`, `docs/brand/noteship-layout-rtl-ltr.md`, `docs/brand/noteship-typography.md` for tone, mirroring, and font stacks (IBM Plex Sans + IBM Plex Sans Arabic for app UI; Lora/Noto Naskh for marketing headlines).
 - Layout: use CSS logical properties (`padding-inline`, `text-align: start|end`) and set `lang`/`dir` at the root per locale; mirror nav and directional icons for RTL.
 - shadcn/ui: enable RTL support in shadcn config; keep `dir` set on `html` or page root and use the Radix `DirectionProvider` where a component needs explicit direction (menus, popovers, dialogs).
 - TipTap/editor:
-  - Support per-block `dir` (RTL/LTR) and text alignment; keep code blocks and inline code LTR with monospace Latin fonts.
+  - Keep global layout direction language-driven (`en` -> LTR, `ar` -> RTL) from user settings (`/me`), with local-storage cache for fallback.
+  - Keep editor block direction controls in the block bubble menu; LTR/RTL toggles apply only to the active block and never change global site direction.
+  - Default new block direction to the current note session preference (initialized from site direction and updated when user toggles/enters explicit block direction).
+  - Support logical (`start/end`) and physical (`left/center/right`) alignment for mixed RTL/LTR notes.
+  - Support markdown import (CommonMark/GFM) with 500 KB max file size and user-facing validation.
+  - Support dual markdown export modes: rich Noteship markdown and compatibility markdown for Obsidian.
+  - Keep code blocks and inline code LTR with monospace Latin fonts.
   - Preserve language metadata on notes/posts (`language: ar|en`) and render containers with `lang`/`dir`.
   - On export (Markdown) include language in frontmatter; on render keep direction attributes.
 - Search/embeddings/AI: use multilingual embeddings and generation models; store language with embeddings to allow language-aware ranking; normalize Arabic text (diacritics optional) for search robustness; prompts respect selected language.

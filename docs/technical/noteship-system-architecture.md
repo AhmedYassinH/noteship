@@ -93,6 +93,8 @@ Details: see `docs/technical/index.md`.
 
 - Auth UI and session handling
 - Rich text editing (TipTap)
+- Markdown import/export workflows (including compatibility export mode)
+- Language-driven direction for site and editor defaults (EN -> LTR, AR -> RTL), sourced from user settings (`/me`) and cached in local storage
 - Calling API endpoints for notes, search, posts, scheduling
 - Requesting signed content session cookies for user content access
 - Client-side feature gating (hide/disable) based on entitlements snapshot
