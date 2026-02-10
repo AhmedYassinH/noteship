@@ -145,6 +145,12 @@ export class NoteshipApiStack extends Stack {
 
     const routes: RouteConfig[] = [
       { id: "GetMe", path: "/me", methods: [HttpMethod.GET], entry: "users/me.ts" },
+      {
+        id: "UpdateMeSettings",
+        path: "/me/settings",
+        methods: [HttpMethod.PUT],
+        entry: "users/settings.ts",
+      },
       { id: "CreateNote", path: "/notes", methods: [HttpMethod.POST], entry: "notes/create.ts" },
       { id: "ListNotes", path: "/notes", methods: [HttpMethod.GET], entry: "notes/list.ts" },
       { id: "GetNote", path: "/notes/{noteId}", methods: [HttpMethod.GET], entry: "notes/get.ts" },
