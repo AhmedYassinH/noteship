@@ -16,6 +16,10 @@ type LinkedInUserInfoResponse = {
 const nowPlusSecondsIso = (seconds: number): string =>
   new Date(Date.now() + seconds * 1000).toISOString();
 
+const logInfo = (event: string, payload: Record<string, unknown>): void => {
+  console.info(`[linkedin_connector] ${event}`, payload);
+};
+
 const ensureOk = async <T>(response: Response): Promise<T> => {
   if (response.ok) {
     return (await response.json()) as T;
@@ -75,6 +79,7 @@ export const createLinkedInConnector = (config: ConnectorConfig): Connector => {
         client_secret: config.clientSecret,
       });
 
+      const tokenStart = Date.now();
       const tokenResponse = await fetch("https://www.linkedin.com/oauth/v2/accessToken", {
         method: "POST",
         headers: {
@@ -82,13 +87,24 @@ export const createLinkedInConnector = (config: ConnectorConfig): Connector => {
         },
         body: tokenBody.toString(),
       });
+      logInfo("exchange_code_token_response", {
+        status: tokenResponse.status,
+        ok: tokenResponse.ok,
+        durationMs: Date.now() - tokenStart,
+      });
 
       const tokenPayload = await ensureOk<LinkedInTokenResponse>(tokenResponse);
+      const userInfoStart = Date.now();
       const userInfoResponse = await fetch("https://api.linkedin.com/v2/userinfo", {
         method: "GET",
         headers: {
           Authorization: `Bearer ${tokenPayload.access_token}`,
         },
+      });
+      logInfo("userinfo_response", {
+        status: userInfoResponse.status,
+        ok: userInfoResponse.ok,
+        durationMs: Date.now() - userInfoStart,
       });
       const userInfo = await ensureOk<LinkedInUserInfoResponse>(userInfoResponse);
       if (!userInfo.sub) {
@@ -111,6 +127,7 @@ export const createLinkedInConnector = (config: ConnectorConfig): Connector => {
       const authorUrn = accountId.startsWith("urn:li:person:")
         ? accountId
         : `urn:li:person:${accountId}`;
+      const publishStart = Date.now();
       const response = await fetch("https://api.linkedin.com/rest/posts", {
         method: "POST",
         headers: buildLinkedInHeaders(accessToken, config.apiVersion),
@@ -127,6 +144,13 @@ export const createLinkedInConnector = (config: ConnectorConfig): Connector => {
           isReshareDisabledByAuthor: false,
         }),
       });
+      logInfo("publish_post_response", {
+        authorUrn,
+        status: response.status,
+        ok: response.ok,
+        durationMs: Date.now() - publishStart,
+        contentLength: [...content].length,
+      });
 
       if (!response.ok) {
         await ensureOk(response);
@@ -142,6 +166,11 @@ export const createLinkedInConnector = (config: ConnectorConfig): Connector => {
         throw new Error("LinkedIn publish succeeded but no post id was returned");
       }
 
+      logInfo("publish_post_succeeded", {
+        authorUrn,
+        remoteId,
+      });
+
       return { remoteId };
     },
     async publishComment({ accountId, accessToken, parentId, content }) {
@@ -149,6 +178,7 @@ export const createLinkedInConnector = (config: ConnectorConfig): Connector => {
         ? accountId
         : `urn:li:person:${accountId}`;
       const encodedParent = encodeURIComponent(parentId);
+      const commentStart = Date.now();
       const response = await fetch(
         `https://api.linkedin.com/rest/socialActions/${encodedParent}/comments`,
         {
@@ -160,6 +190,14 @@ export const createLinkedInConnector = (config: ConnectorConfig): Connector => {
           }),
         },
       );
+      logInfo("publish_comment_response", {
+        actor,
+        parentId,
+        status: response.status,
+        ok: response.ok,
+        durationMs: Date.now() - commentStart,
+        contentLength: [...content].length,
+      });
 
       if (!response.ok) {
         await ensureOk(response);
@@ -171,6 +209,11 @@ export const createLinkedInConnector = (config: ConnectorConfig): Connector => {
       if (!remoteId) {
         throw new Error("LinkedIn comment publish succeeded but no comment id was returned");
       }
+      logInfo("publish_comment_succeeded", {
+        actor,
+        parentId,
+        remoteId,
+      });
       return { remoteId };
     },
   };

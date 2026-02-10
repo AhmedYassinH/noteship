@@ -12,6 +12,8 @@ import { enqueueJob } from "../adapters/sqs";
 import type { Deps } from "../runtime/deps";
 import { randomUUID } from "node:crypto";
 import { decryptCredentials } from "../runtime/encryption";
+import { logger } from "../runtime/logger";
+import { safeStringify } from "@noteship/utils";
 
 const nowIso = (): string => new Date().toISOString();
 
@@ -22,16 +24,40 @@ type StoredConnectorCredentials = {
   refreshTokenExpiresAt?: string;
 };
 
+const formatErrorPayload = (error: unknown): { error: string; stack?: string } => {
+  if (error instanceof Error) {
+    return { error: error.message, stack: error.stack };
+  }
+
+  return { error: safeStringify(error) };
+};
+
 export const publishPost = async (
   deps: Deps,
   input: { userId: string; postId: string; mode?: "single" | "overflow_comments" },
 ): Promise<Post> => {
+  const publishStart = Date.now();
+  logger.info("publish_post_invoked", {
+    userId: input.userId,
+    postId: input.postId,
+    requestedMode: input.mode,
+  });
+
   const post = await getPostById(deps.ddb, deps.tableNames.posts, input.userId, input.postId);
   if (!post) {
     throw new Error("Post not found");
   }
 
+  logger.info("publish_post_loaded", {
+    postId: post.postId,
+    provider: post.provider,
+    status: post.status,
+    publishMode: post.publishMode,
+    hasContentS3Key: Boolean(post.contentS3Key),
+  });
+
   if (post.status === "published") {
+    logger.info("publish_post_skipped_already_published", { postId: post.postId });
     return post;
   }
 
@@ -57,6 +83,14 @@ export const publishPost = async (
         }
       : null;
 
+  logger.info("publish_integration_lookup", {
+    postId: post.postId,
+    provider: post.provider,
+    foundAccount: Boolean(account),
+    accountId: account?.accountId,
+    hasEncryptedCredentials: Boolean(encryptedCredentials),
+  });
+
   if (!account || !encryptedCredentials) {
     const failed: Post = {
       ...post,
@@ -65,6 +99,11 @@ export const publishPost = async (
       updatedAt: nowIso(),
     };
     await putPost(deps.ddb, deps.tableNames.posts, failed);
+    logger.warn("publish_post_failed_no_integration", {
+      postId: post.postId,
+      provider: post.provider,
+      durationMs: Date.now() - publishStart,
+    });
     return failed;
   }
 
@@ -82,6 +121,12 @@ export const publishPost = async (
       updatedAt: nowIso(),
     };
     await putPost(deps.ddb, deps.tableNames.posts, failed);
+    logger.error("publish_post_failed_credentials_decrypt", {
+      postId: post.postId,
+      provider: post.provider,
+      durationMs: Date.now() - publishStart,
+      ...formatErrorPayload(error),
+    });
     return failed;
   }
 
@@ -93,6 +138,12 @@ export const publishPost = async (
       updatedAt: nowIso(),
     };
     await putPost(deps.ddb, deps.tableNames.posts, failed);
+    logger.warn("publish_post_failed_token_expired", {
+      postId: post.postId,
+      provider: post.provider,
+      tokenExpiresAt: credentials.expiresAt,
+      durationMs: Date.now() - publishStart,
+    });
     return failed;
   }
 
@@ -100,6 +151,12 @@ export const publishPost = async (
     ? await getObjectString(deps.s3, deps.bucketName, post.contentS3Key)
     : "";
   const mode = input.mode ?? post.publishMode ?? "single";
+  logger.info("publish_content_loaded", {
+    postId: post.postId,
+    provider: post.provider,
+    mode,
+    charCount: [...content].length,
+  });
 
   const connectorConfig = deps.connectors[post.provider];
   const apiVersion = post.provider === "linkedin" ? deps.connectors.linkedin.apiVersion : undefined;
@@ -116,6 +173,12 @@ export const publishPost = async (
       if (post.provider === "linkedin") {
         const normalized = normalizeLinkedInContent(content);
         const validation = validateLinkedInContent(normalized, deps.linkedin.textMaxChars);
+        logger.info("linkedin_content_validated", {
+          postId: post.postId,
+          mode,
+          charCount: validation.charCount,
+          valid: validation.ok,
+        });
         if (!validation.ok && mode === "single") {
           throw new Error(validation.reason);
         }
@@ -129,33 +192,66 @@ export const publishPost = async (
             deps.linkedin.textMaxChars,
             deps.linkedin.commentMaxChars,
           );
+          logger.info("linkedin_overflow_split", {
+            postId: post.postId,
+            rootCharCount: [...overflow.root].length,
+            commentCount: overflow.comments.length,
+          });
 
+          const rootStart = Date.now();
           const root = await connector.publishPost({
             accountId: accountTarget,
             accessToken: credentials.accessToken,
             content: overflow.root,
           });
+          logger.info("linkedin_publish_root_succeeded", {
+            postId: post.postId,
+            remoteId: root.remoteId,
+            durationMs: Date.now() - rootStart,
+          });
 
-          for (const comment of overflow.comments) {
-            await connector.publishComment({
+          for (const [index, comment] of overflow.comments.entries()) {
+            const commentStart = Date.now();
+            const commentResult = await connector.publishComment({
               accountId: accountTarget,
               accessToken: credentials.accessToken,
               parentId: root.remoteId,
               content: comment,
             });
+            logger.info("linkedin_publish_comment_succeeded", {
+              postId: post.postId,
+              parentRemoteId: root.remoteId,
+              commentRemoteId: commentResult.remoteId,
+              commentIndex: index,
+              commentCount: overflow.comments.length,
+              durationMs: Date.now() - commentStart,
+            });
           }
         } else {
-          await connector.publishPost({
+          const publishStartMs = Date.now();
+          const result = await connector.publishPost({
             accountId: accountTarget,
             accessToken: credentials.accessToken,
             content: normalized,
           });
+          logger.info("linkedin_publish_succeeded", {
+            postId: post.postId,
+            remoteId: result.remoteId,
+            durationMs: Date.now() - publishStartMs,
+          });
         }
       } else {
-        await connector.publishPost({
+        const publishStartMs = Date.now();
+        const result = await connector.publishPost({
           accountId: accountTarget,
           accessToken: credentials.accessToken,
           content,
+        });
+        logger.info("provider_publish_succeeded", {
+          postId: post.postId,
+          provider: post.provider,
+          remoteId: result.remoteId,
+          durationMs: Date.now() - publishStartMs,
         });
       }
 
@@ -167,6 +263,13 @@ export const publishPost = async (
         updatedAt: nowIso(),
       };
     } catch (error) {
+      logger.error("publish_provider_call_failed", {
+        postId: post.postId,
+        provider: post.provider,
+        mode,
+        durationMs: Date.now() - publishStart,
+        ...formatErrorPayload(error),
+      });
       return {
         ...post,
         status: "failed",
@@ -177,12 +280,24 @@ export const publishPost = async (
   })();
 
   await putPost(deps.ddb, deps.tableNames.posts, updated);
+  logger.info("publish_post_completed", {
+    postId: post.postId,
+    provider: post.provider,
+    mode,
+    status: updated.status,
+    errorCode: updated.error?.code,
+    durationMs: Date.now() - publishStart,
+  });
   return updated;
 };
 
 export const dispatchScheduledPosts = async (deps: Deps): Promise<number> => {
   const now = nowIso();
   const posts = await listScheduledPostsDue(deps.ddb, deps.tableNames.posts, now);
+  logger.info("scheduled_posts_due_loaded", {
+    dueCount: posts.length,
+    postIds: posts.map((post) => post.postId),
+  });
 
   await Promise.all(
     posts.map((post) =>
@@ -195,6 +310,10 @@ export const dispatchScheduledPosts = async (deps: Deps): Promise<number> => {
       }),
     ),
   );
+
+  logger.info("scheduled_posts_enqueued", {
+    enqueuedCount: posts.length,
+  });
 
   return posts.length;
 };

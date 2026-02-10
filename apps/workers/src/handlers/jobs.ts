@@ -20,6 +20,10 @@ const formatErrorPayload = (error: unknown): { error: string; stack?: string } =
 
 export const handler = async (event: SQSEvent): Promise<void> => {
   const deps = getDeps();
+  logger.info("jobs_batch_received", {
+    recordCount: event.Records.length,
+    messageIds: event.Records.map((record) => record.messageId),
+  });
 
   for (const record of event.Records) {
     const start = Date.now();
@@ -30,6 +34,13 @@ export const handler = async (event: SQSEvent): Promise<void> => {
     let status = "succeeded";
 
     try {
+      logger.info("job_record_received", {
+        messageId: record.messageId,
+        attributes: record.attributes,
+        messageAttributes: record.messageAttributes,
+        body: record.body,
+      });
+
       const message = jobMessageSchema.parse(JSON.parse(record.body));
       jobId = message.jobId;
       jobType = message.type;
