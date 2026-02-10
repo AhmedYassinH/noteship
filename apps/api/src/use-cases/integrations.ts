@@ -1,15 +1,21 @@
 import { randomUUID } from "node:crypto";
 import type { IntegrationAccount } from "@noteship/domain";
 import {
+  deleteIntegrationOauthTransaction,
+  getIntegrationOauthTransaction,
   listIntegrationsForProvider,
   listIntegrationsForUser,
   putIntegrationAccount,
+  putIntegrationOauthTransaction,
 } from "../adapters/dynamodb/integrations";
 import type { Deps } from "../runtime/deps";
 import { badRequest } from "../runtime/errors";
 import { createConnector, type ConnectorProvider } from "@noteship/connectors";
+import { encryptCredentials } from "../runtime/encryption";
 
 const nowIso = (): string => new Date().toISOString();
+const addMinutesIso = (minutes: number): string =>
+  new Date(Date.now() + minutes * 60 * 1000).toISOString();
 
 const resolveProvider = (provider: string): ConnectorProvider => {
   if (provider === "linkedin" || provider === "medium") {
@@ -37,15 +43,29 @@ export const startIntegration = async (
 ): Promise<{ url: string; state: string }> => {
   const provider = resolveProvider(input.provider);
   const connectorConfig = deps.connectors[provider];
+  const apiVersion = provider === "linkedin" ? deps.connectors.linkedin.apiVersion : undefined;
   const connector = createConnector(provider, {
     clientId: connectorConfig.clientId,
     clientSecret: connectorConfig.clientSecret,
+    apiVersion,
   });
 
   const state = randomUUID();
+  const nonce = randomUUID();
+  const now = nowIso();
+  await putIntegrationOauthTransaction(deps.ddb, deps.tableNames.integrations, {
+    userId,
+    provider,
+    state,
+    nonce,
+    redirectUrl: input.redirectUrl,
+    createdAt: now,
+    expiresAt: addMinutesIso(10),
+  });
+
   const url = connector.buildOAuthUrl({
     state,
-    redirectUrl: input.redirectUrl,
+    redirectUri: input.redirectUrl,
   });
 
   return { url, state };
@@ -57,20 +77,62 @@ export const handleIntegrationCallback = async (
   input: {
     provider: IntegrationAccount["provider"];
     code: string;
+    state: string;
     redirectUrl?: string;
   },
 ): Promise<IntegrationAccount> => {
   const provider = resolveProvider(input.provider);
+  const oauthTransaction = await getIntegrationOauthTransaction(
+    deps.ddb,
+    deps.tableNames.integrations,
+    userId,
+    provider,
+    input.state,
+  );
+
+  if (!oauthTransaction) {
+    throw badRequest("Invalid or expired OAuth state");
+  }
+
+  if (oauthTransaction.expiresAt <= nowIso()) {
+    await deleteIntegrationOauthTransaction(
+      deps.ddb,
+      deps.tableNames.integrations,
+      userId,
+      provider,
+      input.state,
+    );
+    throw badRequest("OAuth state expired");
+  }
+
+  if (
+    oauthTransaction.redirectUrl &&
+    input.redirectUrl &&
+    oauthTransaction.redirectUrl !== input.redirectUrl
+  ) {
+    throw badRequest("OAuth redirect URL mismatch");
+  }
+
+  const redirectUri = oauthTransaction.redirectUrl ?? input.redirectUrl;
+
   const connectorConfig = deps.connectors[provider];
+  const apiVersion = provider === "linkedin" ? deps.connectors.linkedin.apiVersion : undefined;
   const connector = createConnector(provider, {
     clientId: connectorConfig.clientId,
     clientSecret: connectorConfig.clientSecret,
+    apiVersion,
   });
 
   const result = await connector.exchangeCode({
     code: input.code,
-    redirectUrl: input.redirectUrl,
+    redirectUri,
   });
+
+  const encrypted = encryptCredentials(
+    result.credentials as Record<string, unknown>,
+    deps.integrationSecurity.credentialsKeyB64,
+    deps.integrationSecurity.credentialsKeyVersion,
+  );
 
   const now = nowIso();
   const account: IntegrationAccount = {
@@ -81,11 +143,27 @@ export const handleIntegrationCallback = async (
     scopes: result.scopes,
     connectedAt: now,
     updatedAt: now,
-    tokenRef: result.tokenRef,
     providerMetadata: result.providerMetadata,
+    credentialsCiphertext: encrypted.ciphertext,
+    credentialsIv: encrypted.iv,
+    credentialsTag: encrypted.tag,
+    credentialsAlg: encrypted.alg,
+    credentialsKeyVersion: encrypted.keyVersion,
+    credentialsUpdatedAt: now,
+    tokenExpiresAt: result.credentials.expiresAt,
+    refreshTokenExpiresAt: result.credentials.refreshTokenExpiresAt,
   };
 
-  await putIntegrationAccount(deps.ddb, deps.tableNames.integrations, account);
+  await Promise.all([
+    putIntegrationAccount(deps.ddb, deps.tableNames.integrations, account),
+    deleteIntegrationOauthTransaction(
+      deps.ddb,
+      deps.tableNames.integrations,
+      userId,
+      provider,
+      input.state,
+    ),
+  ]);
   return account;
 };
 
@@ -119,6 +197,14 @@ export const disconnectIntegration = async (
   const revoked = accounts.map((account) => ({
     ...account,
     status: "revoked" as const,
+    credentialsCiphertext: undefined,
+    credentialsIv: undefined,
+    credentialsTag: undefined,
+    credentialsAlg: undefined,
+    credentialsKeyVersion: undefined,
+    credentialsUpdatedAt: undefined,
+    tokenExpiresAt: undefined,
+    refreshTokenExpiresAt: undefined,
     updatedAt: now,
   }));
 

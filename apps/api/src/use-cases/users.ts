@@ -34,6 +34,7 @@ export const updateUserSettings = async (
   userId: string,
   input: {
     language: "en" | "ar";
+    timezone?: string;
   },
 ): Promise<User> => {
   const existing = await getUserById(deps.ddb, deps.tableNames.users, userId);
@@ -45,6 +46,7 @@ export const updateUserSettings = async (
   const updated: User = {
     ...existing,
     language: input.language,
+    timezone: input.timezone ?? existing.timezone,
     siteDirection: direction,
     editorDirection: direction,
     editorDirectionLinkedToSite: true,

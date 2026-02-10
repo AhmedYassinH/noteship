@@ -3,6 +3,46 @@ import OpenAI from "openai";
 
 export const createOpenAiClient = (apiKey: string): LlmClient => {
   const client = new OpenAI({ apiKey });
+  const buildDraftPrompt = (input: {
+    provider: "linkedin" | "medium";
+    noteContent: string;
+    tone?: string;
+    language?: "en" | "ar";
+  }): string =>
+    [
+      `Provider: ${input.provider}`,
+      input.tone ? `Tone: ${input.tone}` : null,
+      input.language ? `Language: ${input.language}` : null,
+      input.provider === "linkedin"
+        ? "Constraint: Keep content LinkedIn compatible, plain text, and <= 3000 characters."
+        : null,
+      "Source note:",
+      input.noteContent,
+      "Output only the post content with no surrounding commentary.",
+    ]
+      .filter(Boolean)
+      .join("\n");
+
+  const buildRegeneratePrompt = (input: {
+    provider: "linkedin" | "medium";
+    currentContent: string;
+    instruction: string;
+    language?: "en" | "ar";
+  }): string =>
+    [
+      `Provider: ${input.provider}`,
+      input.language ? `Language: ${input.language}` : null,
+      input.provider === "linkedin"
+        ? "Constraint: Keep output LinkedIn compatible and <= 3000 characters."
+        : null,
+      "Current draft:",
+      input.currentContent,
+      "User instruction:",
+      input.instruction,
+      "Rewrite the draft accordingly and output only the rewritten post content.",
+    ]
+      .filter(Boolean)
+      .join("\n");
 
   return {
     async embedTexts({ inputs, model }) {
@@ -15,17 +55,8 @@ export const createOpenAiClient = (apiKey: string): LlmClient => {
     },
     async generateDraft({ noteContent, provider, tone, language, model }) {
       const systemPrompt =
-        "You are a helpful writing assistant that converts notes into social posts.";
-      const userPrompt = [
-        `Provider: ${provider}`,
-        tone ? `Tone: ${tone}` : null,
-        language ? `Language: ${language}` : null,
-        "Note:",
-        noteContent,
-        "Output only the post content without quotes or extra commentary.",
-      ]
-        .filter(Boolean)
-        .join("\n");
+        "You rewrite knowledge notes into clear social posts while respecting platform constraints.";
+      const userPrompt = buildDraftPrompt({ noteContent, provider, tone, language });
 
       const response = await client.chat.completions.create({
         model,
@@ -39,6 +70,35 @@ export const createOpenAiClient = (apiKey: string): LlmClient => {
       const content = response.choices[0]?.message?.content?.trim();
       if (!content) {
         throw new Error("OpenAI did not return draft content");
+      }
+
+      return content;
+    },
+    async regenerateDraft({ provider, currentContent, instruction, language, model }) {
+      const response = await client.chat.completions.create({
+        model,
+        messages: [
+          {
+            role: "system",
+            content:
+              "You are a senior social copy editor. Preserve intent, improve clarity, and obey constraints.",
+          },
+          {
+            role: "user",
+            content: buildRegeneratePrompt({
+              provider,
+              currentContent,
+              instruction,
+              language,
+            }),
+          },
+        ],
+        temperature: 0.6,
+      });
+
+      const content = response.choices[0]?.message?.content?.trim();
+      if (!content) {
+        throw new Error("OpenAI did not return regenerated draft content");
       }
 
       return content;

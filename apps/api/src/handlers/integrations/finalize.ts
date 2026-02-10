@@ -1,29 +1,21 @@
+import { finalizeIntegrationCallbackSchema } from "@noteship/domain";
 import { getUserId } from "../../runtime/auth";
-import { jsonResponse } from "../../runtime/http";
+import { jsonResponse, parseJsonBody } from "../../runtime/http";
 import { withDeps } from "../../runtime/handler";
 import { requirePathParam } from "../../runtime/params";
-import { badRequest } from "../../runtime/errors";
 import { handleIntegrationCallback } from "../../use-cases/integrations";
 
 export const handler = withDeps(async (deps, event) => {
   const userId = getUserId(event);
   const provider = requirePathParam(event, "provider");
-  const code = event.queryStringParameters?.code;
-  const state = event.queryStringParameters?.state;
-  const redirectUrl = event.queryStringParameters?.redirectUrl;
-
-  if (!code) {
-    throw badRequest("Missing OAuth code");
-  }
-  if (!state) {
-    throw badRequest("Missing OAuth state");
-  }
+  const payload = parseJsonBody(event.body);
+  const input = finalizeIntegrationCallbackSchema.parse(payload);
 
   const account = await handleIntegrationCallback(deps, userId, {
     provider: provider as "linkedin" | "medium",
-    code,
-    state,
-    redirectUrl,
+    code: input.code,
+    state: input.state,
+    redirectUrl: input.redirectUrl,
   });
 
   return jsonResponse(200, {
