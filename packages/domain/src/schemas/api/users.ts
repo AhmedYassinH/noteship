@@ -7,6 +7,7 @@ export const meResponseSchema = z.object({
 
 export const updateMeSettingsSchema = z.object({
   language: languageSchema,
+  timezone: z.string().min(1).optional(),
 });
 
 export type MeResponse = z.infer<typeof meResponseSchema>;

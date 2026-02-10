@@ -10,6 +10,7 @@ export const userSchema = z.object({
   name: nonEmptyStringSchema.optional(),
   createdAt: isoDateTimeSchema,
   language: languageSchema.optional(),
+  timezone: nonEmptyStringSchema.optional(),
   planId: nonEmptyStringSchema.optional(),
   subscriptionStatus: nonEmptyStringSchema.optional(),
   currentPeriodStart: isoDateTimeSchema.optional(),

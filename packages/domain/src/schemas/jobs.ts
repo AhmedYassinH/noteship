@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { idSchema, isoDateTimeSchema, nonEmptyStringSchema } from "./common";
+import { publishModeSchema } from "./posts";
 
 export const jobTypeSchema = z.enum(["EMBED_NOTE", "PUBLISH_POST", "IMPORT_NOTE"]);
 export const jobStatusSchema = z.enum(["queued", "running", "succeeded", "failed"]);
@@ -22,6 +23,7 @@ export const embedNoteJobPayloadSchema = z.object({
 
 export const publishPostJobPayloadSchema = z.object({
   postId: idSchema,
+  mode: publishModeSchema.optional(),
 });
 
 export const jobMessageSchema = z.object({
