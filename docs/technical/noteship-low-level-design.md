@@ -433,6 +433,7 @@ Conceptual:
 ### 7.2 LinkedIn + Medium specifics (MVP)
 
 - Store per-user integration account
+- LinkedIn OAuth uses `openid profile w_member_social`; resolve member identity via `/v2/userinfo` (`sub`)
 - Worker publishes using stored token
 - Handle rate limits with retries/backoff
 - Map internal post format to vendor payload

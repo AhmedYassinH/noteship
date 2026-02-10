@@ -1,6 +1,6 @@
 import type { Connector, ConnectorConfig } from "../types";
 
-const DEFAULT_SCOPES = ["r_liteprofile", "w_member_social"];
+const DEFAULT_SCOPES = ["openid", "profile", "w_member_social"];
 const RESTLI_PROTOCOL_VERSION = "2.0.0";
 
 type LinkedInTokenResponse = {
@@ -9,8 +9,8 @@ type LinkedInTokenResponse = {
   scope?: string;
 };
 
-type LinkedInProfileResponse = {
-  id: string;
+type LinkedInUserInfoResponse = {
+  sub: string;
 };
 
 const nowPlusSecondsIso = (seconds: number): string =>
@@ -84,24 +84,26 @@ export const createLinkedInConnector = (config: ConnectorConfig): Connector => {
       });
 
       const tokenPayload = await ensureOk<LinkedInTokenResponse>(tokenResponse);
-      const profileResponse = await fetch("https://api.linkedin.com/v2/me", {
+      const userInfoResponse = await fetch("https://api.linkedin.com/v2/userinfo", {
         method: "GET",
         headers: {
           Authorization: `Bearer ${tokenPayload.access_token}`,
-          "X-Restli-Protocol-Version": RESTLI_PROTOCOL_VERSION,
         },
       });
-      const profile = await ensureOk<LinkedInProfileResponse>(profileResponse);
+      const userInfo = await ensureOk<LinkedInUserInfoResponse>(userInfoResponse);
+      if (!userInfo.sub) {
+        throw new Error("LinkedIn userinfo response did not include subject identifier");
+      }
 
       return {
-        accountId: profile.id,
+        accountId: userInfo.sub,
         credentials: {
           accessToken: tokenPayload.access_token,
           expiresAt: nowPlusSecondsIso(tokenPayload.expires_in),
         },
         scopes: tokenPayload.scope?.split(" ").filter(Boolean),
         providerMetadata: {
-          personUrn: `urn:li:person:${profile.id}`,
+          personUrn: `urn:li:person:${userInfo.sub}`,
         },
       };
     },
