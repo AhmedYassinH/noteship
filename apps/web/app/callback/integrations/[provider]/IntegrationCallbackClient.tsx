@@ -6,6 +6,8 @@ import { finalizeIntegrationCallback } from "../../../../lib/api/notes";
 import type { IntegrationProvider } from "../../../../lib/api/types";
 import { Button } from "../../../../components/ui/Button";
 
+const finalizeRequestKeys = new Set<string>();
+
 const isIntegrationProvider = (value: string): value is IntegrationProvider =>
   value === "linkedin" || value === "medium";
 
@@ -46,11 +48,18 @@ const IntegrationCallbackClient = ({ provider }: IntegrationCallbackClientProps)
       return;
     }
 
+    const finalizeKey = `${integrationProvider}:${state}:${code}`;
+    if (finalizeRequestKeys.has(finalizeKey)) {
+      return;
+    }
+    finalizeRequestKeys.add(finalizeKey);
+
     const complete = async () => {
       try {
         await finalizeIntegrationCallback(integrationProvider, { code, state, redirectUrl });
         router.replace("/dashboard/integrations?status=connected");
       } catch (error) {
+        finalizeRequestKeys.delete(finalizeKey);
         setStatus("error");
         setMessage(error instanceof Error ? error.message : "Failed to finalize integration.");
       }
