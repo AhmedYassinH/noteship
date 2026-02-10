@@ -24,6 +24,8 @@ export const noteUploadRequestSchema = z.object({
   filename: nonEmptyStringSchema,
   contentType: nonEmptyStringSchema,
   sizeBytes: z.number().int().positive(),
+  intent: z.enum(["embed", "attach"]),
+  artifactType: z.enum(["image", "pdf"]),
 });
 
 export const noteUploadResponseSchema = z.object({

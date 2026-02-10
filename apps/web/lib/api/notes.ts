@@ -113,6 +113,8 @@ export const createNoteUpload = (
     filename: string;
     contentType: string;
     sizeBytes: number;
+    intent: "embed" | "attach";
+    artifactType: "image" | "pdf";
   },
 ) =>
   apiFetch<NoteUploadResponse>(`/notes/${noteId}/uploads`, {

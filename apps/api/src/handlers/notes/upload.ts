@@ -18,6 +18,8 @@ export const handler = withDeps(async (deps, event) => {
     input.filename,
     input.contentType,
     input.sizeBytes,
+    input.intent,
+    input.artifactType,
   );
 
   return jsonResponse(200, noteUploadResponseSchema.parse(result));
