@@ -224,7 +224,7 @@ const LinkedInComposerModal = ({
           </div>
         ) : null}
 
-        <div className="min-h-0 flex-1 overflow-hidden">
+        <div className="min-h-0 flex-1 overflow-visible">
           <NoteEditor
             lang={lang}
             noteId={noteId}
