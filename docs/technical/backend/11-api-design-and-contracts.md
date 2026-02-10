@@ -50,8 +50,9 @@ Define the MVP API surface and request/response shapes (conceptual).
 ### Posts
 
 - `POST /posts` create post from draft
-- `POST /posts/{postId}/publish` publish now
-- `POST /posts/{postId}/schedule` schedule
+- `PUT /posts/{postId}/draft` update draft artifact content
+- `POST /posts/{postId}/publish` publish now (`mode: single|overflow_comments`)
+- `POST /posts/{postId}/schedule` schedule (`timezone` optional)
 - `POST /posts/{postId}/cancel` cancel scheduled
 - `GET /posts` list posts and statuses
 
@@ -59,7 +60,7 @@ Define the MVP API surface and request/response shapes (conceptual).
 
 - `GET /integrations` list connected providers
 - `POST /integrations/{provider}/connect` start OAuth
-- `GET /integrations/{provider}/callback` OAuth callback
+- `POST /integrations/{provider}/callback/finalize` finalize OAuth callback from frontend route
 - `POST /integrations/{provider}/disconnect` revoke
 
 ### Billing
