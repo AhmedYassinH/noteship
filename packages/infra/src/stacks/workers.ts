@@ -71,6 +71,9 @@ export class NoteshipWorkersStack extends Stack {
       QDRANT_COLLECTION: requireEnv("QDRANT_COLLECTION"),
       LINKEDIN_CLIENT_ID: requireEnv("LINKEDIN_CLIENT_ID"),
       LINKEDIN_CLIENT_SECRET: requireEnv("LINKEDIN_CLIENT_SECRET"),
+      NOTESHIP_INTEGRATION_CREDENTIALS_KEY_B64: requireEnv(
+        "NOTESHIP_INTEGRATION_CREDENTIALS_KEY_B64",
+      ),
       MEDIUM_CLIENT_ID: requireEnv("MEDIUM_CLIENT_ID"),
       MEDIUM_CLIENT_SECRET: requireEnv("MEDIUM_CLIENT_SECRET"),
       POWERTOOLS_SERVICE_NAME: "noteship-workers",
@@ -81,6 +84,10 @@ export class NoteshipWorkersStack extends Stack {
     maybeSetEnv(envVars, "NOTESHIP_VECTOR_DB_PROVIDER");
     maybeSetEnv(envVars, "QDRANT_API_KEY");
     maybeSetEnv(envVars, "POWERTOOLS_LOGGER_SAMPLE_RATE");
+    maybeSetEnv(envVars, "NOTESHIP_INTEGRATION_CREDENTIALS_KEY_VERSION");
+    maybeSetEnv(envVars, "LINKEDIN_API_VERSION");
+    maybeSetEnv(envVars, "LINKEDIN_TEXT_MAX_CHARS");
+    maybeSetEnv(envVars, "LINKEDIN_COMMENT_MAX_CHARS");
 
     const jobsHandler = new NodejsFunction(this, "JobsWorker", {
       entry: path.join(repoRoot, "apps/workers/src/handlers/jobs.ts"),
