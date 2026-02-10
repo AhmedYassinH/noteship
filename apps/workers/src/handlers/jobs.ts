@@ -61,7 +61,11 @@ export const handler = async (event: SQSEvent): Promise<void> => {
 
       if (message.type === "PUBLISH_POST") {
         const payload = publishPostJobPayloadSchema.parse(message.payload);
-        await publishPost(deps, { userId: message.userId, postId: payload.postId });
+        await publishPost(deps, {
+          userId: message.userId,
+          postId: payload.postId,
+          mode: payload.mode,
+        });
         continue;
       }
     } catch (error) {
