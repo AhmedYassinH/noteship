@@ -1,17 +1,20 @@
 import { randomUUID } from "node:crypto";
 import {
+  extractLinkedInMediaFromMarkdown,
   normalizeLinkedInContent,
   splitLinkedInOverflowToComments,
   validateLinkedInContent,
+  validateLinkedInMediaManifest,
 } from "@noteship/connectors";
-import type { Post } from "@noteship/domain";
+import type { LinkedInResolvedMediaManifest } from "@noteship/connectors";
+import type { LinkedInPublishPayload, Post } from "@noteship/domain";
 import { getPostById, listPosts, putPost } from "../adapters/dynamodb/posts";
 import { getNoteById } from "../adapters/dynamodb/notes";
-import { getObjectString, putObjectString } from "../adapters/s3";
+import { getObjectString, putObjectJson, putObjectString } from "../adapters/s3";
 import { enqueueJob } from "../adapters/sqs";
 import type { Deps } from "../runtime/deps";
 import { HttpError, badRequest, notFound } from "../runtime/errors";
-import { buildPostDraftKey } from "@noteship/utils";
+import { buildPostDraftKey, buildPostPayloadKey } from "@noteship/utils";
 import {
   FEATURE_KEYS,
   assertBooleanEntitlement,
@@ -22,6 +25,163 @@ import {
 } from "./entitlements";
 
 const nowIso = (): string => new Date().toISOString();
+
+const resolveArtifactS3Key = (value: string, userId: string, noteId: string): string | null => {
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+
+  const byPath = (pathValue: string): string | null => {
+    const path = decodeURIComponent(pathValue).replace(/^\/+/, "");
+    if (!path.startsWith(`users/${userId}/`)) return null;
+    if (!path.includes(`/notes/${noteId}/artifacts/`)) return null;
+    return path;
+  };
+
+  if (trimmed.startsWith("users/")) {
+    return byPath(trimmed);
+  }
+
+  try {
+    const parsed = new URL(trimmed);
+    return byPath(parsed.pathname);
+  } catch {
+    return null;
+  }
+};
+
+const resolveLinkedInPayloadMedia = (
+  media: LinkedInResolvedMediaManifest,
+  userId: string,
+  noteId: string,
+): LinkedInPublishPayload["media"] => {
+  if (media.type === "none") {
+    return { type: "none" };
+  }
+
+  if (media.type === "images") {
+    const images = media.images.map((image) => {
+      const s3Key = resolveArtifactS3Key(image.url, userId, noteId);
+      if (!s3Key) {
+        throw new HttpError(
+          400,
+          "LINKEDIN_MEDIA_INVALID",
+          "Only images embedded from this note can be published to LinkedIn.",
+        );
+      }
+
+      return {
+        s3Key,
+        altText: image.altText,
+      };
+    });
+
+    return {
+      type: "images",
+      images,
+    };
+  }
+
+  const s3Key = resolveArtifactS3Key(media.pdf.url, userId, noteId);
+  if (!s3Key) {
+    throw new HttpError(
+      400,
+      "LINKEDIN_MEDIA_INVALID",
+      "Only PDFs embedded from this note can be published to LinkedIn.",
+    );
+  }
+
+  return {
+    type: "pdf",
+    pdf: {
+      s3Key,
+      title: media.pdf.title,
+    },
+  };
+};
+
+const validateLinkedInDraft = async (
+  deps: Deps,
+  post: Post,
+): Promise<{
+  normalized: string;
+  mode: "single" | "overflow_comments";
+  payload: LinkedInPublishPayload;
+}> => {
+  const content = post.contentS3Key
+    ? await getObjectString(deps.s3, deps.bucketName, post.contentS3Key)
+    : "";
+  const normalized = normalizeLinkedInContent(content);
+  const mode = post.publishMode ?? "single";
+  const validation = validateLinkedInContent(normalized, deps.linkedin.textMaxChars);
+
+  if (!validation.ok && validation.charCount === 0) {
+    throw new HttpError(400, "LINKEDIN_CONTENT_INVALID", validation.reason);
+  }
+
+  if (!validation.ok && mode === "single") {
+    throw new HttpError(
+      400,
+      "LINKEDIN_TOO_LONG",
+      `${validation.reason} Choose overflow comments mode or shorten the draft.`,
+    );
+  }
+
+  if (mode === "overflow_comments") {
+    try {
+      splitLinkedInOverflowToComments(
+        normalized,
+        deps.linkedin.textMaxChars,
+        deps.linkedin.commentMaxChars,
+      );
+    } catch (error) {
+      throw new HttpError(400, "LINKEDIN_CONTENT_INVALID", String(error));
+    }
+  }
+
+  const extractedMedia = extractLinkedInMediaFromMarkdown(content);
+  const mediaValidation = validateLinkedInMediaManifest(
+    extractedMedia,
+    deps.linkedin.maxImagesPerPost,
+  );
+  if (!mediaValidation.ok) {
+    throw new HttpError(400, mediaValidation.code, mediaValidation.message);
+  }
+
+  const payloadMedia = resolveLinkedInPayloadMedia(mediaValidation.media, post.userId, post.noteId);
+  if (mode === "overflow_comments" && payloadMedia.type === "pdf") {
+    throw new HttpError(
+      400,
+      "LINKEDIN_MEDIA_INVALID",
+      "Overflow comments mode is not supported when publishing a PDF document.",
+    );
+  }
+
+  return {
+    normalized,
+    mode,
+    payload: {
+      version: 1,
+      provider: "linkedin",
+      mode,
+      normalizedContent: normalized,
+      media: payloadMedia,
+    },
+  };
+};
+
+const persistLinkedInPayload = async (
+  deps: Deps,
+  post: Post,
+  payload: LinkedInPublishPayload,
+): Promise<void> => {
+  const payloadKey = buildPostPayloadKey(post.userId, post.provider, post.postId);
+  await putObjectJson(
+    deps.s3,
+    deps.bucketName,
+    payloadKey,
+    payload as unknown as Record<string, unknown>,
+  );
+};
 
 export const createPost = async (
   deps: Deps,
@@ -73,44 +233,6 @@ export const listPostsForUser = async (
 ): Promise<{ items: Post[]; nextCursor?: string }> =>
   listPosts(deps.ddb, deps.tableNames.posts, userId, status, limit, cursor);
 
-const validateLinkedInDraft = async (
-  deps: Deps,
-  post: Post,
-): Promise<{ normalized: string; mode: "single" | "overflow_comments" }> => {
-  const content = post.contentS3Key
-    ? await getObjectString(deps.s3, deps.bucketName, post.contentS3Key)
-    : "";
-  const normalized = normalizeLinkedInContent(content);
-  const mode = post.publishMode ?? "single";
-  const validation = validateLinkedInContent(normalized, deps.linkedin.textMaxChars);
-
-  if (!validation.ok && validation.charCount === 0) {
-    throw new HttpError(400, "LINKEDIN_CONTENT_INVALID", validation.reason);
-  }
-
-  if (!validation.ok && mode === "single") {
-    throw new HttpError(
-      400,
-      "LINKEDIN_TOO_LONG",
-      `${validation.reason} Choose overflow comments mode or shorten the draft.`,
-    );
-  }
-
-  if (mode === "overflow_comments") {
-    try {
-      splitLinkedInOverflowToComments(
-        normalized,
-        deps.linkedin.textMaxChars,
-        deps.linkedin.commentMaxChars,
-      );
-    } catch (error) {
-      throw new HttpError(400, "LINKEDIN_CONTENT_INVALID", String(error));
-    }
-  }
-
-  return { normalized, mode };
-};
-
 export const savePostDraft = async (
   deps: Deps,
   userId: string,
@@ -151,13 +273,20 @@ export const publishPostNow = async (
 
   const mode = input?.mode ?? post.publishMode ?? "single";
   let normalizedContent: string | undefined;
+  let linkedInPayload: LinkedInPublishPayload | undefined;
+
   if (post.provider === "linkedin") {
     const validated = await validateLinkedInDraft(deps, { ...post, publishMode: mode });
     normalizedContent = validated.normalized;
+    linkedInPayload = validated.payload;
   }
 
   if (normalizedContent) {
     await putObjectString(deps.s3, deps.bucketName, post.contentS3Key, normalizedContent);
+  }
+
+  if (linkedInPayload) {
+    await persistLinkedInPayload(deps, post, linkedInPayload);
   }
 
   const updated: Post = {
@@ -198,9 +327,19 @@ export const schedulePost = async (
     throw notFound("Post not found");
   }
 
+  const mode = input?.mode ?? post.publishMode ?? "single";
+
+  if (post.provider === "linkedin") {
+    const validated = await validateLinkedInDraft(deps, { ...post, publishMode: mode });
+    if (post.contentS3Key) {
+      await putObjectString(deps.s3, deps.bucketName, post.contentS3Key, validated.normalized);
+    }
+    await persistLinkedInPayload(deps, post, validated.payload);
+  }
+
   const updated: Post = {
     ...post,
-    publishMode: input?.mode ?? post.publishMode ?? "single",
+    publishMode: mode,
     status: "scheduled",
     scheduledAt,
     scheduledTimezone: input?.timezone ?? user.timezone ?? "UTC",
