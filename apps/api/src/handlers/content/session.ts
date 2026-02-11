@@ -17,7 +17,7 @@ const buildCookie = (
   value: string,
   options: { domain?: string; maxAgeSeconds: number },
 ): string => {
-  const parts = [`${name}=${value}`, "Path=/", "HttpOnly", "Secure", "SameSite=Lax"];
+  const parts = [`${name}=${value}`, "Path=/", "HttpOnly", "Secure", "SameSite=None"];
   if (options.domain) {
     parts.push(`Domain=${options.domain}`);
   }
