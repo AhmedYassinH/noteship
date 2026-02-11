@@ -45,6 +45,7 @@ export type Deps = {
   linkedin: {
     textMaxChars: number;
     commentMaxChars: number;
+    maxImagesPerPost: number;
   };
 };
 
@@ -112,6 +113,10 @@ export const getDeps = (): Deps => {
       linkedin: {
         textMaxChars: parsePositiveInt(process.env.LINKEDIN_TEXT_MAX_CHARS, 3000),
         commentMaxChars: parsePositiveInt(process.env.LINKEDIN_COMMENT_MAX_CHARS, 1250),
+        maxImagesPerPost: Math.max(
+          1,
+          Math.min(parsePositiveInt(process.env.LINKEDIN_MAX_IMAGES_PER_POST, 20), 20),
+        ),
       },
     };
   }

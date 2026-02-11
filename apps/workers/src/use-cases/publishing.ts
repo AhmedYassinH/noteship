@@ -1,19 +1,19 @@
-import { createConnector } from "@noteship/connectors";
+import { randomUUID } from "node:crypto";
 import {
+  createConnector,
   normalizeLinkedInContent,
   splitLinkedInOverflowToComments,
-  validateLinkedInContent,
 } from "@noteship/connectors";
-import type { Post } from "@noteship/domain";
+import type { LinkedInPublishPayload, Post } from "@noteship/domain";
+import { linkedInPublishPayloadSchema } from "@noteship/domain";
+import { safeStringify, buildPostPayloadKey } from "@noteship/utils";
 import { getPostById, listScheduledPostsDue, putPost } from "../adapters/dynamodb/posts";
 import { listIntegrationsForProvider } from "../adapters/dynamodb/integrations";
-import { getObjectString } from "../adapters/s3";
+import { getObjectBinary, getObjectString } from "../adapters/s3";
 import { enqueueJob } from "../adapters/sqs";
 import type { Deps } from "../runtime/deps";
-import { randomUUID } from "node:crypto";
 import { decryptCredentials } from "../runtime/encryption";
 import { logger } from "../runtime/logger";
-import { safeStringify } from "@noteship/utils";
 
 const nowIso = (): string => new Date().toISOString();
 
@@ -30,6 +30,102 @@ const formatErrorPayload = (error: unknown): { error: string; stack?: string } =
   }
 
   return { error: safeStringify(error) };
+};
+
+const isRetryablePublishError = (error: unknown): boolean => {
+  const message = error instanceof Error ? error.message : String(error);
+  const normalized = message.toLowerCase();
+  return (
+    normalized.includes("timeout") ||
+    normalized.includes("timed out") ||
+    normalized.includes("temporar") ||
+    normalized.includes("rate limit") ||
+    normalized.includes("too many requests") ||
+    normalized.includes("(429)") ||
+    normalized.includes("(500)") ||
+    normalized.includes("(502)") ||
+    normalized.includes("(503)") ||
+    normalized.includes("(504)")
+  );
+};
+
+const loadLinkedInPayload = async (
+  deps: Deps,
+  post: Post,
+): Promise<LinkedInPublishPayload | null> => {
+  const payloadKey = buildPostPayloadKey(post.userId, post.provider, post.postId);
+  try {
+    const raw = await getObjectString(deps.s3, deps.bucketName, payloadKey);
+    if (!raw) return null;
+    return linkedInPublishPayloadSchema.parse(JSON.parse(raw));
+  } catch (error) {
+    logger.warn("linkedin_payload_load_failed", {
+      postId: post.postId,
+      provider: post.provider,
+      payloadKey,
+      ...formatErrorPayload(error),
+    });
+    return null;
+  }
+};
+
+const inferContentType = (s3Key: string, hinted?: string): string => {
+  if (hinted && hinted.length > 0) return hinted;
+  const lowered = s3Key.toLowerCase();
+  if (lowered.endsWith(".png")) return "image/png";
+  if (lowered.endsWith(".jpg") || lowered.endsWith(".jpeg")) return "image/jpeg";
+  if (lowered.endsWith(".gif")) return "image/gif";
+  if (lowered.endsWith(".webp")) return "image/webp";
+  if (lowered.endsWith(".pdf")) return "application/pdf";
+  return "application/octet-stream";
+};
+
+const toArrayBuffer = (bytes: Uint8Array): ArrayBuffer =>
+  bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer;
+
+const loadLinkedInMediaInput = async (
+  deps: Deps,
+  media: LinkedInPublishPayload["media"],
+): Promise<
+  | undefined
+  | {
+      type: "images";
+      images: Array<{ bytes: ArrayBuffer; contentType: string; altText?: string }>;
+    }
+  | {
+      type: "pdf";
+      pdf: { bytes: ArrayBuffer; contentType: string; title?: string };
+    }
+> => {
+  if (media.type === "none") {
+    return undefined;
+  }
+
+  if (media.type === "images") {
+    return {
+      type: "images",
+      images: await Promise.all(
+        media.images.map(async (image) => {
+          const artifact = await getObjectBinary(deps.s3, deps.bucketName, image.s3Key);
+          return {
+            bytes: toArrayBuffer(artifact.bytes),
+            contentType: inferContentType(image.s3Key, artifact.contentType),
+            altText: image.altText,
+          };
+        }),
+      ),
+    };
+  }
+
+  const artifact = await getObjectBinary(deps.s3, deps.bucketName, media.pdf.s3Key);
+  return {
+    type: "pdf",
+    pdf: {
+      bytes: toArrayBuffer(artifact.bytes),
+      contentType: inferContentType(media.pdf.s3Key, artifact.contentType),
+      title: media.pdf.title,
+    },
+  };
 };
 
 export const publishPost = async (
@@ -166,129 +262,108 @@ export const publishPost = async (
     apiVersion,
   });
 
-  const updated = await (async (): Promise<Post> => {
-    try {
-      const accountTarget = account.providerMetadata?.personUrn ?? account.accountId;
+  const accountTarget = account.providerMetadata?.personUrn ?? account.accountId;
 
-      if (post.provider === "linkedin") {
-        const normalized = normalizeLinkedInContent(content);
-        const validation = validateLinkedInContent(normalized, deps.linkedin.textMaxChars);
-        logger.info("linkedin_content_validated", {
-          postId: post.postId,
-          mode,
-          charCount: validation.charCount,
-          valid: validation.ok,
-        });
-        if (!validation.ok && mode === "single") {
-          throw new Error(validation.reason);
+  try {
+    if (post.provider === "linkedin") {
+      const payload = await loadLinkedInPayload(deps, post);
+      const normalized = payload?.normalizedContent ?? normalizeLinkedInContent(content);
+
+      if (mode === "overflow_comments") {
+        if (!connector.publishComment) {
+          throw new Error("Connector does not support overflow comments");
+        }
+        const overflow = splitLinkedInOverflowToComments(
+          normalized,
+          deps.linkedin.textMaxChars,
+          deps.linkedin.commentMaxChars,
+        );
+
+        if (payload?.media.type === "pdf") {
+          throw new Error(
+            "LinkedIn overflow_comments mode is not supported when publishing a PDF document.",
+          );
         }
 
-        if (mode === "overflow_comments") {
-          if (!connector.publishComment) {
-            throw new Error("Connector does not support overflow comments");
-          }
-          const overflow = splitLinkedInOverflowToComments(
-            normalized,
-            deps.linkedin.textMaxChars,
-            deps.linkedin.commentMaxChars,
-          );
-          logger.info("linkedin_overflow_split", {
-            postId: post.postId,
-            rootCharCount: [...overflow.root].length,
-            commentCount: overflow.comments.length,
-          });
+        const media = payload ? await loadLinkedInMediaInput(deps, payload.media) : undefined;
 
-          const rootStart = Date.now();
-          const root = await connector.publishPost({
+        const root = await connector.publishPost({
+          accountId: accountTarget,
+          accessToken: credentials.accessToken,
+          content: overflow.root,
+          media,
+        });
+
+        for (const comment of overflow.comments) {
+          await connector.publishComment({
             accountId: accountTarget,
             accessToken: credentials.accessToken,
-            content: overflow.root,
-          });
-          logger.info("linkedin_publish_root_succeeded", {
-            postId: post.postId,
-            remoteId: root.remoteId,
-            durationMs: Date.now() - rootStart,
-          });
-
-          for (const [index, comment] of overflow.comments.entries()) {
-            const commentStart = Date.now();
-            const commentResult = await connector.publishComment({
-              accountId: accountTarget,
-              accessToken: credentials.accessToken,
-              parentId: root.remoteId,
-              content: comment,
-            });
-            logger.info("linkedin_publish_comment_succeeded", {
-              postId: post.postId,
-              parentRemoteId: root.remoteId,
-              commentRemoteId: commentResult.remoteId,
-              commentIndex: index,
-              commentCount: overflow.comments.length,
-              durationMs: Date.now() - commentStart,
-            });
-          }
-        } else {
-          const publishStartMs = Date.now();
-          const result = await connector.publishPost({
-            accountId: accountTarget,
-            accessToken: credentials.accessToken,
-            content: normalized,
-          });
-          logger.info("linkedin_publish_succeeded", {
-            postId: post.postId,
-            remoteId: result.remoteId,
-            durationMs: Date.now() - publishStartMs,
+            parentId: root.remoteId,
+            content: comment,
           });
         }
       } else {
-        const publishStartMs = Date.now();
-        const result = await connector.publishPost({
+        const media = payload ? await loadLinkedInMediaInput(deps, payload.media) : undefined;
+
+        await connector.publishPost({
           accountId: accountTarget,
           accessToken: credentials.accessToken,
-          content,
-        });
-        logger.info("provider_publish_succeeded", {
-          postId: post.postId,
-          provider: post.provider,
-          remoteId: result.remoteId,
-          durationMs: Date.now() - publishStartMs,
+          content: normalized,
+          media,
         });
       }
+    } else {
+      await connector.publishPost({
+        accountId: accountTarget,
+        accessToken: credentials.accessToken,
+        content,
+      });
+    }
 
-      return {
-        ...post,
-        publishMode: mode,
-        status: "published",
-        publishedAt: nowIso(),
-        updatedAt: nowIso(),
-      };
-    } catch (error) {
-      logger.error("publish_provider_call_failed", {
+    const updated: Post = {
+      ...post,
+      publishMode: mode,
+      status: "published",
+      publishedAt: nowIso(),
+      updatedAt: nowIso(),
+    };
+    await putPost(deps.ddb, deps.tableNames.posts, updated);
+    logger.info("publish_post_completed", {
+      postId: post.postId,
+      provider: post.provider,
+      mode,
+      status: updated.status,
+      durationMs: Date.now() - publishStart,
+    });
+    return updated;
+  } catch (error) {
+    logger.error("publish_provider_call_failed", {
+      postId: post.postId,
+      provider: post.provider,
+      mode,
+      durationMs: Date.now() - publishStart,
+      ...formatErrorPayload(error),
+    });
+
+    if (isRetryablePublishError(error)) {
+      logger.warn("publish_provider_call_retryable", {
         postId: post.postId,
         provider: post.provider,
         mode,
-        durationMs: Date.now() - publishStart,
-        ...formatErrorPayload(error),
+        reason: error instanceof Error ? error.message : String(error),
       });
-      return {
-        ...post,
-        status: "failed",
-        error: { code: "PUBLISH_FAILED", message: String(error) },
-        updatedAt: nowIso(),
-      };
+      throw error;
     }
-  })();
 
-  await putPost(deps.ddb, deps.tableNames.posts, updated);
-  logger.info("publish_post_completed", {
-    postId: post.postId,
-    provider: post.provider,
-    mode,
-    status: updated.status,
-    errorCode: updated.error?.code,
-    durationMs: Date.now() - publishStart,
-  });
-  return updated;
+    const failed: Post = {
+      ...post,
+      status: "failed",
+      error: { code: "PUBLISH_FAILED", message: String(error) },
+      updatedAt: nowIso(),
+    };
+    await putPost(deps.ddb, deps.tableNames.posts, failed);
+    return failed;
+  }
 };
 
 export const dispatchScheduledPosts = async (deps: Deps): Promise<number> => {
