@@ -1,4 +1,4 @@
-import type { Connector, ConnectorConfig } from "../types";
+import type { Connector, ConnectorConfig, PublishPostInput } from "../types";
 
 const DEFAULT_SCOPES = ["openid", "profile", "w_member_social"];
 const RESTLI_PROTOCOL_VERSION = "2.0.0";
@@ -13,6 +13,36 @@ type LinkedInUserInfoResponse = {
   sub: string;
 };
 
+type LinkedInImageInitResponse = {
+  value?: {
+    uploadUrl?: string;
+    image?: string;
+  };
+  uploadUrl?: string;
+  image?: string;
+};
+
+type LinkedInDocumentInitResponse = {
+  value?: {
+    uploadUrl?: string;
+    document?: string;
+  };
+  uploadUrl?: string;
+  document?: string;
+};
+
+type UploadedImageInput = {
+  bytes: ArrayBuffer;
+  contentType: string;
+  altText?: string;
+};
+
+type UploadedPdfInput = {
+  bytes: ArrayBuffer;
+  contentType: string;
+  title?: string;
+};
+
 const nowPlusSecondsIso = (seconds: number): string =>
   new Date(Date.now() + seconds * 1000).toISOString();
 
@@ -20,22 +50,32 @@ const logInfo = (event: string, payload: Record<string, unknown>): void => {
   console.info(`[linkedin_connector] ${event}`, payload);
 };
 
+const parseLinkedInError = async (response: Response): Promise<string> => {
+  try {
+    const payload = (await response.json()) as
+      | { message?: string; error_description?: string }
+      | { error?: { message?: string } };
+    if ("message" in payload && payload.message) return payload.message;
+    if ("error_description" in payload && payload.error_description)
+      return payload.error_description;
+    if ("error" in payload && payload.error?.message) return payload.error.message;
+  } catch {
+    // ignore body parse failures
+  }
+  return `LinkedIn request failed (${response.status})`;
+};
+
 const ensureOk = async <T>(response: Response): Promise<T> => {
   if (response.ok) {
     return (await response.json()) as T;
   }
 
-  let message = `LinkedIn request failed (${response.status})`;
-  try {
-    const payload = (await response.json()) as { message?: string };
-    if (payload?.message) {
-      message = payload.message;
-    }
-  } catch {
-    // ignore body parse failures
-  }
+  throw new Error(await parseLinkedInError(response));
+};
 
-  throw new Error(message);
+const ensureUploadOk = async (response: Response): Promise<void> => {
+  if (response.ok) return;
+  throw new Error(await parseLinkedInError(response));
 };
 
 const buildLinkedInHeaders = (accessToken: string, apiVersion?: string): Headers => {
@@ -47,6 +87,197 @@ const buildLinkedInHeaders = (accessToken: string, apiVersion?: string): Headers
     headers.set("LinkedIn-Version", apiVersion);
   }
   return headers;
+};
+
+const buildAuthorUrn = (accountId: string): string =>
+  accountId.startsWith("urn:li:person:") ? accountId : `urn:li:person:${accountId}`;
+
+const extractImageUploadInfo = (
+  payload: LinkedInImageInitResponse,
+): { uploadUrl: string; urn: string } => {
+  const uploadUrl = payload.value?.uploadUrl ?? payload.uploadUrl;
+  const urn = payload.value?.image ?? payload.image;
+  if (!uploadUrl || !urn) {
+    throw new Error("LinkedIn image initialize upload response is missing upload URL or image URN");
+  }
+  return { uploadUrl, urn };
+};
+
+const extractDocumentUploadInfo = (
+  payload: LinkedInDocumentInitResponse,
+): { uploadUrl: string; urn: string } => {
+  const uploadUrl = payload.value?.uploadUrl ?? payload.uploadUrl;
+  const urn = payload.value?.document ?? payload.document;
+  if (!uploadUrl || !urn) {
+    throw new Error(
+      "LinkedIn document initialize upload response is missing upload URL or document URN",
+    );
+  }
+  return { uploadUrl, urn };
+};
+
+const uploadImage = async (
+  accessToken: string,
+  apiVersion: string | undefined,
+  authorUrn: string,
+  image: UploadedImageInput,
+): Promise<{ urn: string; altText?: string }> => {
+  const initStart = Date.now();
+  const initResponse = await fetch("https://api.linkedin.com/rest/images?action=initializeUpload", {
+    method: "POST",
+    headers: buildLinkedInHeaders(accessToken, apiVersion),
+    body: JSON.stringify({
+      initializeUploadRequest: {
+        owner: authorUrn,
+      },
+    }),
+  });
+  logInfo("image_initialize_upload_response", {
+    owner: authorUrn,
+    status: initResponse.status,
+    ok: initResponse.ok,
+    durationMs: Date.now() - initStart,
+  });
+  const initPayload = await ensureOk<LinkedInImageInitResponse>(initResponse);
+  const { uploadUrl, urn } = extractImageUploadInfo(initPayload);
+
+  const uploadStart = Date.now();
+  const binaryResponse = await fetch(uploadUrl, {
+    method: "PUT",
+    headers: {
+      "Content-Type": image.contentType,
+    },
+    body: image.bytes,
+  });
+  logInfo("image_binary_upload_response", {
+    owner: authorUrn,
+    imageUrn: urn,
+    status: binaryResponse.status,
+    ok: binaryResponse.ok,
+    durationMs: Date.now() - uploadStart,
+    contentType: image.contentType,
+    sizeBytes: image.bytes.byteLength,
+  });
+  await ensureUploadOk(binaryResponse);
+
+  return { urn, altText: image.altText };
+};
+
+const uploadDocument = async (
+  accessToken: string,
+  apiVersion: string | undefined,
+  authorUrn: string,
+  pdf: UploadedPdfInput,
+): Promise<{ urn: string; title?: string }> => {
+  const initStart = Date.now();
+  const initResponse = await fetch(
+    "https://api.linkedin.com/rest/documents?action=initializeUpload",
+    {
+      method: "POST",
+      headers: buildLinkedInHeaders(accessToken, apiVersion),
+      body: JSON.stringify({
+        initializeUploadRequest: {
+          owner: authorUrn,
+        },
+      }),
+    },
+  );
+  logInfo("document_initialize_upload_response", {
+    owner: authorUrn,
+    status: initResponse.status,
+    ok: initResponse.ok,
+    durationMs: Date.now() - initStart,
+  });
+  const initPayload = await ensureOk<LinkedInDocumentInitResponse>(initResponse);
+  const { uploadUrl, urn } = extractDocumentUploadInfo(initPayload);
+
+  const uploadStart = Date.now();
+  const binaryResponse = await fetch(uploadUrl, {
+    method: "PUT",
+    headers: {
+      "Content-Type": pdf.contentType,
+    },
+    body: pdf.bytes,
+  });
+  logInfo("document_binary_upload_response", {
+    owner: authorUrn,
+    documentUrn: urn,
+    status: binaryResponse.status,
+    ok: binaryResponse.ok,
+    durationMs: Date.now() - uploadStart,
+    contentType: pdf.contentType,
+    sizeBytes: pdf.bytes.byteLength,
+  });
+  await ensureUploadOk(binaryResponse);
+
+  return { urn, title: pdf.title };
+};
+
+const buildPostBody = (
+  authorUrn: string,
+  content: string,
+  media?:
+    | {
+        type: "images";
+        images: Array<{ urn: string; altText?: string }>;
+      }
+    | {
+        type: "pdf";
+        pdf: { urn: string; title?: string };
+      },
+): Record<string, unknown> => {
+  const base: Record<string, unknown> = {
+    author: authorUrn,
+    commentary: content,
+    visibility: "PUBLIC",
+    lifecycleState: "PUBLISHED",
+    distribution: {
+      feedDistribution: "MAIN_FEED",
+      targetEntities: [],
+      thirdPartyDistributionChannels: [],
+    },
+    isReshareDisabledByAuthor: false,
+  };
+
+  if (!media) {
+    return base;
+  }
+
+  if (media.type === "images") {
+    if (media.images.length === 1) {
+      return {
+        ...base,
+        content: {
+          media: {
+            id: media.images[0].urn,
+            ...(media.images[0].altText ? { altText: media.images[0].altText } : {}),
+          },
+        },
+      };
+    }
+
+    return {
+      ...base,
+      content: {
+        multiImage: {
+          images: media.images.map((item) => ({
+            id: item.urn,
+            ...(item.altText ? { altText: item.altText } : {}),
+          })),
+        },
+      },
+    };
+  }
+
+  return {
+    ...base,
+    content: {
+      media: {
+        id: media.pdf.urn,
+        ...(media.pdf.title ? { title: media.pdf.title } : {}),
+      },
+    },
+  };
 };
 
 export const createLinkedInConnector = (config: ConnectorConfig): Connector => {
@@ -123,26 +354,42 @@ export const createLinkedInConnector = (config: ConnectorConfig): Connector => {
         },
       };
     },
-    async publishPost({ accountId, accessToken, content }) {
-      const authorUrn = accountId.startsWith("urn:li:person:")
-        ? accountId
-        : `urn:li:person:${accountId}`;
+    async publishPost({ accountId, accessToken, content, media }) {
+      const authorUrn = buildAuthorUrn(accountId);
+
+      let resolvedMedia:
+        | undefined
+        | {
+            type: "images";
+            images: Array<{ urn: string; altText?: string }>;
+          }
+        | {
+            type: "pdf";
+            pdf: { urn: string; title?: string };
+          };
+
+      if (media?.type === "images") {
+        const uploaded = [];
+        for (const image of media.images) {
+          uploaded.push(await uploadImage(accessToken, config.apiVersion, authorUrn, image));
+        }
+        resolvedMedia = {
+          type: "images",
+          images: uploaded,
+        };
+      } else if (media?.type === "pdf") {
+        const uploaded = await uploadDocument(accessToken, config.apiVersion, authorUrn, media.pdf);
+        resolvedMedia = {
+          type: "pdf",
+          pdf: uploaded,
+        };
+      }
+
       const publishStart = Date.now();
       const response = await fetch("https://api.linkedin.com/rest/posts", {
         method: "POST",
         headers: buildLinkedInHeaders(accessToken, config.apiVersion),
-        body: JSON.stringify({
-          author: authorUrn,
-          commentary: content,
-          visibility: "PUBLIC",
-          lifecycleState: "PUBLISHED",
-          distribution: {
-            feedDistribution: "MAIN_FEED",
-            targetEntities: [],
-            thirdPartyDistributionChannels: [],
-          },
-          isReshareDisabledByAuthor: false,
-        }),
+        body: JSON.stringify(buildPostBody(authorUrn, content, resolvedMedia)),
       });
       logInfo("publish_post_response", {
         authorUrn,
@@ -150,6 +397,8 @@ export const createLinkedInConnector = (config: ConnectorConfig): Connector => {
         ok: response.ok,
         durationMs: Date.now() - publishStart,
         contentLength: [...content].length,
+        mediaType: resolvedMedia?.type ?? "none",
+        mediaCount: resolvedMedia?.type === "images" ? resolvedMedia.images.length : undefined,
       });
 
       if (!response.ok) {
@@ -174,9 +423,7 @@ export const createLinkedInConnector = (config: ConnectorConfig): Connector => {
       return { remoteId };
     },
     async publishComment({ accountId, accessToken, parentId, content }) {
-      const actor = accountId.startsWith("urn:li:person:")
-        ? accountId
-        : `urn:li:person:${accountId}`;
+      const actor = buildAuthorUrn(accountId);
       const encodedParent = encodeURIComponent(parentId);
       const commentStart = Date.now();
       const response = await fetch(

@@ -10,6 +10,7 @@ const MARKDOWN_BLOCKQUOTE_RE = /^\s*>\s?/gm;
 const MARKDOWN_CODE_FENCE_RE = /```[\s\S]*?```/g;
 const MARKDOWN_INLINE_CODE_RE = /`([^`]+)`/g;
 const MARKDOWN_STYLE_RE = /[*_~]/g;
+const NS_DIRECTIVE_LINE_RE = /^:::ns-[a-z-]+.*:::\s*$/gm;
 
 export const normalizeLinkedInContent = (markdown: string): string => {
   const normalized = markdown
@@ -23,6 +24,7 @@ export const normalizeLinkedInContent = (markdown: string): string => {
     .replace(MARKDOWN_BLOCKQUOTE_RE, "")
     .replace(MARKDOWN_INLINE_CODE_RE, "$1")
     .replace(MARKDOWN_STYLE_RE, "")
+    .replace(NS_DIRECTIVE_LINE_RE, "")
     .replace(/\n{3,}/g, "\n\n")
     .trim();
 

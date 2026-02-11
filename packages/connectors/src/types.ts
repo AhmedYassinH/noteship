@@ -34,6 +34,23 @@ export type PublishPostInput = {
   accountId: string;
   accessToken: string;
   content: string;
+  media?:
+    | {
+        type: "images";
+        images: Array<{
+          bytes: ArrayBuffer;
+          contentType: string;
+          altText?: string;
+        }>;
+      }
+    | {
+        type: "pdf";
+        pdf: {
+          bytes: ArrayBuffer;
+          contentType: string;
+          title?: string;
+        };
+      };
 };
 
 export type PublishPostResult = {
