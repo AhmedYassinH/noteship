@@ -88,6 +88,7 @@ export class NoteshipWorkersStack extends Stack {
     maybeSetEnv(envVars, "LINKEDIN_API_VERSION");
     maybeSetEnv(envVars, "LINKEDIN_TEXT_MAX_CHARS");
     maybeSetEnv(envVars, "LINKEDIN_COMMENT_MAX_CHARS");
+    maybeSetEnv(envVars, "LINKEDIN_MAX_IMAGES_PER_POST");
 
     const jobsHandler = new NodejsFunction(this, "JobsWorker", {
       entry: path.join(repoRoot, "apps/workers/src/handlers/jobs.ts"),
