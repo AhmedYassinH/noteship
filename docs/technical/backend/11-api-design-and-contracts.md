@@ -56,6 +56,16 @@ Define the MVP API surface and request/response shapes (conceptual).
 - `POST /posts/{postId}/cancel` cancel scheduled
 - `GET /posts` list posts and statuses
 
+LinkedIn media validation rules (enforced before queueing):
+
+- Allowed: text-only, text+images, text+one PDF
+- Rejected: image+PDF mix, multiple PDFs, image count above configured max (`LINKEDIN_MAX_IMAGES_PER_POST`, capped to LinkedIn API max 20)
+- Validation failures return typed errors (for UI handling):
+  - `LINKEDIN_MEDIA_MIX_NOT_ALLOWED`
+  - `LINKEDIN_MULTIPLE_PDFS_NOT_ALLOWED`
+  - `LINKEDIN_TOO_MANY_IMAGES`
+  - `LINKEDIN_MEDIA_INVALID`
+
 ### Integrations
 
 - `GET /integrations` list connected providers

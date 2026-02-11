@@ -435,6 +435,12 @@ Conceptual:
 - Store per-user integration account
 - LinkedIn OAuth uses `openid profile w_member_social`; resolve member identity via `/v2/userinfo` (`sub`)
 - Worker publishes using stored token
+- LinkedIn media publish supports:
+  - text-only
+  - text + images (max from `LINKEDIN_MAX_IMAGES_PER_POST`, capped at 20)
+  - text + one PDF
+- API validates media before queueing and writes a publish payload snapshot to `users/{userId}/posts/{provider}/{postId}/payload.json`
+- Worker uploads LinkedIn media synchronously in-job, then creates the post (no media status polling requirement)
 - Handle rate limits with retries/backoff
 - Map internal post format to vendor payload
 
