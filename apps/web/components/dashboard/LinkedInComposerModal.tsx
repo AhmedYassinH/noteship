@@ -64,9 +64,6 @@ const LinkedInComposerModal = ({
   const [isRegenerating, setIsRegenerating] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [showOverflowAction, setShowOverflowAction] = useState(false);
-  const maxChars = Number.parseInt(process.env.NEXT_PUBLIC_LINKEDIN_TEXT_MAX_CHARS ?? "", 10);
-  const charLimit =
-    Number.isFinite(maxChars) && maxChars > 0 ? maxChars : DEFAULT_LINKEDIN_MAX_CHARS;
   const charCount = useMemo(() => [...content].length, [content]);
 
   useEffect(() => {
@@ -168,7 +165,7 @@ const LinkedInComposerModal = ({
         <header className="flex flex-wrap items-center justify-between gap-2 border-b border-[rgba(15,23,42,0.08)] pb-3">
           <div>
             <h2 className="m-0 text-xl font-semibold">LinkedIn Composer</h2>
-            <p className="m-0 text-xs text-[#5b6474]">{`${charCount}/${charLimit} characters`}</p>
+            <p className="m-0 text-xs text-[#5b6474]">{`${charCount}/${DEFAULT_LINKEDIN_MAX_CHARS} characters`}</p>
           </div>
           <div className="flex flex-wrap gap-2">
             <Button
