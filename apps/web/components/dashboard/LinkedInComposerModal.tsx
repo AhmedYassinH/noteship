@@ -20,6 +20,30 @@ type LinkedInComposerModalProps = {
 
 const DEFAULT_LINKEDIN_MAX_CHARS = 3000;
 
+const getLinkedInPublishErrorMessage = (error: unknown): string => {
+  if (!(error instanceof ApiError)) {
+    return error instanceof Error ? error.message : "Failed to publish.";
+  }
+
+  if (error.code === "LINKEDIN_TOO_MANY_IMAGES") {
+    return "Too many images are embedded in this draft for one LinkedIn post. Remove extra images and try again.";
+  }
+
+  if (error.code === "LINKEDIN_MULTIPLE_PDFS_NOT_ALLOWED") {
+    return "LinkedIn supports one PDF per post. Keep only one PDF in the draft and try again.";
+  }
+
+  if (error.code === "LINKEDIN_MEDIA_MIX_NOT_ALLOWED") {
+    return "Use either images or one PDF in a post, not both together.";
+  }
+
+  if (error.code === "LINKEDIN_MEDIA_INVALID") {
+    return "Only media embedded from this note can be published to LinkedIn.";
+  }
+
+  return error.message || "Failed to publish.";
+};
+
 const LinkedInComposerModal = ({
   open,
   noteId,
@@ -103,7 +127,7 @@ const LinkedInComposerModal = ({
       if (error instanceof ApiError && error.code === "LINKEDIN_TOO_LONG") {
         setShowOverflowAction(true);
       }
-      setStatusMessage(error instanceof Error ? error.message : "Failed to publish.");
+      setStatusMessage(getLinkedInPublishErrorMessage(error));
     } finally {
       setIsPublishing(false);
     }
