@@ -81,6 +81,7 @@ export class NoteshipWorkersStack extends Stack {
     };
 
     maybeSetEnv(envVars, "NOTESHIP_LLM_PROVIDER");
+    maybeSetEnv(envVars, "NOTESHIP_EMBEDDING_ENABLED");
     maybeSetEnv(envVars, "NOTESHIP_VECTOR_DB_PROVIDER");
     maybeSetEnv(envVars, "QDRANT_API_KEY");
     maybeSetEnv(envVars, "POWERTOOLS_LOGGER_SAMPLE_RATE");

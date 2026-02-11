@@ -60,6 +60,14 @@ export const handler = async (event: SQSEvent): Promise<void> => {
       });
 
       if (message.type === "EMBED_NOTE") {
+        if (!deps.embeddingsEnabled) {
+          logger.info("job_skipped_embeddings_disabled", {
+            jobId: message.jobId,
+            messageId: record.messageId,
+            userId: message.userId,
+          });
+          continue;
+        }
         const payload = embedNoteJobPayloadSchema.parse(message.payload);
         await embedNote(deps, {
           userId: message.userId,

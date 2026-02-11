@@ -25,6 +25,7 @@ export type Deps = {
   };
   bucketName: string;
   jobsQueueUrl: string;
+  embeddingsEnabled: boolean;
   llm: LlmClient;
   llmModels: {
     embeddings: string;
@@ -82,6 +83,20 @@ const parsePositiveInt = (value: string | undefined, fallback: number): number =
   return fallback;
 };
 
+const parseBoolean = (value: string | undefined, fallback: boolean): boolean => {
+  if (!value) {
+    return fallback;
+  }
+  const normalized = value.trim().toLowerCase();
+  if (["1", "true", "yes", "on"].includes(normalized)) {
+    return true;
+  }
+  if (["0", "false", "no", "off"].includes(normalized)) {
+    return false;
+  }
+  return fallback;
+};
+
 export const getDeps = (): Deps => {
   if (!deps) {
     const llmProvider = (process.env.NOTESHIP_LLM_PROVIDER as LlmProvider | undefined) ?? "openai";
@@ -109,6 +124,7 @@ export const getDeps = (): Deps => {
       },
       bucketName: requireEnv("NOTESHIP_CONTENT_BUCKET_NAME"),
       jobsQueueUrl: requireEnv("NOTESHIP_JOBS_QUEUE_URL"),
+      embeddingsEnabled: parseBoolean(process.env.NOTESHIP_EMBEDDING_ENABLED, false),
       llm: createLlmClient(llmProvider, requireEnv("OPENAI_API_KEY")),
       llmModels: {
         embeddings: requireEnv("OPENAI_EMBED_MODEL"),
