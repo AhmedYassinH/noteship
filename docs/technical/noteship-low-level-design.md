@@ -336,6 +336,8 @@ Details: see `docs/technical/index.md`.
 
 - `POST /content/session` issue CloudFront signed cookies (user-scoped)
   - Response: `{ ok: true }`
+  - Cookies are issued as `HttpOnly; Secure; SameSite=None` with optional `Domain` from `NOTESHIP_CONTENT_COOKIE_DOMAIN` (omit for host-only scope)
+  - Content URLs use `NOTESHIP_CONTENT_CUSTOM_DOMAIN`.
 
 #### Search
 
@@ -501,6 +503,8 @@ Details: see `docs/technical/index.md`.
 - Vendor tokens must never reach frontend.
 - Store tokens encrypted at rest (KMS or encrypted fields).
 - API/workers load runtime config (LLM, OAuth, billing, vector DB) from env vars.
+- API custom domain + cert are configured via `NOTESHIP_API_CUSTOM_DOMAIN` and `NOTESHIP_API_CERTIFICATE_ARN`.
+- Content CDN custom domain + cert are configured via `NOTESHIP_CONTENT_CUSTOM_DOMAIN` and `NOTESHIP_CONTENT_CERTIFICATE_ARN`.
 - S3 access:
   - Prefer access through backend (signed URLs only if needed)
 - Multi-tenant:

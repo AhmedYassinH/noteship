@@ -367,7 +367,8 @@ Details: see `docs/technical/index.md`.
   - No SSR, no Next API routes
 - AWS hosts:
   - API Gateway + Lambda
-  - S3 + CloudFront for artifacts/content delivery
+  - API custom domain for browser-facing API traffic (cookie-safe domain alignment)
+  - S3 + CloudFront custom domain for artifacts/content delivery
   - DynamoDB
   - SQS + workers
   - Env vars / KMS (optional)
