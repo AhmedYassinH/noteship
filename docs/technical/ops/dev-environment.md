@@ -66,6 +66,8 @@ pnpm --filter @noteship/web dev
 Use your API custom domain URL as `NEXT_PUBLIC_API_BASE_URL`.
 If you run local frontend against live dev infra, ensure `NOTESHIP_WEB_ORIGIN` includes
 `http://localhost:3000` and `http://127.0.0.1:3000`.
+Also ensure `NOTESHIP_CONTENT_UPLOAD_ORIGIN` includes the same origins so browser uploads to
+S3 presigned URLs pass CORS.
 
 ## 7) API/workers local notes
 
