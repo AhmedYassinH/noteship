@@ -9,6 +9,7 @@ import {
 } from "aws-cdk-lib/aws-cloudfront";
 import { S3Origin } from "aws-cdk-lib/aws-cloudfront-origins";
 import { BlockPublicAccess, Bucket, BucketEncryption } from "aws-cdk-lib/aws-s3";
+import { HttpMethods } from "aws-cdk-lib/aws-s3";
 import {
   AttributeType,
   BillingMode,
@@ -38,6 +39,12 @@ const requireEnv = (key: string): string => {
   }
   return value;
 };
+
+const parseCsv = (value: string): string[] =>
+  value
+    .split(",")
+    .map((item) => item.trim())
+    .filter((item) => item.length > 0);
 
 export class NoteshipCoreStack extends Stack {
   public readonly contentBucket: Bucket;
@@ -75,12 +82,23 @@ export class NoteshipCoreStack extends Stack {
       jobs: { minRead: 1, maxRead: 2, minWrite: 1, maxWrite: 2 },
     } satisfies Record<string, CapacityCaps>;
 
+    const contentUploadOrigins = parseCsv(requireEnv("NOTESHIP_CONTENT_UPLOAD_ORIGIN"));
+
     this.contentBucket = new Bucket(this, "ContentBucket", {
       bucketName: `noteship-content-${envName}`,
       versioned: true,
       encryption: BucketEncryption.S3_MANAGED,
       blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
       enforceSSL: true,
+      cors: [
+        {
+          allowedOrigins: contentUploadOrigins,
+          allowedMethods: [HttpMethods.PUT, HttpMethods.GET, HttpMethods.HEAD],
+          allowedHeaders: ["*"],
+          exposedHeaders: ["ETag"],
+          maxAge: 3000,
+        },
+      ],
       removalPolicy: RemovalPolicy.RETAIN,
       autoDeleteObjects: false,
     });
