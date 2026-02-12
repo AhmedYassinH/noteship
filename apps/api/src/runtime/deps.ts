@@ -40,6 +40,7 @@ export type Deps = {
   };
   contentDomain: string;
   contentCookieDomain?: string;
+  contentSessionTtlSeconds: number;
   cloudfrontKeyPairId: string;
   cloudfrontPrivateKey: string;
   connectors: {
@@ -62,6 +63,18 @@ const requireEnv = (key: string): string => {
     throw new Error(`${key} is required`);
   }
   return value;
+};
+
+const parsePositiveIntEnv = (key: string, fallback: number): number => {
+  const value = process.env[key];
+  if (!value) {
+    return fallback;
+  }
+  const parsed = Number.parseInt(value, 10);
+  if (!Number.isFinite(parsed) || parsed <= 0) {
+    throw new Error(`${key} must be a positive integer`);
+  }
+  return parsed;
 };
 
 export const getDeps = (): Deps => {
@@ -110,6 +123,7 @@ export const getDeps = (): Deps => {
       },
       contentDomain: requireEnv("NOTESHIP_CONTENT_CUSTOM_DOMAIN"),
       contentCookieDomain: process.env.NOTESHIP_CONTENT_COOKIE_DOMAIN,
+      contentSessionTtlSeconds: parsePositiveIntEnv("NOTESHIP_CONTENT_SESSION_TTL_SECONDS", 43200),
       cloudfrontKeyPairId: requireEnv("NOTESHIP_CLOUDFRONT_KEY_PAIR_ID"),
       cloudfrontPrivateKey: requireEnv("NOTESHIP_CLOUDFRONT_PRIVATE_KEY"),
       connectors: {

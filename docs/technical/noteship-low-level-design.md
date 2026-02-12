@@ -337,6 +337,8 @@ Details: see `docs/technical/index.md`.
 - `POST /content/session` issue CloudFront signed cookies (user-scoped)
   - Response: `{ ok: true }`
   - Cookies are issued as `HttpOnly; Secure; SameSite=None` with optional `Domain` from `NOTESHIP_CONTENT_COOKIE_DOMAIN` (omit for host-only scope)
+  - Cookie payload supports CloudFront custom-policy (`CloudFront-Policy`) and canned-policy (`CloudFront-Expires`) formats.
+  - Session TTL is configurable via optional `NOTESHIP_CONTENT_SESSION_TTL_SECONDS` (default: 43200).
   - Content URLs use `NOTESHIP_CONTENT_CUSTOM_DOMAIN`.
 
 #### Search

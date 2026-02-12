@@ -28,7 +28,7 @@ const buildCookie = (
 export const handler = withDeps(async (deps, event) => {
   const userId = getUserId(event);
   const resourceUrl = `https://${deps.contentDomain}/users/${userId}/*`;
-  const expiresAt = new Date(Date.now() + 12 * 60 * 60 * 1000);
+  const expiresAt = new Date(Date.now() + deps.contentSessionTtlSeconds * 1000);
   const privateKey = normalizePrivateKey(deps.cloudfrontPrivateKey);
 
   const signedCookies = getSignedCookies({
@@ -39,9 +39,10 @@ export const handler = withDeps(async (deps, event) => {
   });
 
   const policy = signedCookies["CloudFront-Policy"];
+  const expires = signedCookies["CloudFront-Expires"];
   const signature = signedCookies["CloudFront-Signature"];
   const keyPairId = signedCookies["CloudFront-Key-Pair-Id"];
-  if (!policy || !signature || !keyPairId) {
+  if ((!policy && !expires) || !signature || !keyPairId) {
     throw new Error("CloudFront signed cookies missing required values");
   }
 
@@ -55,10 +56,22 @@ export const handler = withDeps(async (deps, event) => {
       "access-control-allow-credentials": "true",
     },
     cookies: [
-      buildCookie("CloudFront-Policy", policy, {
-        domain,
-        maxAgeSeconds,
-      }),
+      ...(policy
+        ? [
+            buildCookie("CloudFront-Policy", policy, {
+              domain,
+              maxAgeSeconds,
+            }),
+          ]
+        : []),
+      ...(expires
+        ? [
+            buildCookie("CloudFront-Expires", String(expires), {
+              domain,
+              maxAgeSeconds,
+            }),
+          ]
+        : []),
       buildCookie("CloudFront-Signature", signature, {
         domain,
         maxAgeSeconds,

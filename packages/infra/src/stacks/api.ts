@@ -124,6 +124,7 @@ export class NoteshipApiStack extends Stack {
     maybeSetEnv(envVars, "STRIPE_PRICE_PRO_MONTHLY");
     maybeSetEnv(envVars, "STRIPE_PRICE_PRO_YEARLY");
     maybeSetEnv(envVars, "NOTESHIP_CONTENT_COOKIE_DOMAIN");
+    maybeSetEnv(envVars, "NOTESHIP_CONTENT_SESSION_TTL_SECONDS");
     maybeSetEnv(envVars, "POWERTOOLS_LOGGER_SAMPLE_RATE");
 
     const api = new HttpApi(this, "NoteshipHttpApi", {
