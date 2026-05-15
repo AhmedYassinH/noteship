@@ -31,8 +31,8 @@ Use `docs/technical/ops/deployment.md` as the source of truth. This checklist mi
   - `docs/technical/noteship-low-level-design.md`
   - `docs/technical/index.md` (Backend -> Data architecture)
   - `docs/technical/ops/deployment.md`
-- [ ] Review provisioned auto scaling caps; raise for expected production traffic.
-- [ ] Update docs after changing caps:
+- [ ] Re-evaluate DynamoDB throughput strategy for prod: either re-enable provisioned auto scaling or move tables to on-demand capacity.
+- [ ] Update docs after changing the prod throughput strategy:
   - `docs/technical/noteship-low-level-design.md`
   - `docs/technical/index.md` (Backend -> Data architecture)
   - `docs/technical/ops/deployment.md`

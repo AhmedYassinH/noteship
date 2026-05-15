@@ -82,7 +82,7 @@ Provisioned (aligns to HLD/LLD):
 
 ## DynamoDB defaults (MVP)
 
-- **Capacity mode:** Provisioned with auto scaling caps to stay within Always Free limits. Adjust caps for production traffic.
+- **Capacity mode:** Provisioned with fixed low capacities in infra to stay within Always Free limits and avoid DynamoDB auto scaling alarm sprawl in low-traffic environments. Re-evaluate for production and either re-enable auto scaling or move to on-demand capacity.
 - **PITR:** Disabled for cost control; enable for production (see `docs/technical/ops/production-checklist.md`).
 
 ## Config & secrets (env vars)

@@ -178,7 +178,7 @@ Attributes:
 
 #### DynamoDB capacity + recovery (MVP defaults)
 
-- **Capacity mode:** Provisioned with auto scaling caps to keep total max RCUs/WCUs within the Always Free tier (25/25). Caps are defined in infra and should be raised for production traffic.
+- **Capacity mode:** Provisioned with fixed low capacities to keep total provisioned RCUs/WCUs within the Always Free tier (25/25) and avoid DynamoDB auto scaling alarm sprawl in low-traffic environments. Re-evaluate for production and either re-enable auto scaling or move to on-demand capacity.
 - **PITR:** Disabled in MVP for cost control; enable for production per the production checklist.
 
 ---
