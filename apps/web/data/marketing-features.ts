@@ -1,4 +1,4 @@
-﻿import { Lang } from "./marketing-shared";
+import { Lang } from "./marketing-shared";
 
 export type FeaturesCopy = {
   heroKicker: string;
@@ -6,19 +6,9 @@ export type FeaturesCopy = {
   heroSub: string;
   primaryCta: string;
   secondaryCta: string;
-  pillarsTitle: string;
-  pillarsLead: string;
-  pillars: { title: string; copy: string }[];
-  deepDiveTitle: string;
-  deepDiveLead: string;
-  deepDive: { title: string; copy: string; items: string[] }[];
-  workflowTitle: string;
-  workflowSteps: { title: string; copy: string }[];
+  sections: { title: string; copy: string; items: string[] }[];
   reliabilityTitle: string;
-  reliabilityLead: string;
   reliabilityItems: { title: string; copy: string }[];
-  aboutTitle: string;
-  aboutCopy: string;
   ctaTitle: string;
   ctaCopy: string;
   ctaPrimary: string;
@@ -27,147 +17,84 @@ export type FeaturesCopy = {
 
 const featuresCopy: Record<Lang, FeaturesCopy> = {
   en: {
-    heroKicker: "Features",
-    heroTitle: "Your ideas, now ready to ship.",
-    heroSub:
-      "Noteship keeps your notes recallable by meaning and turns them into drafts that match your voice.",
-    primaryCta: "Join the waitlist",
-    secondaryCta: "Get updates",
-    pillarsTitle: "Core capabilities",
-    pillarsLead: "Everything you need to go from idea to publish-ready post.",
-    pillars: [
+    heroKicker: "How Noteship works",
+    heroTitle: "A practical workflow from notes to published output",
+    heroSub: "Capture, preserve, recall, repurpose, then publish in a predictable system.",
+    primaryCta: "Request early access",
+    secondaryCta: "View pricing",
+    sections: [
       {
-        title: "Meaning-based recall",
-        copy: "Find notes by meaning, not keywords.",
+        title: "Capture and preserve",
+        copy: "Store notes in a format that stays readable and reusable over time.",
+        items: ["Markdown-backed storage", "Structured metadata", "Export-ready from day one"],
       },
       {
-        title: "Drafts in your voice",
-        copy: "Generate drafts that keep your tone and structure.",
-      },
-      {
-        title: "Consistent publishing",
-        copy: "Schedule and publish with clear status.",
-      },
-      {
-        title: "Portable notes",
-        copy: "Export your notes anytime without lock-in.",
-      },
-    ],
-    deepDiveTitle: "Deeper feature set",
-    deepDiveLead: "Built for consultants who publish consistently and can’t afford chaos.",
-    deepDive: [
-      {
-        title: "Recall by meaning",
-        copy: "Keep your memory system sharp as your notes grow.",
+        title: "Recall and repurpose",
+        copy: "Find what matters by meaning, then convert it into channel-ready drafts.",
         items: [
-          "Updates after every edit",
-          "Meaning-first recall across your archive",
-          "Filters by recency and context",
+          "Semantic retrieval",
+          "Voice-preserving generation",
+          "Connectors for current and upcoming platforms",
         ],
       },
       {
-        title: "Draft workflow",
-        copy: "From note to publish-ready copy without losing your voice.",
+        title: "Publish and track",
+        copy: "Schedule or publish immediately with clear status and recovery flow.",
         items: [
-          "Tone and persona controls",
-          "Draft variants for different audiences",
-          "Publish now or schedule",
+          "Current connectors: LinkedIn and Medium",
+          "Expanding integrations roadmap",
+          "Plan-aware limits",
         ],
       },
-      {
-        title: "Publishing clarity",
-        copy: "Ship consistently with visibility you can trust.",
-        items: ["Clear status timeline", "Safe scheduling", "Failure visibility and recovery"],
-      },
     ],
-    workflowTitle: "How it works",
-    workflowSteps: [
-      { title: "Capture", copy: "Write once and keep notes organized." },
-      { title: "Recall", copy: "Find ideas by meaning when wording is fuzzy." },
-      { title: "Draft", copy: "Generate posts with your tone and structure." },
-      { title: "Publish", copy: "Schedule or publish instantly with clear status." },
-    ],
-    reliabilityTitle: "Publishing you can trust",
-    reliabilityLead: "Designed for consistent output with clear status and control.",
+    reliabilityTitle: "Built for calm operations",
     reliabilityItems: [
-      { title: "Clear status", copy: "See what’s drafted, scheduled, or published." },
-      { title: "Scheduling you control", copy: "Edit or cancel scheduled posts with ease." },
-      { title: "Plan awareness", copy: "See what’s included in your plan at a glance." },
+      { title: "Clarity", copy: "Every stage has a visible state." },
+      { title: "Control", copy: "You decide what to schedule or publish now." },
+      { title: "Portability", copy: "Your notes stay yours." },
     ],
-    aboutTitle: "About Noteship",
-    aboutCopy:
-      "Noteship is built for independent consultants who publish often, care about their voice, and need clarity without tooling sprawl.",
-    ctaTitle: "Bring your ideas to the surface",
-    ctaCopy: "Keep everything recallable, draft fast, and publish on your cadence.",
-    ctaPrimary: "Join the waitlist",
-    ctaSecondary: "Get updates",
+    ctaTitle: "Stop rewriting. Start publishing from your own knowledge base.",
+    ctaCopy: "Turn your notes into consistent publishing with a workflow you can trust.",
+    ctaPrimary: "Request early access",
+    ctaSecondary: "Contact us",
   },
   ar: {
-    heroKicker: "المزايا",
-    heroTitle: "أفكارك جاهزة للنشر.",
-    heroSub: "يجعل Noteship ملاحظاتك قابلة للاسترجاع بالمعنى ويحوّلها إلى مسودات بصوتك.",
-    primaryCta: "انضم إلى قائمة الانتظار",
-    secondaryCta: "تابع التحديثات",
-    pillarsTitle: "القدرات الأساسية",
-    pillarsLead: "كل ما تحتاجه للانتقال من فكرة إلى منشور جاهز للنشر.",
-    pillars: [
+    heroKicker: "كيف يعمل Noteship",
+    heroTitle: "سير عملي من الملاحظات إلى مخرجات منشورة",
+    heroSub: "التقاط، حفظ، استرجاع، إعادة توظيف، ثم نشر ضمن نظام متوقع.",
+    primaryCta: "اطلب الوصول المبكر",
+    secondaryCta: "عرض التسعير",
+    sections: [
       {
-        title: "استرجاع بالمعنى",
-        copy: "اعثر على الملاحظات بالمعنى لا الكلمات.",
+        title: "التقاط وحفظ",
+        copy: "احفظ ملاحظاتك بصيغة تبقى قابلة للقراءة وإعادة الاستخدام مع الوقت.",
+        items: ["تخزين قائم على Markdown", "بيانات وصفية منظمة", "جاهزية للتصدير من البداية"],
       },
       {
-        title: "مسودات بصوتك",
-        copy: "ولّد مسودات تحافظ على أسلوبك وبنيتك.",
+        title: "استرجاع وإعادة توظيف",
+        copy: "اعثر على المهم بالمعنى ثم حوّله إلى مسودات مناسبة لكل قناة.",
+        items: ["استرجاع دلالي", "توليد يحافظ على الصوت", "موصلات لمنصات حالية وقادمة"],
       },
       {
-        title: "نشر منتظم",
-        copy: "جدولة ونشر بحالة واضحة.",
-      },
-      {
-        title: "ملاحظات قابلة للنقل",
-        copy: "صدّر ملاحظاتك في أي وقت دون قيود.",
-      },
-    ],
-    deepDiveTitle: "تفاصيل أكثر",
-    deepDiveLead: "مبني للمستشارين الذين ينشرون باستمرار ولا يتحملون الفوضى.",
-    deepDive: [
-      {
-        title: "استرجاع بالمعنى",
-        copy: "حافظ على ذاكرة أفكارك قوية مع نمو أرشيفك.",
-        items: ["تحديث بعد كل تعديل", "استرجاع بالمعنى عبر الأرشيف", "فرز بالزمن والسياق"],
-      },
-      {
-        title: "سير المسودات",
-        copy: "من الملاحظة إلى نص جاهز للنشر دون فقدان الصوت.",
-        items: ["تحكم بالنبرة والشخصية", "نسخ متعددة للجمهور", "نشر الآن أو جدولة"],
-      },
-      {
-        title: "وضوح النشر",
-        copy: "انشر بثبات مع رؤية واضحة يمكنك الاعتماد عليها.",
-        items: ["خط حالة واضح", "جدولة آمنة", "وضوح الفشل وإمكانية الاستعادة"],
+        title: "نشر وتتبع",
+        copy: "جدولة أو نشر فوري مع وضوح الحالة ومسار استرداد واضح.",
+        items: [
+          "الموصلات الحالية: LinkedIn و Medium",
+          "خارطة تكاملات تتوسع باستمرار",
+          "حدود مرتبطة بالخطة",
+        ],
       },
     ],
-    workflowTitle: "كيف يعمل",
-    workflowSteps: [
-      { title: "التقاط", copy: "اكتب مرة واحدة واحتفظ بالملاحظات منظمة." },
-      { title: "استرجاع", copy: "اعثر على الأفكار بالمعنى عندما تغيب الصياغة." },
-      { title: "مسودة", copy: "ولّد منشورات بصوتك وبنيتك." },
-      { title: "نشر", copy: "جدّل أو انشر فوراً مع حالة واضحة." },
-    ],
-    reliabilityTitle: "نشر يمكنك الوثوق به",
-    reliabilityLead: "مصمم لإنتاج منتظم مع حالة واضحة وتحكم كامل.",
+    reliabilityTitle: "مصمم لتشغيل هادئ",
     reliabilityItems: [
-      { title: "حالة واضحة", copy: "اعرف ما تم تجهيزه وما تم جدولته وما نُشر." },
-      { title: "تحكم بالجدولة", copy: "عدّل أو ألغِ الجدولة بسهولة." },
-      { title: "وضوح الخطة", copy: "اعرف ما يتضمنه اشتراكك بسرعة." },
+      { title: "وضوح", copy: "لكل مرحلة حالة مرئية." },
+      { title: "تحكم", copy: "أنت من يقرر الجدولة أو النشر الفوري." },
+      { title: "قابلية النقل", copy: "ملاحظاتك تبقى ملكك." },
     ],
-    aboutTitle: "عن Noteship",
-    aboutCopy:
-      "Noteship مبني للمستشارين المستقلين الذين ينشرون كثيراً، يهتمون بصوتهم، ويحتاجون إلى وضوح دون تعقيد.",
-    ctaTitle: "أخرج أفكارك إلى السطح",
-    ctaCopy: "اجعل كل شيء قابلاً للاسترجاع، اكتب بسرعة، وانشر وفق إيقاعك.",
-    ctaPrimary: "انضم إلى قائمة الانتظار",
-    ctaSecondary: "تابع التحديثات",
+    ctaTitle: "توقّف عن إعادة الكتابة وابدأ النشر من قاعدة معرفتك.",
+    ctaCopy: "حوّل ملاحظاتك إلى نشر منتظم عبر سير عمل موثوق.",
+    ctaPrimary: "اطلب الوصول المبكر",
+    ctaSecondary: "تواصل معنا",
   },
 };
 
