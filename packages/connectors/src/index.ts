@@ -3,6 +3,8 @@ import { createLinkedInConnector } from "./providers/linkedin";
 import { createMediumConnector } from "./providers/medium";
 
 export type { Connector, ConnectorConfig, ConnectorProvider } from "./types";
+export * from "./linkedin-content";
+export * from "./linkedin-media";
 
 export const createConnector = (
   provider: ConnectorProvider,

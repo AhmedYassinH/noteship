@@ -15,6 +15,10 @@ export const searchNotes = async (
   query: string,
   limit = 10,
 ): Promise<SearchResult[]> => {
+  if (!deps.embeddingsEnabled) {
+    return [];
+  }
+
   const [embedding] = await deps.llm.embedTexts({
     inputs: [query],
     model: deps.llmModels.embeddings,

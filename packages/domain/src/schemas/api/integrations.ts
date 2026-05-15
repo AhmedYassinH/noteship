@@ -8,6 +8,12 @@ export const connectIntegrationSchema = z.object({
   redirectUrl: nonEmptyStringSchema.optional(),
 });
 
+export const finalizeIntegrationCallbackSchema = z.object({
+  code: nonEmptyStringSchema,
+  state: nonEmptyStringSchema,
+  redirectUrl: nonEmptyStringSchema.optional(),
+});
+
 export const connectIntegrationResponseSchema = z.object({
   url: nonEmptyStringSchema,
   state: nonEmptyStringSchema,

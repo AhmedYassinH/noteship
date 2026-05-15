@@ -46,8 +46,9 @@ Bucket settings:
 - Attributes:
   - `postId`, `noteId` (source)
   - `provider` (linkedin/medium)
+  - `publishMode` (single|overflow_comments)
   - `status` (draft|queued|scheduled|publishing|published|failed)
-  - `scheduledAt`, `publishedAt`
+  - `scheduledAt`, `scheduledTimezone`, `publishedAt`
   - `contentS3Key` (draft.md)
   - `error` (lastErrorCode/message) nullable
   - `createdAt`, `updatedAt`
@@ -62,7 +63,8 @@ Bucket settings:
 - Attributes:
   - `provider`, `accountId`, `status`
   - `scopes[]`, `connectedAt`, `updatedAt`
-  - `tokenRef` (future Secrets Manager pointer) or encrypted token blob
+  - encrypted credentials fields (`credentialsCiphertext`, `credentialsIv`, `credentialsTag`, `credentialsAlg`, `credentialsKeyVersion`)
+  - credential metadata (`credentialsUpdatedAt`, `tokenExpiresAt`, `refreshTokenExpiresAt`)
   - provider identifiers (URNs, usernames)
 
 ### Table: Usage

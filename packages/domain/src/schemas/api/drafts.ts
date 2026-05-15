@@ -8,6 +8,13 @@ export const draftCreateRequestSchema = z.object({
   language: z.enum(["en", "ar"]).optional(),
 });
 
+export const draftRegenerateRequestSchema = z.object({
+  provider: postProviderSchema,
+  currentContent: nonEmptyStringSchema,
+  instruction: nonEmptyStringSchema,
+  language: z.enum(["en", "ar"]).optional(),
+});
+
 export const draftResponseSchema = z.object({
   postId: idSchema,
   provider: postProviderSchema,
@@ -16,4 +23,8 @@ export const draftResponseSchema = z.object({
 
 export const draftCreateResponseSchema = z.object({
   drafts: z.array(draftResponseSchema),
+});
+
+export const draftRegenerateResponseSchema = z.object({
+  content: nonEmptyStringSchema,
 });

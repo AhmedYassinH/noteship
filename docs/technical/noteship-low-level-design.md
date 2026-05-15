@@ -75,8 +75,8 @@ Paths:
 ```
 users/{userId}/notes/{noteId}/note.md
 users/{userId}/notes/{noteId}/artifacts/{artifactId}.{ext}
-users/{userId}/posts/{postId}/draft.md
-users/{userId}/posts/{postId}/payload.json
+users/{userId}/posts/{provider}/{postId}/draft.md
+users/{userId}/posts/{provider}/{postId}/payload.json
 ```
 
 Notes:
@@ -142,7 +142,8 @@ Attributes:
 - `accountId` (vendor account identifier/URN)
 - `status` (connected|revoked|error)
 - `scopes[]`, `connectedAt`, `updatedAt`
-- `tokenRef` (future Secrets Manager pointer) OR encrypted token blob
+- Encrypted credentials fields (ciphertext + iv + tag + alg + keyVersion)
+- Credential timestamps (`credentialsUpdatedAt`, `tokenExpiresAt`, `refreshTokenExpiresAt`)
 - provider metadata (e.g., LinkedIn person URN)
 
 #### Table: `Usage`
@@ -352,8 +353,9 @@ Details: see `docs/technical/index.md`.
 #### Posts
 
 - `POST /posts` create post from draft (provider, content)
-- `POST /posts/{postId}/publish` publish now
-- `POST /posts/{postId}/schedule` schedule at time
+- `PUT /posts/{postId}/draft` update persisted draft artifact content
+- `POST /posts/{postId}/publish` publish now (mode: `single` or `overflow_comments`)
+- `POST /posts/{postId}/schedule` schedule at time (`timezone` optional; normalized to UTC for execution)
 - `POST /posts/{postId}/cancel` cancel scheduled
 - `GET /posts?status=` list posts
 
@@ -361,7 +363,7 @@ Details: see `docs/technical/index.md`.
 
 - `GET /integrations` list connected accounts
 - `POST /integrations/{provider}/connect` start OAuth
-- `GET /integrations/{provider}/callback` OAuth callback
+- `POST /integrations/{provider}/callback/finalize` finalize OAuth callback from authenticated frontend route
 - `POST /integrations/{provider}/disconnect` revoke
 
 #### Billing
@@ -435,7 +437,14 @@ Conceptual:
 ### 7.2 LinkedIn + Medium specifics (MVP)
 
 - Store per-user integration account
+- LinkedIn OAuth uses `openid profile w_member_social`; resolve member identity via `/v2/userinfo` (`sub`)
 - Worker publishes using stored token
+- LinkedIn media publish supports:
+  - text-only
+  - text + images (max from `LINKEDIN_MAX_IMAGES_PER_POST`, capped at 20)
+  - text + one PDF
+- API validates media before queueing and writes a publish payload snapshot to `users/{userId}/posts/{provider}/{postId}/payload.json`
+- Worker uploads LinkedIn media synchronously in-job, then creates the post (no media status polling requirement)
 - Handle rate limits with retries/backoff
 - Map internal post format to vendor payload
 

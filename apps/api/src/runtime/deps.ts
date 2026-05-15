@@ -25,6 +25,7 @@ export type Deps = {
   };
   bucketName: string;
   jobsQueueUrl: string;
+  embeddingsEnabled: boolean;
   llm: LlmClient;
   llmModels: {
     embeddings: string;
@@ -47,11 +48,21 @@ export type Deps = {
     linkedin: {
       clientId: string;
       clientSecret: string;
+      apiVersion?: string;
     };
     medium: {
       clientId: string;
       clientSecret: string;
     };
+  };
+  integrationSecurity: {
+    credentialsKeyB64: string;
+    credentialsKeyVersion: string;
+  };
+  linkedin: {
+    textMaxChars: number;
+    commentMaxChars: number;
+    maxImagesPerPost: number;
   };
 };
 
@@ -75,6 +86,20 @@ const parsePositiveIntEnv = (key: string, fallback: number): number => {
     throw new Error(`${key} must be a positive integer`);
   }
   return parsed;
+};
+
+const parseBoolean = (value: string | undefined, fallback: boolean): boolean => {
+  if (!value) {
+    return fallback;
+  }
+  const normalized = value.trim().toLowerCase();
+  if (["1", "true", "yes", "on"].includes(normalized)) {
+    return true;
+  }
+  if (["0", "false", "no", "off"].includes(normalized)) {
+    return false;
+  }
+  return fallback;
 };
 
 export const getDeps = (): Deps => {
@@ -104,6 +129,7 @@ export const getDeps = (): Deps => {
       },
       bucketName: requireEnv("NOTESHIP_CONTENT_BUCKET_NAME"),
       jobsQueueUrl: requireEnv("NOTESHIP_JOBS_QUEUE_URL"),
+      embeddingsEnabled: parseBoolean(process.env.NOTESHIP_EMBEDDING_ENABLED, false),
       llm: createLlmClient(llmProvider, requireEnv("OPENAI_API_KEY")),
       llmModels: {
         embeddings: requireEnv("OPENAI_EMBED_MODEL"),
@@ -130,11 +156,24 @@ export const getDeps = (): Deps => {
         linkedin: {
           clientId: requireEnv("LINKEDIN_CLIENT_ID"),
           clientSecret: requireEnv("LINKEDIN_CLIENT_SECRET"),
+          apiVersion: process.env.LINKEDIN_API_VERSION,
         },
         medium: {
           clientId: requireEnv("MEDIUM_CLIENT_ID"),
           clientSecret: requireEnv("MEDIUM_CLIENT_SECRET"),
         },
+      },
+      integrationSecurity: {
+        credentialsKeyB64: requireEnv("NOTESHIP_INTEGRATION_CREDENTIALS_KEY_B64"),
+        credentialsKeyVersion: process.env.NOTESHIP_INTEGRATION_CREDENTIALS_KEY_VERSION ?? "v1",
+      },
+      linkedin: {
+        textMaxChars: parsePositiveIntEnv("LINKEDIN_TEXT_MAX_CHARS", 3000),
+        commentMaxChars: parsePositiveIntEnv("LINKEDIN_COMMENT_MAX_CHARS", 1250),
+        maxImagesPerPost: Math.max(
+          1,
+          Math.min(parsePositiveIntEnv("LINKEDIN_MAX_IMAGES_PER_POST", 20), 20),
+        ),
       },
     };
   }

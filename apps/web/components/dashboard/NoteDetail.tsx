@@ -5,6 +5,7 @@ import { PanelRight } from "lucide-react";
 import dashboardCopy from "../../data/dashboard";
 import { useDashboard } from "../../components/dashboard/DashboardShell";
 import NoteEditor from "../../components/dashboard/NoteEditor";
+import LinkedInComposerModal from "../../components/dashboard/LinkedInComposerModal";
 import { Badge } from "../../components/ui/Badge";
 import { Button } from "../../components/ui/Button";
 import { Card } from "../../components/ui/Card";
@@ -41,6 +42,7 @@ const NoteDetail = ({ noteId }: NoteDetailProps) => {
   const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [loadStatus, setLoadStatus] = useState<"loading" | "ready" | "error">("loading");
   const [draftStatus, setDraftStatus] = useState<"idle" | "loading" | "error">("idle");
+  const [isLinkedInComposerOpen, setIsLinkedInComposerOpen] = useState(false);
   const [isDesktopPanel, setIsDesktopPanel] = useState(false);
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -64,6 +66,7 @@ const NoteDetail = ({ noteId }: NoteDetailProps) => {
     setScheduleAt("");
     setStatus("idle");
     setDraftStatus("idle");
+    setIsLinkedInComposerOpen(false);
     void loadNote();
     return () => {
       if (saveTimer.current) {
@@ -106,6 +109,11 @@ const NoteDetail = ({ noteId }: NoteDetailProps) => {
   };
 
   const handleGenerateDraft = async (provider: "linkedin" | "medium") => {
+    if (provider === "linkedin") {
+      setIsLinkedInComposerOpen(true);
+      return;
+    }
+
     setDraftStatus("loading");
     try {
       const response = await generateDrafts(noteId, provider, undefined, lang);
@@ -140,7 +148,9 @@ const NoteDetail = ({ noteId }: NoteDetailProps) => {
         provider: selectedDraft.provider,
         content: selectedDraft.content,
       });
-      await schedulePost(post.postId, new Date(scheduleAt).toISOString());
+      await schedulePost(post.postId, new Date(scheduleAt).toISOString(), {
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      });
     } catch {
       // ignore
     }
@@ -384,6 +394,16 @@ const NoteDetail = ({ noteId }: NoteDetailProps) => {
           </aside>
         </div>
       ) : null}
+
+      <LinkedInComposerModal
+        open={isLinkedInComposerOpen}
+        noteId={noteId}
+        noteTitle={note.title}
+        initialContent={note.content}
+        lang={lang}
+        isAr={isAr}
+        onClose={() => setIsLinkedInComposerOpen(false)}
+      />
     </main>
   );
 };

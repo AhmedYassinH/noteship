@@ -49,17 +49,19 @@ export const createNote = async (
   await putObjectString(deps.s3, deps.bucketName, s3Key, input.content);
   await putNote(deps.ddb, deps.tableNames.notes, note);
 
-  await enqueueJob(deps.sqs, deps.jobsQueueUrl, {
-    jobId: randomUUID(),
-    type: "EMBED_NOTE",
-    userId,
-    createdAt: now,
-    payload: {
-      noteId,
-      s3Key,
-      version: contentHash,
-    },
-  });
+  if (deps.embeddingsEnabled) {
+    await enqueueJob(deps.sqs, deps.jobsQueueUrl, {
+      jobId: randomUUID(),
+      type: "EMBED_NOTE",
+      userId,
+      createdAt: now,
+      payload: {
+        noteId,
+        s3Key,
+        version: contentHash,
+      },
+    });
+  }
 
   return note;
 };
@@ -102,17 +104,19 @@ export const updateNote = async (
   }
 
   await putNote(deps.ddb, deps.tableNames.notes, updated);
-  await enqueueJob(deps.sqs, deps.jobsQueueUrl, {
-    jobId: randomUUID(),
-    type: "EMBED_NOTE",
-    userId,
-    createdAt: now,
-    payload: {
-      noteId,
-      s3Key: existing.s3Key,
-      version: contentHash,
-    },
-  });
+  if (deps.embeddingsEnabled) {
+    await enqueueJob(deps.sqs, deps.jobsQueueUrl, {
+      jobId: randomUUID(),
+      type: "EMBED_NOTE",
+      userId,
+      createdAt: now,
+      payload: {
+        noteId,
+        s3Key: existing.s3Key,
+        version: contentHash,
+      },
+    });
+  }
 
   return updated;
 };
