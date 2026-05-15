@@ -1,21 +1,22 @@
-"use client";
+﻿"use client";
 
 import { useMemo, useState } from "react";
 import type { FormEvent } from "react";
 import { Button } from "../ui/Button";
 import { Input } from "../ui/Input";
-import homeCopy from "../../data/marketing-home";
-import type { Lang } from "../../data/marketing-shared";
+import sharedCopy, { type Lang } from "../../data/marketing-shared";
 
-type WaitlistFormProps = {
+type AccessRequestFormProps = {
   lang: Lang;
   source: string;
 };
 
-const WaitlistForm = ({ lang, source }: WaitlistFormProps) => {
-  const t = useMemo(() => homeCopy[lang], [lang]);
+const AccessRequestForm = ({ lang, source }: AccessRequestFormProps) => {
+  const t = useMemo(() => sharedCopy[lang].access, [lang]);
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [email, setEmail] = useState("");
+  const [role, setRole] = useState("");
+  const [cadence, setCadence] = useState("");
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -30,6 +31,9 @@ const WaitlistForm = ({ lang, source }: WaitlistFormProps) => {
       return;
     }
 
+    const submissionUrl = typeof window !== "undefined" ? window.location.href : "";
+    const submissionDomain = typeof window !== "undefined" ? window.location.hostname : "";
+
     setStatus("loading");
 
     try {
@@ -41,22 +45,31 @@ const WaitlistForm = ({ lang, source }: WaitlistFormProps) => {
         },
         body: JSON.stringify({
           email,
+          role,
+          cadence,
           language: lang,
           source,
+          submissionUrl,
+          submissionDomain,
         }),
       });
 
       if (response.ok) {
         setStatus("success");
         setEmail("");
+        setRole("");
+        setCadence("");
         return;
       }
 
       setStatus("error");
-    } catch (error) {
+    } catch {
       setStatus("error");
     }
   };
+
+  const submissionUrl = typeof window !== "undefined" ? window.location.href : "";
+  const submissionDomain = typeof window !== "undefined" ? window.location.hostname : "";
 
   return (
     <form
@@ -65,15 +78,15 @@ const WaitlistForm = ({ lang, source }: WaitlistFormProps) => {
       method="POST"
       className="grid gap-4"
     >
-      <label htmlFor={`waitlist-email-${source}`} className="text-[0.95rem] font-semibold">
-        {t.waitlistEmailLabel}
+      <label htmlFor={`access-email-${source}`} className="text-[0.9rem] font-semibold">
+        {t.emailLabel}
       </label>
       <Input
-        id={`waitlist-email-${source}`}
+        id={`access-email-${source}`}
         name="email"
         type="email"
         autoComplete="email"
-        placeholder={t.waitlistEmailPlaceholder}
+        placeholder={t.emailPlaceholder}
         value={email}
         onChange={(event) => {
           setEmail(event.target.value);
@@ -83,33 +96,73 @@ const WaitlistForm = ({ lang, source }: WaitlistFormProps) => {
         }}
         required
         disabled={status === "success"}
-        className="h-12 rounded-[14px] border border-[rgba(15,23,42,0.12)] bg-white px-4 text-[1rem] text-left rtl:text-right"
+        className="h-11 rounded-xl border border-[rgba(15,23,42,0.12)] bg-white px-4 text-[0.95rem] text-left rtl:text-right"
       />
+
+      <label htmlFor={`access-role-${source}`} className="text-[0.9rem] font-semibold">
+        {t.roleLabel}
+      </label>
+      <Input
+        id={`access-role-${source}`}
+        name="role"
+        type="text"
+        placeholder={t.rolePlaceholder}
+        value={role}
+        onChange={(event) => {
+          setRole(event.target.value);
+          if (status === "error") {
+            setStatus("idle");
+          }
+        }}
+        disabled={status === "success"}
+        className="h-11 rounded-xl border border-[rgba(15,23,42,0.12)] bg-white px-4 text-[0.95rem] text-left rtl:text-right"
+      />
+
+      <label htmlFor={`access-cadence-${source}`} className="text-[0.9rem] font-semibold">
+        {t.cadenceLabel}
+      </label>
+      <Input
+        id={`access-cadence-${source}`}
+        name="cadence"
+        type="text"
+        placeholder={t.cadencePlaceholder}
+        value={cadence}
+        onChange={(event) => {
+          setCadence(event.target.value);
+          if (status === "error") {
+            setStatus("idle");
+          }
+        }}
+        required
+        disabled={status === "success"}
+        className="h-11 rounded-xl border border-[rgba(15,23,42,0.12)] bg-white px-4 text-[0.95rem] text-left rtl:text-right"
+      />
+
       <input type="hidden" name="language" value={lang} />
       <input type="hidden" name="source" value={source} />
+      <input type="hidden" name="submissionUrl" value={submissionUrl} />
+      <input type="hidden" name="submissionDomain" value={submissionDomain} />
       <Button
         type="submit"
         size="pill"
         disabled={status === "loading" || status === "success"}
-        className="mt-1 h-12 w-full shadow-[0_14px_28px_rgba(15,118,110,0.22)]"
+        className="mt-1 h-11 w-full"
       >
-        {status === "loading" ? t.waitlistCtaLoading : t.waitlistCta}
+        {status === "loading" ? t.ctaLoading : t.cta}
       </Button>
-      <div aria-live="polite" className="min-h-[44px] text-[0.95rem]">
+      <div aria-live="polite" className="min-h-[44px] text-[0.92rem]">
         {status === "success" ? (
           <>
-            <p className="m-0 font-semibold text-[var(--ns-accent-strong)]">
-              {t.waitlistSuccessTitle}
-            </p>
-            <p className="m-0 text-[var(--ns-muted)] leading-[1.6] rtl:leading-[1.85]">
-              {t.waitlistSuccessCopy}
+            <p className="m-0 font-semibold text-[var(--ns-accent-strong)]">{t.successTitle}</p>
+            <p className="m-0 text-[var(--ns-muted)] leading-[1.65] rtl:leading-[1.85]">
+              {t.successCopy}
             </p>
           </>
         ) : null}
-        {status === "error" ? <p className="m-0 text-rose-600">{t.waitlistErrorCopy}</p> : null}
+        {status === "error" ? <p className="m-0 text-rose-600">{t.errorCopy}</p> : null}
       </div>
     </form>
   );
 };
 
-export default WaitlistForm;
+export default AccessRequestForm;
