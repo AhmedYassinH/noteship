@@ -20,6 +20,9 @@ Use `docs/technical/ops/deployment.md` as the source of truth. This checklist mi
 - [ ] Deploy Web stack: `NoteshipWeb-prod`.
 - [ ] Validate stack outputs (API URL, bucket/table names).
 - [ ] Confirm Auth0/Stripe/Qdrant/etc env vars are set in the shell before `cdk deploy` (see `docs/technical/ops/deployment.md`).
+- [ ] Confirm custom domains/certs env vars are set before deploy:
+  - [ ] `NOTESHIP_API_CUSTOM_DOMAIN`, `NOTESHIP_API_CERTIFICATE_ARN`
+  - [ ] `NOTESHIP_CONTENT_CUSTOM_DOMAIN`, `NOTESHIP_CONTENT_CERTIFICATE_ARN`
 
 ## 3) DynamoDB production controls
 
@@ -40,6 +43,7 @@ Use `docs/technical/ops/deployment.md` as the source of truth. This checklist mi
 - [ ] Create/verify CloudFront distribution with OAC/OAI.
 - [ ] Configure SPA routing (403/404 to `/index.html`).
 - [ ] Set DNS + ACM certificate for the web domain.
+- [ ] Set DNS + ACM certificate for API/content domains (Cloudflare CNAMEs to stack outputs).
 - [ ] Upload `apps/web/out` to the web bucket and invalidate CloudFront.
 
 ## 5) Auth0 setup (SPA auth: hosted UI + Google SSO + passwordless email)

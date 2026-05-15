@@ -97,7 +97,8 @@ API + workers read runtime config from env vars. Required keys:
 - OAuth: `LINKEDIN_CLIENT_ID`, `LINKEDIN_CLIENT_SECRET`, `MEDIUM_CLIENT_ID`, `MEDIUM_CLIENT_SECRET`
 - LinkedIn publish constraints: optional `LINKEDIN_API_VERSION`, `LINKEDIN_TEXT_MAX_CHARS`, `LINKEDIN_COMMENT_MAX_CHARS`, `LINKEDIN_MAX_IMAGES_PER_POST` (capped at 20 by API/runtime validation)
 - AI: `OPENAI_API_KEY`, `OPENAI_EMBED_MODEL`, `OPENAI_DRAFT_MODEL`, optional `NOTESHIP_LLM_PROVIDER`, `NOTESHIP_VECTOR_DB_PROVIDER`
-- Content delivery: `NOTESHIP_CONTENT_DOMAIN`, `NOTESHIP_CLOUDFRONT_KEY_PAIR_ID`, `NOTESHIP_CLOUDFRONT_PRIVATE_KEY`, optional `NOTESHIP_CONTENT_COOKIE_DOMAIN`, `NOTESHIP_WEB_ORIGIN`
+- API custom domain: `NOTESHIP_API_CUSTOM_DOMAIN`, `NOTESHIP_API_CERTIFICATE_ARN`
+- Content delivery/custom domain: `NOTESHIP_CONTENT_CUSTOM_DOMAIN`, `NOTESHIP_CONTENT_CERTIFICATE_ARN`, `NOTESHIP_CLOUDFRONT_KEY_PAIR_ID`, `NOTESHIP_CLOUDFRONT_PRIVATE_KEY`, optional `NOTESHIP_CONTENT_COOKIE_DOMAIN`, optional `NOTESHIP_CONTENT_SESSION_TTL_SECONDS`, `NOTESHIP_WEB_ORIGIN`, `NOTESHIP_CONTENT_UPLOAD_ORIGIN`
 - Logging: `POWERTOOLS_SERVICE_NAME`, `POWERTOOLS_LOG_LEVEL`, optional `POWERTOOLS_LOGGER_SAMPLE_RATE`, `NOTESHIP_ENV_NAME`
   - Accepted values for `POWERTOOLS_LOG_LEVEL`: `TRACE`, `DEBUG`, `INFO`, `WARN`, `ERROR`, `SILENT`, `CRITICAL`
 
@@ -154,6 +155,30 @@ Ensure:
 
 - API uses Auth0 JWT authorizer (issuer + audience) and writes to provisioned tables/bucket.
 - Stripe webhook endpoint is deployed and wired with secrets.
+- API custom domain and certificate are configured through `NOTESHIP_API_CUSTOM_DOMAIN` and `NOTESHIP_API_CERTIFICATE_ARN`.
+
+## Cloudflare DNS (manual)
+
+Noteship deploys custom domains using ACM certificate ARNs and stack config, but DNS is managed in Cloudflare.
+Route53 is not required for this flow.
+
+After deploying:
+
+1. Use `NoteshipApi` outputs:
+   - `ApiCustomDomainName`
+   - `ApiCloudflareCnameTarget`
+2. Create/verify Cloudflare DNS for API:
+   - Type `CNAME`
+   - Name `<api-subdomain>` (for example `api`)
+   - Target `ApiCloudflareCnameTarget`
+3. Use `NoteshipCore` outputs:
+   - `ContentCustomDomain`
+   - `ContentCloudflareCnameTarget`
+4. Create/verify Cloudflare DNS for content:
+   - Type `CNAME`
+   - Name `<content-subdomain>` (for example `content`)
+   - Target `ContentCloudflareCnameTarget`
+5. Ensure ACM certificates are validated via DNS before deploy (validation CNAMEs are added in Cloudflare).
 
 ## Auth0 (SPA flow)
 

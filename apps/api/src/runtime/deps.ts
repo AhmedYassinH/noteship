@@ -41,6 +41,7 @@ export type Deps = {
   };
   contentDomain: string;
   contentCookieDomain?: string;
+  contentSessionTtlSeconds: number;
   cloudfrontKeyPairId: string;
   cloudfrontPrivateKey: string;
   connectors: {
@@ -75,12 +76,16 @@ const requireEnv = (key: string): string => {
   return value;
 };
 
-const parsePositiveInt = (value: string | undefined, fallback: number): number => {
-  const parsed = Number.parseInt(value ?? "", 10);
-  if (Number.isFinite(parsed) && parsed > 0) {
-    return parsed;
+const parsePositiveIntEnv = (key: string, fallback: number): number => {
+  const value = process.env[key];
+  if (!value) {
+    return fallback;
   }
-  return fallback;
+  const parsed = Number.parseInt(value, 10);
+  if (!Number.isFinite(parsed) || parsed <= 0) {
+    throw new Error(`${key} must be a positive integer`);
+  }
+  return parsed;
 };
 
 const parseBoolean = (value: string | undefined, fallback: boolean): boolean => {
@@ -142,8 +147,9 @@ export const getDeps = (): Deps => {
         proMonthly: process.env.STRIPE_PRICE_PRO_MONTHLY,
         proYearly: process.env.STRIPE_PRICE_PRO_YEARLY,
       },
-      contentDomain: requireEnv("NOTESHIP_CONTENT_DOMAIN"),
+      contentDomain: requireEnv("NOTESHIP_CONTENT_CUSTOM_DOMAIN"),
       contentCookieDomain: process.env.NOTESHIP_CONTENT_COOKIE_DOMAIN,
+      contentSessionTtlSeconds: parsePositiveIntEnv("NOTESHIP_CONTENT_SESSION_TTL_SECONDS", 43200),
       cloudfrontKeyPairId: requireEnv("NOTESHIP_CLOUDFRONT_KEY_PAIR_ID"),
       cloudfrontPrivateKey: requireEnv("NOTESHIP_CLOUDFRONT_PRIVATE_KEY"),
       connectors: {
@@ -162,11 +168,11 @@ export const getDeps = (): Deps => {
         credentialsKeyVersion: process.env.NOTESHIP_INTEGRATION_CREDENTIALS_KEY_VERSION ?? "v1",
       },
       linkedin: {
-        textMaxChars: parsePositiveInt(process.env.LINKEDIN_TEXT_MAX_CHARS, 3000),
-        commentMaxChars: parsePositiveInt(process.env.LINKEDIN_COMMENT_MAX_CHARS, 1250),
+        textMaxChars: parsePositiveIntEnv("LINKEDIN_TEXT_MAX_CHARS", 3000),
+        commentMaxChars: parsePositiveIntEnv("LINKEDIN_COMMENT_MAX_CHARS", 1250),
         maxImagesPerPost: Math.max(
           1,
-          Math.min(parsePositiveInt(process.env.LINKEDIN_MAX_IMAGES_PER_POST, 20), 20),
+          Math.min(parsePositiveIntEnv("LINKEDIN_MAX_IMAGES_PER_POST", 20), 20),
         ),
       },
     };

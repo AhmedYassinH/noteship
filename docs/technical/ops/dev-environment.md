@@ -52,7 +52,7 @@ cdk deploy NoteshipOpsGuardrails-dev -c env=dev -c region=us-east-1
 
 - Copy `.env.example` to `.env` and populate values.
 - Use `docs/technical/ops/deployment.md` as the authoritative list of required env vars and secret keys.
-- For the web app, set `NEXT_PUBLIC_*` values for Auth0 SPA and `NEXT_PUBLIC_API_BASE_URL`.
+- For the web app, set `NEXT_PUBLIC_*` values for Auth0 SPA and `NEXT_PUBLIC_API_BASE_URL` to your API custom domain (for example `https://api.noteship.dev`).
 - For API/workers, set the runtime env vars listed in `.env.example`.
 - Optional logging env vars for API/workers (Powertools): `POWERTOOLS_LOG_LEVEL`, `POWERTOOLS_LOGGER_SAMPLE_RATE`, `POWERTOOLS_SERVICE_NAME` (override), and `NOTESHIP_ENV_NAME`.
   - Accepted values for `POWERTOOLS_LOG_LEVEL`: `TRACE`, `DEBUG`, `INFO`, `WARN`, `ERROR`, `SILENT`, `CRITICAL`
@@ -63,7 +63,11 @@ cdk deploy NoteshipOpsGuardrails-dev -c env=dev -c region=us-east-1
 pnpm --filter @noteship/web dev
 ```
 
-Use the dev API URL from your deployed stack output as `NEXT_PUBLIC_API_BASE_URL`.
+Use your API custom domain URL as `NEXT_PUBLIC_API_BASE_URL`.
+If you run local frontend against live dev infra, ensure `NOTESHIP_WEB_ORIGIN` includes
+`http://localhost:3000` and `http://127.0.0.1:3000`.
+Also ensure `NOTESHIP_CONTENT_UPLOAD_ORIGIN` includes the same origins so browser uploads to
+S3 presigned URLs pass CORS.
 
 ## 7) API/workers local notes
 

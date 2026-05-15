@@ -1,6 +1,8 @@
 import * as cdk from "aws-cdk-lib";
 import { Duration, Stack, type StackProps, Tags } from "aws-cdk-lib";
 import {
+  CfnApiMapping,
+  CfnDomainName,
   CorsHttpMethod,
   HttpApi,
   HttpMethod,
@@ -8,6 +10,7 @@ import {
 } from "aws-cdk-lib/aws-apigatewayv2";
 import { HttpJwtAuthorizer } from "aws-cdk-lib/aws-apigatewayv2-authorizers";
 import { HttpLambdaIntegration } from "aws-cdk-lib/aws-apigatewayv2-integrations";
+import { Certificate } from "aws-cdk-lib/aws-certificatemanager";
 import type { Table } from "aws-cdk-lib/aws-dynamodb";
 import { Runtime } from "aws-cdk-lib/aws-lambda";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
@@ -111,7 +114,7 @@ export class NoteshipApiStack extends Stack {
       ),
       MEDIUM_CLIENT_ID: requireEnv("MEDIUM_CLIENT_ID"),
       MEDIUM_CLIENT_SECRET: requireEnv("MEDIUM_CLIENT_SECRET"),
-      NOTESHIP_CONTENT_DOMAIN: requireEnv("NOTESHIP_CONTENT_DOMAIN"),
+      NOTESHIP_CONTENT_CUSTOM_DOMAIN: requireEnv("NOTESHIP_CONTENT_CUSTOM_DOMAIN"),
       NOTESHIP_CLOUDFRONT_KEY_PAIR_ID: requireEnv("NOTESHIP_CLOUDFRONT_KEY_PAIR_ID"),
       NOTESHIP_CLOUDFRONT_PRIVATE_KEY: requireEnv("NOTESHIP_CLOUDFRONT_PRIVATE_KEY"),
       POWERTOOLS_SERVICE_NAME: "noteship-api",
@@ -125,6 +128,7 @@ export class NoteshipApiStack extends Stack {
     maybeSetEnv(envVars, "STRIPE_PRICE_PRO_MONTHLY");
     maybeSetEnv(envVars, "STRIPE_PRICE_PRO_YEARLY");
     maybeSetEnv(envVars, "NOTESHIP_CONTENT_COOKIE_DOMAIN");
+    maybeSetEnv(envVars, "NOTESHIP_CONTENT_SESSION_TTL_SECONDS");
     maybeSetEnv(envVars, "POWERTOOLS_LOGGER_SAMPLE_RATE");
     maybeSetEnv(envVars, "NOTESHIP_INTEGRATION_CREDENTIALS_KEY_VERSION");
     maybeSetEnv(envVars, "LINKEDIN_API_VERSION");
@@ -304,7 +308,40 @@ export class NoteshipApiStack extends Stack {
       jobsQueue.grantSendMessages(handler);
     });
 
+    const apiCustomDomain = requireEnv("NOTESHIP_API_CUSTOM_DOMAIN");
+    const apiCertificateArn = requireEnv("NOTESHIP_API_CERTIFICATE_ARN");
+    const apiCertificate = Certificate.fromCertificateArn(
+      this,
+      "ApiCertificate",
+      apiCertificateArn,
+    );
+    const domainName = new CfnDomainName(this, "ApiCustomDomain", {
+      domainName: apiCustomDomain,
+      domainNameConfigurations: [
+        {
+          endpointType: "REGIONAL",
+          certificateArn: apiCertificate.certificateArn,
+          securityPolicy: "TLS_1_2",
+        },
+      ],
+    });
+    new CfnApiMapping(this, "ApiRootMapping", {
+      apiId: api.httpApiId,
+      domainName: apiCustomDomain,
+      stage: "$default",
+    }).addDependency(domainName);
+
     new cdk.CfnOutput(this, "ApiUrl", { value: api.apiEndpoint });
+    new cdk.CfnOutput(this, "ApiCustomDomainName", { value: apiCustomDomain });
+    new cdk.CfnOutput(this, "ApiRegionalDomainName", {
+      value: domainName.attrRegionalDomainName,
+    });
+    new cdk.CfnOutput(this, "ApiRegionalHostedZoneId", {
+      value: domainName.attrRegionalHostedZoneId,
+    });
+    new cdk.CfnOutput(this, "ApiCloudflareCnameTarget", {
+      value: domainName.attrRegionalDomainName,
+    });
   }
 
   private createHandler(id: string, entry: string, environment: Record<string, string>) {

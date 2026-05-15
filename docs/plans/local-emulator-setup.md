@@ -127,7 +127,7 @@ NOTESHIP_CONTENT_BUCKET_NAME=noteship-content-local
 NOTESHIP_JOBS_QUEUE_URL=http://localhost:4566/000000000000/noteship-jobs-local
 
 # Disable CloudFront signing for local (use direct S3)
-NOTESHIP_CONTENT_DOMAIN=http://localhost:4566/noteship-content-local
+NOTESHIP_CONTENT_CUSTOM_DOMAIN=content.noteship.local
 NOTESHIP_CLOUDFRONT_KEY_PAIR_ID=local
 NOTESHIP_CLOUDFRONT_PRIVATE_KEY=local
 

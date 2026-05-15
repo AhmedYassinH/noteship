@@ -1,6 +1,15 @@
 import * as cdk from "aws-cdk-lib";
 import { RemovalPolicy, Stack, type StackProps, Tags } from "aws-cdk-lib";
+import { Certificate } from "aws-cdk-lib/aws-certificatemanager";
+import {
+  Distribution,
+  OriginAccessIdentity,
+  SecurityPolicyProtocol,
+  ViewerProtocolPolicy,
+} from "aws-cdk-lib/aws-cloudfront";
+import { S3Origin } from "aws-cdk-lib/aws-cloudfront-origins";
 import { BlockPublicAccess, Bucket, BucketEncryption } from "aws-cdk-lib/aws-s3";
+import { HttpMethods } from "aws-cdk-lib/aws-s3";
 import {
   AttributeType,
   BillingMode,
@@ -22,6 +31,20 @@ type CapacityCaps = {
   minWrite: number;
   maxWrite: number;
 };
+
+const requireEnv = (key: string): string => {
+  const value = process.env[key];
+  if (!value) {
+    throw new Error(`${key} is required for infra deploy`);
+  }
+  return value;
+};
+
+const parseCsv = (value: string): string[] =>
+  value
+    .split(",")
+    .map((item) => item.trim())
+    .filter((item) => item.length > 0);
 
 export class NoteshipCoreStack extends Stack {
   public readonly contentBucket: Bucket;
@@ -59,14 +82,46 @@ export class NoteshipCoreStack extends Stack {
       jobs: { minRead: 1, maxRead: 2, minWrite: 1, maxWrite: 2 },
     } satisfies Record<string, CapacityCaps>;
 
+    const contentUploadOrigins = parseCsv(requireEnv("NOTESHIP_CONTENT_UPLOAD_ORIGIN"));
+
     this.contentBucket = new Bucket(this, "ContentBucket", {
       bucketName: `noteship-content-${envName}`,
       versioned: true,
       encryption: BucketEncryption.S3_MANAGED,
       blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
       enforceSSL: true,
+      cors: [
+        {
+          allowedOrigins: contentUploadOrigins,
+          allowedMethods: [HttpMethods.PUT, HttpMethods.GET, HttpMethods.HEAD],
+          allowedHeaders: ["*"],
+          exposedHeaders: ["ETag"],
+          maxAge: 3000,
+        },
+      ],
       removalPolicy: RemovalPolicy.RETAIN,
       autoDeleteObjects: false,
+    });
+
+    const contentCustomDomain = requireEnv("NOTESHIP_CONTENT_CUSTOM_DOMAIN");
+    const contentCertificateArn = requireEnv("NOTESHIP_CONTENT_CERTIFICATE_ARN");
+    const contentCertificate = Certificate.fromCertificateArn(
+      this,
+      "ContentCertificate",
+      contentCertificateArn,
+    );
+    const contentOai = new OriginAccessIdentity(this, "ContentOAI");
+    this.contentBucket.grantRead(contentOai);
+
+    const contentDistribution = new Distribution(this, "ContentDistribution", {
+      defaultBehavior: {
+        origin: new S3Origin(this.contentBucket, { originAccessIdentity: contentOai }),
+        viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+        ...(props.envConfig.account ? { trustedSigners: [props.envConfig.account] } : {}),
+      },
+      domainNames: [contentCustomDomain],
+      certificate: contentCertificate,
+      minimumProtocolVersion: SecurityPolicyProtocol.TLS_V1_2_2021,
     });
 
     this.usersTable = this.createTable("UsersTable", {
@@ -165,6 +220,18 @@ export class NoteshipCoreStack extends Stack {
     });
 
     new cdk.CfnOutput(this, "ContentBucketName", { value: this.contentBucket.bucketName });
+    new cdk.CfnOutput(this, "ContentDistributionId", {
+      value: contentDistribution.distributionId,
+    });
+    new cdk.CfnOutput(this, "ContentDistributionDomain", {
+      value: contentDistribution.distributionDomainName,
+    });
+    new cdk.CfnOutput(this, "ContentCustomDomain", {
+      value: contentCustomDomain,
+    });
+    new cdk.CfnOutput(this, "ContentCloudflareCnameTarget", {
+      value: contentDistribution.distributionDomainName,
+    });
     new cdk.CfnOutput(this, "UsersTableName", { value: this.usersTable.tableName });
     new cdk.CfnOutput(this, "NotesTableName", { value: this.notesTable.tableName });
     new cdk.CfnOutput(this, "PostsTableName", { value: this.postsTable.tableName });
