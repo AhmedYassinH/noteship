@@ -9,15 +9,20 @@ export const handler = withDeps(async (deps, event) => {
   const userId = getUserId(event);
   const provider = requirePathParam(event, "provider");
   const code = event.queryStringParameters?.code;
+  const state = event.queryStringParameters?.state;
   const redirectUrl = event.queryStringParameters?.redirectUrl;
 
   if (!code) {
     throw badRequest("Missing OAuth code");
   }
+  if (!state) {
+    throw badRequest("Missing OAuth state");
+  }
 
   const account = await handleIntegrationCallback(deps, userId, {
     provider: provider as "linkedin" | "medium",
     code,
+    state,
     redirectUrl,
   });
 

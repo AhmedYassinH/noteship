@@ -43,7 +43,7 @@ export const generateDrafts = async (
 
   const postId = randomUUID();
   const now = nowIso();
-  const s3Key = buildPostDraftKey(userId, postId);
+  const s3Key = buildPostDraftKey(userId, input.provider, postId);
 
   const post: Post = {
     userId,
@@ -63,4 +63,39 @@ export const generateDrafts = async (
   return {
     drafts: [{ post, content: generated }],
   };
+};
+
+export const regenerateDraft = async (
+  deps: Deps,
+  userId: string,
+  noteId: string,
+  input: {
+    provider: "linkedin" | "medium";
+    currentContent: string;
+    instruction: string;
+    language?: "en" | "ar";
+  },
+): Promise<{ content: string }> => {
+  const note = await getNoteById(deps.ddb, deps.tableNames.notes, userId, noteId);
+  if (!note) {
+    throw notFound("Note not found");
+  }
+
+  const { periodStart } = await assertQuotaEntitlement(
+    deps,
+    userId,
+    FEATURE_KEYS.aiGenerationsPerMonth,
+    "aiGenerationsUsed",
+  );
+
+  const content = await deps.llm.regenerateDraft({
+    provider: input.provider,
+    currentContent: input.currentContent,
+    instruction: input.instruction,
+    language: input.language,
+    model: deps.llmModels.draft,
+  });
+
+  await incrementUsageForField(deps, userId, periodStart, "aiGenerationsUsed");
+  return { content };
 };

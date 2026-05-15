@@ -11,6 +11,12 @@ export const handler = withDeps(async (deps, event) => {
   const payload = parseJsonBody<Record<string, unknown>>(event.body);
   const input = schedulePostSchema.parse({ ...payload, postId });
 
-  const post = await schedulePost(deps, userId, postId, input.scheduledAt);
+  const post = await schedulePost(deps, userId, postId, input.scheduledAt, {
+    timezone:
+      input.timezone ??
+      event.headers?.["x-noteship-timezone"] ??
+      event.headers?.["X-Noteship-Timezone"],
+    mode: input.mode,
+  });
   return jsonResponse(200, postResponseSchema.parse(post));
 });

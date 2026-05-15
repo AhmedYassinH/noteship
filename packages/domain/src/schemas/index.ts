@@ -6,3 +6,4 @@ export * from "./posts";
 export * from "./integration-accounts";
 export * from "./usage";
 export * from "./jobs";
+export * from "./publish-payload";

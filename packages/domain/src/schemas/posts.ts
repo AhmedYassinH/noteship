@@ -2,6 +2,7 @@ import { z } from "zod";
 import { idSchema, isoDateTimeSchema, nonEmptyStringSchema } from "./common";
 
 export const postProviderSchema = z.enum(["linkedin", "medium"]);
+export const publishModeSchema = z.enum(["single", "overflow_comments"]);
 export const postStatusSchema = z.enum([
   "draft",
   "queued",
@@ -25,8 +26,10 @@ export const postSchema = z.object({
   postId: idSchema,
   noteId: idSchema,
   provider: postProviderSchema,
+  publishMode: publishModeSchema.optional(),
   status: postStatusSchema,
   scheduledAt: isoDateTimeSchema.optional(),
+  scheduledTimezone: nonEmptyStringSchema.optional(),
   publishedAt: isoDateTimeSchema.optional(),
   contentS3Key: nonEmptyStringSchema.optional(),
   error: postErrorSchema,

@@ -7,4 +7,11 @@ export type LlmClient = {
     language?: "en" | "ar";
     model: string;
   }) => Promise<string>;
+  regenerateDraft: (_input: {
+    provider: "linkedin" | "medium";
+    currentContent: string;
+    instruction: string;
+    language?: "en" | "ar";
+    model: string;
+  }) => Promise<string>;
 };

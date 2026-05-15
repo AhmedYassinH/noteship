@@ -3,7 +3,13 @@ import { getNoteById, putNote } from "../adapters/dynamodb/notes";
 import { getObjectString } from "../adapters/s3";
 import type { Deps } from "../runtime/deps";
 
-const normalizeText = (input: string): string => input.replace(/\s+/g, " ").trim();
+const stripNonSearchableDirectives = (input: string): string =>
+  input
+    .replace(/^:::ns-pdf\s+.*:::$/gim, " ")
+    .replace(/^:::ns-attachment\s+.*mime="application\/pdf".*:::$/gim, " ");
+
+const normalizeText = (input: string): string =>
+  stripNonSearchableDirectives(input).replace(/\s+/g, " ").trim();
 
 const chunkText = (input: string, maxLength = 2000, overlap = 200): string[] => {
   if (input.length <= maxLength) {

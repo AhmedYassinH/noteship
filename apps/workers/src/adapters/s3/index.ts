@@ -19,6 +19,26 @@ export const getObjectString = async (
   return result.Body.transformToString();
 };
 
+export const getObjectBinary = async (
+  s3: S3Client,
+  bucket: string,
+  key: string,
+): Promise<{ bytes: Uint8Array; contentType?: string }> => {
+  const result = await s3.send(
+    new GetObjectCommand({
+      Bucket: bucket,
+      Key: key,
+    }),
+  );
+
+  if (!result.Body) {
+    return { bytes: new Uint8Array(), contentType: result.ContentType };
+  }
+
+  const transformed = await result.Body.transformToByteArray();
+  return { bytes: transformed, contentType: result.ContentType };
+};
+
 export const putObjectString = async (
   s3: S3Client,
   bucket: string,

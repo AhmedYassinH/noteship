@@ -20,6 +20,10 @@ const formatErrorPayload = (error: unknown): { error: string; stack?: string } =
 
 export const handler = async (event: SQSEvent): Promise<void> => {
   const deps = getDeps();
+  logger.info("jobs_batch_received", {
+    recordCount: event.Records.length,
+    messageIds: event.Records.map((record) => record.messageId),
+  });
 
   for (const record of event.Records) {
     const start = Date.now();
@@ -30,6 +34,13 @@ export const handler = async (event: SQSEvent): Promise<void> => {
     let status = "succeeded";
 
     try {
+      logger.info("job_record_received", {
+        messageId: record.messageId,
+        attributes: record.attributes,
+        messageAttributes: record.messageAttributes,
+        body: record.body,
+      });
+
       const message = jobMessageSchema.parse(JSON.parse(record.body));
       jobId = message.jobId;
       jobType = message.type;
@@ -49,6 +60,14 @@ export const handler = async (event: SQSEvent): Promise<void> => {
       });
 
       if (message.type === "EMBED_NOTE") {
+        if (!deps.embeddingsEnabled) {
+          logger.info("job_skipped_embeddings_disabled", {
+            jobId: message.jobId,
+            messageId: record.messageId,
+            userId: message.userId,
+          });
+          continue;
+        }
         const payload = embedNoteJobPayloadSchema.parse(message.payload);
         await embedNote(deps, {
           userId: message.userId,
@@ -61,7 +80,11 @@ export const handler = async (event: SQSEvent): Promise<void> => {
 
       if (message.type === "PUBLISH_POST") {
         const payload = publishPostJobPayloadSchema.parse(message.payload);
-        await publishPost(deps, { userId: message.userId, postId: payload.postId });
+        await publishPost(deps, {
+          userId: message.userId,
+          postId: payload.postId,
+          mode: payload.mode,
+        });
         continue;
       }
     } catch (error) {

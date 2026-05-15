@@ -29,6 +29,7 @@ import sharedCopy from "../../data/marketing-shared";
 import { getEntitlements, type EntitlementsSnapshot } from "../../lib/entitlements";
 import { apiFetch } from "../../lib/api/client";
 import { createContentSession, createNote, listNotes } from "../../lib/api/notes";
+import { updateMeSettings } from "../../lib/api/users";
 import type { NoteResponse } from "../../lib/api/types";
 import { cn } from "@/lib/utils";
 import { useAuth } from "../auth/AuthProvider";
@@ -155,7 +156,7 @@ const DashboardShellInner = ({ children }: { children: ReactNode }) => {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [lang, setLang] = useState<Lang>("en");
+  const [lang, setLangState] = useState<Lang>("en");
   const [me, setMe] = useState<MeResponse["user"] | null>(null);
   const [recentNotes, setRecentNotes] = useState<NoteResponse[]>([]);
   const [recentNotesStatus, setRecentNotesStatus] = useState<"loading" | "ready" | "error">(
@@ -206,6 +207,21 @@ const DashboardShellInner = ({ children }: { children: ReactNode }) => {
   const contentMaxWidthClass = useMemo(() => getContentMaxWidthClass(pathname), [pathname]);
   const userLabel = me?.name ?? me?.email ?? "Noteship";
 
+  const setLang = useCallback(
+    (nextLang: Lang) => {
+      setLangState(nextLang);
+      if (!isAuthenticated) return;
+      void updateMeSettings(nextLang)
+        .then((response) => {
+          setMe(response.user);
+        })
+        .catch(() => {
+          // Keep language responsive locally even if settings sync fails.
+        });
+    },
+    [isAuthenticated],
+  );
+
   useEffect(() => {
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
     const onChange = () => setReducedMotion(media.matches);
@@ -232,12 +248,12 @@ const DashboardShellInner = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const storedLang = window.localStorage.getItem("noteship-lang");
     if (storedLang === "en" || storedLang === "ar") {
-      setLang(storedLang);
-      return;
-    }
-    const browserLang = navigator.language.toLowerCase();
-    if (browserLang.startsWith("ar")) {
-      setLang("ar");
+      setLangState(storedLang);
+    } else {
+      const browserLang = navigator.language.toLowerCase();
+      if (browserLang.startsWith("ar")) {
+        setLangState("ar");
+      }
     }
   }, []);
 
@@ -245,6 +261,9 @@ const DashboardShellInner = ({ children }: { children: ReactNode }) => {
     document.documentElement.lang = lang;
     document.documentElement.dir = isAr ? "rtl" : "ltr";
     window.localStorage.setItem("noteship-lang", lang);
+    window.localStorage.removeItem("noteship-site-direction");
+    window.localStorage.removeItem("noteship-editor-direction");
+    window.localStorage.removeItem("noteship-editor-direction-linked");
   }, [isAr, lang]);
 
   useEffect(() => {
@@ -286,6 +305,9 @@ const DashboardShellInner = ({ children }: { children: ReactNode }) => {
       try {
         const meResponse = await apiFetch<MeResponse>("/me");
         setMe(meResponse.user);
+        if (meResponse.user.language === "en" || meResponse.user.language === "ar") {
+          setLangState(meResponse.user.language);
+        }
         try {
           await createContentSession();
         } catch {
@@ -347,7 +369,7 @@ const DashboardShellInner = ({ children }: { children: ReactNode }) => {
       refreshNotes,
       setLang,
     }),
-    [entitlements, isAr, lang, me, recentNotes, recentNotesStatus, refreshNotes],
+    [entitlements, isAr, lang, me, recentNotes, recentNotesStatus, refreshNotes, setLang],
   );
 
   if (isLoading || (!isAuthenticated && !me)) {
@@ -367,10 +389,14 @@ const DashboardShellInner = ({ children }: { children: ReactNode }) => {
   return (
     <DashboardContext.Provider value={value}>
       <DirectionProvider dir={isAr ? "rtl" : "ltr"}>
-        <div className={cn("min-h-screen bg-[#f6f7fb] text-[var(--ns-ink)] font-body flex")}>
+        <div
+          className={cn(
+            "flex h-screen overflow-hidden bg-[#f6f7fb] text-[var(--ns-ink)] font-body",
+          )}
+        >
           <aside
             className={cn(
-              "relative flex h-screen shrink-0 flex-col bg-[#f8fafc] px-3 py-4 md:px-4 md:py-5 sticky top-0 overflow-y-auto",
+              "relative flex h-full shrink-0 flex-col overflow-y-auto bg-[#f8fafc] px-3 py-4 md:px-4 md:py-5",
               isAr
                 ? "border-l border-[rgba(15,23,42,0.1)]"
                 : "border-r border-[rgba(15,23,42,0.1)]",
@@ -412,7 +438,7 @@ const DashboardShellInner = ({ children }: { children: ReactNode }) => {
             ) : null}
           </aside>
 
-          <div className="flex min-w-0 flex-1 flex-col">
+          <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
             <Topbar
               breadcrumbs={breadcrumbs}
               dir={isAr ? "rtl" : "ltr"}

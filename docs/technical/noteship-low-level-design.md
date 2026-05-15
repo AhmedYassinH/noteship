@@ -75,8 +75,8 @@ Paths:
 ```
 users/{userId}/notes/{noteId}/note.md
 users/{userId}/notes/{noteId}/artifacts/{artifactId}.{ext}
-users/{userId}/posts/{postId}/draft.md
-users/{userId}/posts/{postId}/payload.json
+users/{userId}/posts/{provider}/{postId}/draft.md
+users/{userId}/posts/{provider}/{postId}/payload.json
 ```
 
 Notes:
@@ -142,7 +142,8 @@ Attributes:
 - `accountId` (vendor account identifier/URN)
 - `status` (connected|revoked|error)
 - `scopes[]`, `connectedAt`, `updatedAt`
-- `tokenRef` (future Secrets Manager pointer) OR encrypted token blob
+- Encrypted credentials fields (ciphertext + iv + tag + alg + keyVersion)
+- Credential timestamps (`credentialsUpdatedAt`, `tokenExpiresAt`, `refreshTokenExpiresAt`)
 - provider metadata (e.g., LinkedIn person URN)
 
 #### Table: `Usage`
@@ -322,7 +323,14 @@ Details: see `docs/technical/index.md`.
 #### Attachments
 
 - `POST /notes/{noteId}/uploads` get presigned upload URL
-  - Body: `{ filename, contentType, sizeBytes }`
+  - Body: `{ filename, contentType, sizeBytes, intent, artifactType }`
+  - `intent`: `embed | attach`
+  - `artifactType`: `image | pdf`
+  - Limits:
+    - image (embed/attach): max 5 MB
+    - pdf (embed): max 1 MB
+    - pdf (attach): max 5 MB
+    - video upload: not supported (embed external link instead)
   - Response: `{ uploadUrl, s3Key, artifactId, publicUrl }`
 
 #### Content access
@@ -341,8 +349,9 @@ Details: see `docs/technical/index.md`.
 #### Posts
 
 - `POST /posts` create post from draft (provider, content)
-- `POST /posts/{postId}/publish` publish now
-- `POST /posts/{postId}/schedule` schedule at time
+- `PUT /posts/{postId}/draft` update persisted draft artifact content
+- `POST /posts/{postId}/publish` publish now (mode: `single` or `overflow_comments`)
+- `POST /posts/{postId}/schedule` schedule at time (`timezone` optional; normalized to UTC for execution)
 - `POST /posts/{postId}/cancel` cancel scheduled
 - `GET /posts?status=` list posts
 
@@ -350,7 +359,7 @@ Details: see `docs/technical/index.md`.
 
 - `GET /integrations` list connected accounts
 - `POST /integrations/{provider}/connect` start OAuth
-- `GET /integrations/{provider}/callback` OAuth callback
+- `POST /integrations/{provider}/callback/finalize` finalize OAuth callback from authenticated frontend route
 - `POST /integrations/{provider}/disconnect` revoke
 
 #### Billing
@@ -424,7 +433,14 @@ Conceptual:
 ### 7.2 LinkedIn + Medium specifics (MVP)
 
 - Store per-user integration account
+- LinkedIn OAuth uses `openid profile w_member_social`; resolve member identity via `/v2/userinfo` (`sub`)
 - Worker publishes using stored token
+- LinkedIn media publish supports:
+  - text-only
+  - text + images (max from `LINKEDIN_MAX_IMAGES_PER_POST`, capped at 20)
+  - text + one PDF
+- API validates media before queueing and writes a publish payload snapshot to `users/{userId}/posts/{provider}/{postId}/payload.json`
+- Worker uploads LinkedIn media synchronously in-job, then creates the post (no media status polling requirement)
 - Handle rate limits with retries/backoff
 - Map internal post format to vendor payload
 
@@ -571,12 +587,18 @@ Cover only business-critical flows:
 
 Details: see `docs/technical/index.md`.
 
-- Languages: English (LTR) and Arabic (RTL) with user toggle; default from browser language, persist per user profile.
+- Languages: English (LTR) and Arabic (RTL) with user toggle; default from browser language, persist in local storage.
 - Apply brand rules: see `docs/brand/noteship-language-guidelines.md`, `docs/brand/noteship-layout-rtl-ltr.md`, `docs/brand/noteship-typography.md` for tone, mirroring, and font stacks (IBM Plex Sans + IBM Plex Sans Arabic for app UI; Lora/Noto Naskh for marketing headlines).
 - Layout: use CSS logical properties (`padding-inline`, `text-align: start|end`) and set `lang`/`dir` at the root per locale; mirror nav and directional icons for RTL.
 - shadcn/ui: enable RTL support in shadcn config; keep `dir` set on `html` or page root and use the Radix `DirectionProvider` where a component needs explicit direction (menus, popovers, dialogs).
 - TipTap/editor:
-  - Support per-block `dir` (RTL/LTR) and text alignment; keep code blocks and inline code LTR with monospace Latin fonts.
+  - Keep global layout direction language-driven (`en` -> LTR, `ar` -> RTL) from user settings (`/me`), with local-storage cache for fallback.
+  - Keep editor block direction controls in the block bubble menu; LTR/RTL toggles apply only to the active block and never change global site direction.
+  - Default new block direction to the current note session preference (initialized from site direction and updated when user toggles/enters explicit block direction).
+  - Support logical (`start/end`) and physical (`left/center/right`) alignment for mixed RTL/LTR notes.
+  - Support markdown import (CommonMark/GFM) with 500 KB max file size and user-facing validation.
+  - Support dual markdown export modes: rich Noteship markdown and compatibility markdown for Obsidian.
+  - Keep code blocks and inline code LTR with monospace Latin fonts.
   - Preserve language metadata on notes/posts (`language: ar|en`) and render containers with `lang`/`dir`.
   - On export (Markdown) include language in frontmatter; on render keep direction attributes.
 - Search/embeddings/AI: use multilingual embeddings and generation models; store language with embeddings to allow language-aware ranking; normalize Arabic text (diacritics optional) for search robustness; prompts respect selected language.

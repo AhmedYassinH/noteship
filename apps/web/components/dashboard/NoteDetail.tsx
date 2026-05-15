@@ -1,9 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { PanelRight } from "lucide-react";
 import dashboardCopy from "../../data/dashboard";
 import { useDashboard } from "../../components/dashboard/DashboardShell";
 import NoteEditor from "../../components/dashboard/NoteEditor";
+import LinkedInComposerModal from "../../components/dashboard/LinkedInComposerModal";
 import { Badge } from "../../components/ui/Badge";
 import { Button } from "../../components/ui/Button";
 import { Card } from "../../components/ui/Card";
@@ -30,6 +32,7 @@ type NoteDetailProps = {
 
 const NoteDetail = ({ noteId }: NoteDetailProps) => {
   const { lang, isAr, entitlements } = useDashboard();
+  const editorDirection = isAr ? "rtl" : "ltr";
   const t = useMemo(() => dashboardCopy[lang], [lang]);
   const [note, setNote] = useState<NoteWithContentResponse | null>(null);
   const [drafts, setDrafts] = useState<DraftResponse[]>([]);
@@ -39,6 +42,9 @@ const NoteDetail = ({ noteId }: NoteDetailProps) => {
   const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [loadStatus, setLoadStatus] = useState<"loading" | "ready" | "error">("loading");
   const [draftStatus, setDraftStatus] = useState<"idle" | "loading" | "error">("idle");
+  const [isLinkedInComposerOpen, setIsLinkedInComposerOpen] = useState(false);
+  const [isDesktopPanel, setIsDesktopPanel] = useState(false);
+  const [isPanelOpen, setIsPanelOpen] = useState(false);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const loadNote = useCallback(async () => {
@@ -60,6 +66,7 @@ const NoteDetail = ({ noteId }: NoteDetailProps) => {
     setScheduleAt("");
     setStatus("idle");
     setDraftStatus("idle");
+    setIsLinkedInComposerOpen(false);
     void loadNote();
     return () => {
       if (saveTimer.current) {
@@ -67,6 +74,18 @@ const NoteDetail = ({ noteId }: NoteDetailProps) => {
       }
     };
   }, [loadNote, noteId]);
+
+  useEffect(() => {
+    const media = window.matchMedia("(min-width: 1024px)");
+    const syncPanelMode = () => {
+      const nextIsDesktop = media.matches;
+      setIsDesktopPanel(nextIsDesktop);
+      setIsPanelOpen(nextIsDesktop);
+    };
+    syncPanelMode();
+    media.addEventListener("change", syncPanelMode);
+    return () => media.removeEventListener("change", syncPanelMode);
+  }, []);
 
   const scheduleSave = (updates: Partial<NoteWithContentResponse>) => {
     if (!note) return;
@@ -90,6 +109,11 @@ const NoteDetail = ({ noteId }: NoteDetailProps) => {
   };
 
   const handleGenerateDraft = async (provider: "linkedin" | "medium") => {
+    if (provider === "linkedin") {
+      setIsLinkedInComposerOpen(true);
+      return;
+    }
+
     setDraftStatus("loading");
     try {
       const response = await generateDrafts(noteId, provider, undefined, lang);
@@ -124,15 +148,124 @@ const NoteDetail = ({ noteId }: NoteDetailProps) => {
         provider: selectedDraft.provider,
         content: selectedDraft.content,
       });
-      await schedulePost(post.postId, new Date(scheduleAt).toISOString());
+      await schedulePost(post.postId, new Date(scheduleAt).toISOString(), {
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      });
     } catch {
       // ignore
     }
   };
 
+  const panelToggleLabel = isPanelOpen
+    ? isAr
+      ? "إخفاء اللوحة"
+      : "Hide panel"
+    : isAr
+      ? "إظهار اللوحة"
+      : "Show panel";
+
+  const sidePanelContent = (
+    <>
+      <div className="grid gap-2">
+        <h3 className="m-0 text-[0.95rem] font-semibold">{t.note.draftsTitle}</h3>
+        <div className="grid gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="pill"
+            onClick={() => handleGenerateDraft("linkedin")}
+            disabled={draftStatus === "loading"}
+          >
+            {t.note.generateLinkedIn}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="pill"
+            onClick={() => handleGenerateDraft("medium")}
+            disabled={draftStatus === "loading"}
+          >
+            {t.note.generateMedium}
+          </Button>
+        </div>
+        {draftStatus === "loading" ? (
+          <p className="m-0 text-[0.85rem] text-[#5b6474]">{t.common.loading}</p>
+        ) : draftStatus === "error" ? (
+          <p className="m-0 text-[0.85rem] text-[#5b6474]">{t.common.error}</p>
+        ) : drafts.length === 0 ? (
+          <p className="m-0 text-[0.85rem] text-[#5b6474]">{t.note.emptyDrafts}</p>
+        ) : (
+          <div className="grid gap-2.5">
+            {drafts.map((draft) => (
+              <Button
+                type="button"
+                key={draft.postId}
+                variant="outline"
+                className={cn(
+                  "h-auto w-full flex-col items-start gap-1 rounded-[12px] border border-[rgba(15,23,42,0.1)] bg-[#f9fafb] p-3 text-start",
+                  selectedDraft?.postId === draft.postId &&
+                    "border-[rgba(15,118,110,0.5)] bg-[rgba(15,118,110,0.08)]",
+                )}
+                onClick={() => setSelectedDraft(draft)}
+              >
+                <div className="text-[0.85rem] font-semibold">{draft.provider}</div>
+                <div className="text-[0.75rem] text-[#5b6474]">
+                  {draft.content.slice(0, 120)}...
+                </div>
+              </Button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="grid gap-2">
+        <h3 className="m-0 text-[0.95rem] font-semibold">{t.note.publishTitle}</h3>
+        <div className="grid gap-2">
+          <Button type="button" size="pill" onClick={handlePublish} disabled={!selectedDraft}>
+            {t.note.publishNow}
+          </Button>
+          <Input
+            className="rounded-[10px] border border-[rgba(15,23,42,0.1)] text-[0.95rem]"
+            type="datetime-local"
+            value={scheduleAt}
+            onChange={(event) => setScheduleAt(event.target.value)}
+            aria-label={t.note.scheduleTitle}
+          />
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="pill"
+              onClick={handleSchedule}
+              disabled={!selectedDraft || !scheduleAt || !canSchedule}
+            >
+              {t.note.schedule}
+            </Button>
+            {!canSchedule ? (
+              <Badge variant="secondary" className="rounded-full">
+                Pro
+              </Badge>
+            ) : null}
+          </div>
+        </div>
+        {!canSchedule ? (
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-[12px] border border-dashed border-[rgba(15,23,42,0.25)] bg-white p-3 text-[0.85rem] text-[#5b6474]">
+            <span>{t.note.scheduleUpsell}</span>
+            <a
+              className="font-semibold text-[var(--ns-accent)] hover:underline"
+              href="/dashboard/billing"
+            >
+              {t.note.upgradeCta}
+            </a>
+          </div>
+        ) : null}
+      </div>
+    </>
+  );
+
   if (loadStatus === "loading") {
     return (
-      <main className="flex flex-col gap-6" lang={lang} dir={isAr ? "rtl" : "ltr"}>
+      <main className="flex h-full min-h-0 flex-col gap-6" lang={lang} dir={isAr ? "rtl" : "ltr"}>
         <Card className={cardClass}>
           <div className={emptyStateClass}>{t.common.loading}</div>
         </Card>
@@ -142,7 +275,7 @@ const NoteDetail = ({ noteId }: NoteDetailProps) => {
 
   if (loadStatus === "error") {
     return (
-      <main className="flex flex-col gap-6" lang={lang} dir={isAr ? "rtl" : "ltr"}>
+      <main className="flex h-full min-h-0 flex-col gap-6" lang={lang} dir={isAr ? "rtl" : "ltr"}>
         <Card className={cardClass}>
           <div className={emptyStateClass} role="alert">
             <p>{t.common.error}</p>
@@ -157,7 +290,7 @@ const NoteDetail = ({ noteId }: NoteDetailProps) => {
 
   if (!note) {
     return (
-      <main className="flex flex-col gap-6" lang={lang} dir={isAr ? "rtl" : "ltr"}>
+      <main className="flex h-full min-h-0 flex-col gap-6" lang={lang} dir={isAr ? "rtl" : "ltr"}>
         <Card className={cardClass}>
           <div className={emptyStateClass}>{t.common.error}</div>
         </Card>
@@ -166,7 +299,7 @@ const NoteDetail = ({ noteId }: NoteDetailProps) => {
   }
 
   return (
-    <main className="flex flex-col gap-6" lang={lang} dir={isAr ? "rtl" : "ltr"}>
+    <main className="flex h-full min-h-0 flex-col gap-4" lang={lang} dir={isAr ? "rtl" : "ltr"}>
       <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div>
           <h1 className="m-0 text-[1.75rem] font-semibold leading-[1.2]">{note.title}</h1>
@@ -182,127 +315,95 @@ const NoteDetail = ({ noteId }: NoteDetailProps) => {
                   ? t.shell.saveFailed
                   : t.shell.ready}
           </Badge>
+          <Button
+            type="button"
+            variant="outline"
+            size="pill"
+            onClick={() => setIsPanelOpen((prev) => !prev)}
+            aria-controls="note-side-panel"
+            aria-expanded={isPanelOpen}
+            data-testid="note-side-panel-toggle"
+          >
+            <PanelRight className="h-4 w-4" />
+            <span className="max-[1100px]:hidden">{panelToggleLabel}</span>
+          </Button>
         </div>
       </div>
 
-      <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px] rtl:lg:grid-cols-[320px_minmax(0,1fr)]">
-        <NoteEditor
-          noteId={noteId}
-          title={note.title}
-          content={note.content}
-          onTitleChange={(value) => {
-            setNote((prev) => (prev ? { ...prev, title: value } : prev));
-            scheduleSave({ title: value });
-          }}
-          onContentChange={(value) => {
-            setNote((prev) => (prev ? { ...prev, content: value } : prev));
-            scheduleSave({ content: value });
-          }}
-          titlePlaceholder={t.note.titlePlaceholder}
-          contentPlaceholder={t.note.contentPlaceholder}
-          uploadLabel={t.note.uploadAsset}
-          uploadingLabel={t.note.uploading}
-          uploadFailedLabel={t.note.uploadFailed}
-          dir={isAr ? "rtl" : "ltr"}
-        />
-
-        <aside className="grid gap-4 rounded-2xl border border-[rgba(15,23,42,0.1)] bg-white p-4">
-          <div className="grid gap-2">
-            <h3 className="m-0 text-[0.95rem] font-semibold">{t.note.draftsTitle}</h3>
-            <div className="grid gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                size="pill"
-                onClick={() => handleGenerateDraft("linkedin")}
-                disabled={draftStatus === "loading"}
-              >
-                {t.note.generateLinkedIn}
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                size="pill"
-                onClick={() => handleGenerateDraft("medium")}
-                disabled={draftStatus === "loading"}
-              >
-                {t.note.generateMedium}
-              </Button>
-            </div>
-            {draftStatus === "loading" ? (
-              <p className="m-0 text-[0.85rem] text-[#5b6474]">{t.common.loading}</p>
-            ) : draftStatus === "error" ? (
-              <p className="m-0 text-[0.85rem] text-[#5b6474]">{t.common.error}</p>
-            ) : drafts.length === 0 ? (
-              <p className="m-0 text-[0.85rem] text-[#5b6474]">{t.note.emptyDrafts}</p>
-            ) : (
-              <div className="grid gap-2.5">
-                {drafts.map((draft) => (
-                  <Button
-                    type="button"
-                    key={draft.postId}
-                    variant="outline"
-                    className={cn(
-                      "h-auto w-full flex-col items-start gap-1 rounded-[12px] border border-[rgba(15,23,42,0.1)] bg-[#f9fafb] p-3 text-start",
-                      selectedDraft?.postId === draft.postId &&
-                        "border-[rgba(15,118,110,0.5)] bg-[rgba(15,118,110,0.08)]",
-                    )}
-                    onClick={() => setSelectedDraft(draft)}
-                  >
-                    <div className="text-[0.85rem] font-semibold">{draft.provider}</div>
-                    <div className="text-[0.75rem] text-[#5b6474]">
-                      {draft.content.slice(0, 120)}...
-                    </div>
-                  </Button>
-                ))}
-              </div>
-            )}
+      <div className="relative grid min-h-0 flex-1 gap-5 lg:grid-cols-[minmax(0,1fr)_360px]">
+        <section className={cn("min-h-0", isDesktopPanel && !isPanelOpen && "lg:col-span-2")}>
+          <div
+            className={cn("h-full min-h-0", isDesktopPanel && isPanelOpen && "lg:max-w-[880px]")}
+          >
+            <NoteEditor
+              lang={lang}
+              noteId={noteId}
+              title={note.title}
+              content={note.content}
+              onTitleChange={(value) => {
+                setNote((prev) => (prev ? { ...prev, title: value } : prev));
+                scheduleSave({ title: value });
+              }}
+              onContentChange={(value) => {
+                setNote((prev) => (prev ? { ...prev, content: value } : prev));
+                scheduleSave({ content: value });
+              }}
+              titlePlaceholder={t.note.titlePlaceholder}
+              contentPlaceholder={t.note.contentPlaceholder}
+              uploadLabel={t.note.uploadAsset}
+              uploadingLabel={t.note.uploading}
+              uploadFailedLabel={t.note.uploadFailed}
+              editorDirection={editorDirection}
+            />
           </div>
+        </section>
 
-          <div className="grid gap-2">
-            <h3 className="m-0 text-[0.95rem] font-semibold">{t.note.publishTitle}</h3>
-            <div className="grid gap-2">
-              <Button type="button" size="pill" onClick={handlePublish} disabled={!selectedDraft}>
-                {t.note.publishNow}
-              </Button>
-              <Input
-                className="rounded-[10px] border border-[rgba(15,23,42,0.1)] text-[0.95rem]"
-                type="datetime-local"
-                value={scheduleAt}
-                onChange={(event) => setScheduleAt(event.target.value)}
-                aria-label={t.note.scheduleTitle}
-              />
-              <div className="flex flex-wrap items-center gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="pill"
-                  onClick={handleSchedule}
-                  disabled={!selectedDraft || !scheduleAt || !canSchedule}
-                >
-                  {t.note.schedule}
-                </Button>
-                {!canSchedule ? (
-                  <Badge variant="secondary" className="rounded-full">
-                    Pro
-                  </Badge>
-                ) : null}
-              </div>
-            </div>
-            {!canSchedule ? (
-              <div className="flex flex-wrap items-center justify-between gap-3 rounded-[12px] border border-dashed border-[rgba(15,23,42,0.25)] bg-white p-3 text-[0.85rem] text-[#5b6474]">
-                <span>{t.note.scheduleUpsell}</span>
-                <a
-                  className="font-semibold text-[var(--ns-accent)] hover:underline"
-                  href="/dashboard/billing"
-                >
-                  {t.note.upgradeCta}
-                </a>
-              </div>
-            ) : null}
-          </div>
-        </aside>
+        {isDesktopPanel && isPanelOpen ? (
+          <aside
+            id="note-side-panel"
+            className="hidden min-h-0 flex-col gap-4 overflow-y-auto rounded-2xl border border-[rgba(15,23,42,0.1)] bg-white p-4 lg:flex"
+            data-testid="note-side-panel-inline"
+          >
+            {sidePanelContent}
+          </aside>
+        ) : null}
       </div>
+
+      {!isDesktopPanel && isPanelOpen ? (
+        <div
+          className="fixed inset-0 z-40 bg-[rgba(15,23,42,0.35)] lg:hidden"
+          onClick={() => setIsPanelOpen(false)}
+          data-testid="note-side-panel-overlay-backdrop"
+        >
+          <aside
+            id="note-side-panel"
+            className="absolute inset-y-0 right-0 flex w-[min(92vw,380px)] flex-col gap-3 overflow-y-auto border-s border-[rgba(15,23,42,0.1)] bg-white p-4 shadow-[0_20px_48px_rgba(15,23,42,0.25)]"
+            onClick={(event) => event.stopPropagation()}
+            data-testid="note-side-panel-overlay"
+          >
+            <Button
+              type="button"
+              variant="outline"
+              size="pill"
+              onClick={() => setIsPanelOpen(false)}
+            >
+              <PanelRight className="h-4 w-4" />
+              {panelToggleLabel}
+            </Button>
+            {sidePanelContent}
+          </aside>
+        </div>
+      ) : null}
+
+      <LinkedInComposerModal
+        open={isLinkedInComposerOpen}
+        noteId={noteId}
+        noteTitle={note.title}
+        initialContent={note.content}
+        lang={lang}
+        isAr={isAr}
+        onClose={() => setIsLinkedInComposerOpen(false)}
+      />
     </main>
   );
 };

@@ -35,8 +35,10 @@ export type PostResponse = {
   postId: string;
   noteId: string;
   provider: "linkedin" | "medium";
+  publishMode?: "single" | "overflow_comments";
   status: "draft" | "queued" | "scheduled" | "publishing" | "published" | "failed";
   scheduledAt?: string;
+  scheduledTimezone?: string;
   publishedAt?: string;
   contentS3Key?: string;
   createdAt: string;
@@ -78,6 +80,8 @@ export type ConnectIntegrationResponse = {
   state: string;
 };
 
+export type FinalizeIntegrationResponse = IntegrationAccountResponse;
+
 export type PortalSessionResponse = {
   url: string;
 };
@@ -91,4 +95,8 @@ export type NoteUploadResponse = {
 
 export type ContentSessionResponse = {
   ok: true;
+};
+
+export type RegenerateDraftResponse = {
+  content: string;
 };

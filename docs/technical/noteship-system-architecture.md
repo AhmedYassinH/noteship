@@ -93,6 +93,8 @@ Details: see `docs/technical/index.md`.
 
 - Auth UI and session handling
 - Rich text editing (TipTap)
+- Markdown import/export workflows (including compatibility export mode)
+- Language-driven direction for site and editor defaults (EN -> LTR, AR -> RTL), sourced from user settings (`/me`) and cached in local storage
 - Calling API endpoints for notes, search, posts, scheduling
 - Requesting signed content session cookies for user content access
 - Client-side feature gating (hide/disable) based on entitlements snapshot
@@ -262,14 +264,15 @@ flowchart TD
   A[User clicks Publish/Schedule] --> B[API validates entitlement]
   B --> C[Create Post record in DDB<br/>status=queued or scheduled]
   C --> D[Enqueue JOB_PUBLISH_POST to SQS]
-  D --> E[Worker loads content from S3 + DDB]
-  E --> F[Connector calls vendor API]
-  F --> G{Success?}
-  G -->|Yes| H[Update status=published]
-  G -->|No| I[Retry with backoff]
-  I --> J{Retries exceeded?}
-  J -->|Yes| K[DLQ + status=failed]
-  J -->|No| D
+  D --> E[Worker loads content + payload snapshot from S3/DDB]
+  E --> F[Connector uploads media synchronously when needed]
+  F --> G[Connector calls vendor post API]
+  G --> H{Success?}
+  H -->|Yes| I[Update status=published]
+  H -->|No| J[Retry with backoff]
+  J --> K{Retries exceeded?}
+  K -->|Yes| L[DLQ + status=failed]
+  K -->|No| D
 
 ### 5.5 Content access session
 

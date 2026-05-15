@@ -42,7 +42,8 @@ const IntegrationsPage = () => {
 
   const handleConnect = async (provider: IntegrationProvider) => {
     try {
-      const response = await connectIntegration(provider, window.location.href);
+      const callbackUrl = `${window.location.origin}/callback/integrations/${provider}`;
+      const response = await connectIntegration(provider, callbackUrl);
       window.location.href = response.url;
     } catch {
       // ignore for now

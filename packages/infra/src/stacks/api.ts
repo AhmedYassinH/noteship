@@ -106,6 +106,9 @@ export class NoteshipApiStack extends Stack {
       STRIPE_WEBHOOK_SECRET: requireEnv("STRIPE_WEBHOOK_SECRET"),
       LINKEDIN_CLIENT_ID: requireEnv("LINKEDIN_CLIENT_ID"),
       LINKEDIN_CLIENT_SECRET: requireEnv("LINKEDIN_CLIENT_SECRET"),
+      NOTESHIP_INTEGRATION_CREDENTIALS_KEY_B64: requireEnv(
+        "NOTESHIP_INTEGRATION_CREDENTIALS_KEY_B64",
+      ),
       MEDIUM_CLIENT_ID: requireEnv("MEDIUM_CLIENT_ID"),
       MEDIUM_CLIENT_SECRET: requireEnv("MEDIUM_CLIENT_SECRET"),
       NOTESHIP_CONTENT_DOMAIN: requireEnv("NOTESHIP_CONTENT_DOMAIN"),
@@ -116,12 +119,18 @@ export class NoteshipApiStack extends Stack {
     };
 
     maybeSetEnv(envVars, "NOTESHIP_LLM_PROVIDER");
+    maybeSetEnv(envVars, "NOTESHIP_EMBEDDING_ENABLED");
     maybeSetEnv(envVars, "NOTESHIP_VECTOR_DB_PROVIDER");
     maybeSetEnv(envVars, "QDRANT_API_KEY");
     maybeSetEnv(envVars, "STRIPE_PRICE_PRO_MONTHLY");
     maybeSetEnv(envVars, "STRIPE_PRICE_PRO_YEARLY");
     maybeSetEnv(envVars, "NOTESHIP_CONTENT_COOKIE_DOMAIN");
     maybeSetEnv(envVars, "POWERTOOLS_LOGGER_SAMPLE_RATE");
+    maybeSetEnv(envVars, "NOTESHIP_INTEGRATION_CREDENTIALS_KEY_VERSION");
+    maybeSetEnv(envVars, "LINKEDIN_API_VERSION");
+    maybeSetEnv(envVars, "LINKEDIN_TEXT_MAX_CHARS");
+    maybeSetEnv(envVars, "LINKEDIN_COMMENT_MAX_CHARS");
+    maybeSetEnv(envVars, "LINKEDIN_MAX_IMAGES_PER_POST");
 
     const api = new HttpApi(this, "NoteshipHttpApi", {
       apiName: `noteship-api-${envName}`,
@@ -145,6 +154,12 @@ export class NoteshipApiStack extends Stack {
 
     const routes: RouteConfig[] = [
       { id: "GetMe", path: "/me", methods: [HttpMethod.GET], entry: "users/me.ts" },
+      {
+        id: "UpdateMeSettings",
+        path: "/me/settings",
+        methods: [HttpMethod.PUT],
+        entry: "users/settings.ts",
+      },
       { id: "CreateNote", path: "/notes", methods: [HttpMethod.POST], entry: "notes/create.ts" },
       { id: "ListNotes", path: "/notes", methods: [HttpMethod.GET], entry: "notes/list.ts" },
       { id: "GetNote", path: "/notes/{noteId}", methods: [HttpMethod.GET], entry: "notes/get.ts" },
@@ -184,8 +199,20 @@ export class NoteshipApiStack extends Stack {
         methods: [HttpMethod.POST],
         entry: "drafts/create.ts",
       },
+      {
+        id: "RegenerateDraft",
+        path: "/notes/{noteId}/drafts/regenerate",
+        methods: [HttpMethod.POST],
+        entry: "drafts/regenerate.ts",
+      },
       { id: "CreatePost", path: "/posts", methods: [HttpMethod.POST], entry: "posts/create.ts" },
       { id: "ListPosts", path: "/posts", methods: [HttpMethod.GET], entry: "posts/list.ts" },
+      {
+        id: "UpdatePostDraft",
+        path: "/posts/{postId}/draft",
+        methods: [HttpMethod.PUT],
+        entry: "posts/draft.ts",
+      },
       {
         id: "PublishPost",
         path: "/posts/{postId}/publish",
@@ -221,6 +248,12 @@ export class NoteshipApiStack extends Stack {
         path: "/integrations/{provider}/callback",
         methods: [HttpMethod.GET],
         entry: "integrations/callback.ts",
+      },
+      {
+        id: "FinalizeIntegrationCallback",
+        path: "/integrations/{provider}/callback/finalize",
+        methods: [HttpMethod.POST],
+        entry: "integrations/finalize.ts",
       },
       {
         id: "DisconnectIntegration",

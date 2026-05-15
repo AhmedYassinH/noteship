@@ -49,17 +49,19 @@ export const createNote = async (
   await putObjectString(deps.s3, deps.bucketName, s3Key, input.content);
   await putNote(deps.ddb, deps.tableNames.notes, note);
 
-  await enqueueJob(deps.sqs, deps.jobsQueueUrl, {
-    jobId: randomUUID(),
-    type: "EMBED_NOTE",
-    userId,
-    createdAt: now,
-    payload: {
-      noteId,
-      s3Key,
-      version: contentHash,
-    },
-  });
+  if (deps.embeddingsEnabled) {
+    await enqueueJob(deps.sqs, deps.jobsQueueUrl, {
+      jobId: randomUUID(),
+      type: "EMBED_NOTE",
+      userId,
+      createdAt: now,
+      payload: {
+        noteId,
+        s3Key,
+        version: contentHash,
+      },
+    });
+  }
 
   return note;
 };
@@ -102,17 +104,19 @@ export const updateNote = async (
   }
 
   await putNote(deps.ddb, deps.tableNames.notes, updated);
-  await enqueueJob(deps.sqs, deps.jobsQueueUrl, {
-    jobId: randomUUID(),
-    type: "EMBED_NOTE",
-    userId,
-    createdAt: now,
-    payload: {
-      noteId,
-      s3Key: existing.s3Key,
-      version: contentHash,
-    },
-  });
+  if (deps.embeddingsEnabled) {
+    await enqueueJob(deps.sqs, deps.jobsQueueUrl, {
+      jobId: randomUUID(),
+      type: "EMBED_NOTE",
+      userId,
+      createdAt: now,
+      payload: {
+        noteId,
+        s3Key: existing.s3Key,
+        version: contentHash,
+      },
+    });
+  }
 
   return updated;
 };
@@ -156,9 +160,41 @@ export const createNoteUploadUrl = async (
   filename: string,
   contentType: string,
   sizeBytes: number,
+  intent: "embed" | "attach",
+  artifactType: "image" | "pdf",
 ): Promise<{ uploadUrl: string; s3Key: string; artifactId: string; publicUrl: string }> => {
   if (!Number.isFinite(sizeBytes) || sizeBytes <= 0) {
     throw badRequest("sizeBytes must be a positive number");
+  }
+
+  if (contentType.startsWith("video/")) {
+    throw badRequest("Video uploads are not supported yet. Embed a link instead.");
+  }
+
+  const maxImageBytes = 5 * 1024 * 1024;
+  const maxPdfEmbedBytes = 1 * 1024 * 1024;
+  const maxPdfAttachmentBytes = 5 * 1024 * 1024;
+
+  if (artifactType === "image") {
+    if (!contentType.startsWith("image/")) {
+      throw badRequest("Image uploads must use an image content type.");
+    }
+    if (sizeBytes > maxImageBytes) {
+      throw badRequest("Image uploads are limited to 5 MB per file.");
+    }
+  }
+
+  if (artifactType === "pdf") {
+    if (contentType !== "application/pdf") {
+      throw badRequest("PDF uploads must use application/pdf content type.");
+    }
+    const maxPdfBytes = intent === "embed" ? maxPdfEmbedBytes : maxPdfAttachmentBytes;
+    if (sizeBytes > maxPdfBytes) {
+      if (intent === "embed") {
+        throw badRequest("Embedded PDFs are limited to 1 MB.");
+      }
+      throw badRequest("Attached PDFs are limited to 5 MB.");
+    }
   }
 
   const note = await getNoteById(deps.ddb, deps.tableNames.notes, userId, noteId);

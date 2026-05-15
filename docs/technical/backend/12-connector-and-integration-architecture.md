@@ -28,6 +28,7 @@ Export (publish):
 - Worker executes connector logic, retries, DLQ
 - Provider rate limits handled centrally per connector
 - Scheduled posts: store `scheduledAt` in DDB and a dispatcher Lambda (every minute) enqueues `PUBLISH_POST` for due items
+- For LinkedIn media posts, worker performs synchronous media upload (image/PDF) and then creates the post in the same job execution (no media-status polling dependency).
 
 ## Integration accounts
 
@@ -38,6 +39,7 @@ Store per-user provider account state:
 - scopes
 - provider identifiers (URNs, usernames)
 - status
+- publish payload snapshot (`users/{userId}/posts/{provider}/{postId}/payload.json`) used by worker for deterministic publish/schedule behavior
 
 ## Mermaid: publish job flow
 

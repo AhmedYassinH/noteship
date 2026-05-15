@@ -18,6 +18,8 @@
     "@radix-ui/react-slot": "^1.2.4",
     "@tiptap/extension-image": "^2.10.0",
     "@tiptap/extension-link": "^2.10.0",
+    "@tiptap/extension-heading": "^2.10.0",
+    "@tiptap/extension-paragraph": "^2.10.0",
     "@tiptap/extension-placeholder": "^2.10.0",
     "@tiptap/react": "^2.10.0",
     "@tiptap/starter-kit": "^2.10.0",

@@ -3,6 +3,7 @@ import type {
   ConnectIntegrationResponse,
   ContentSessionResponse,
   DraftCreateResponse,
+  FinalizeIntegrationResponse,
   IntegrationProvider,
   IntegrationsListResponse,
   NoteListResponse,
@@ -12,6 +13,7 @@ import type {
   PortalSessionResponse,
   PostResponse,
   PostListResponse,
+  RegenerateDraftResponse,
   SearchResponse,
 } from "./types";
 
@@ -75,19 +77,36 @@ export const createPost = (payload: {
   noteId: string;
   provider: "linkedin" | "medium";
   content?: string;
+  mode?: "single" | "overflow_comments";
 }) =>
   apiFetch<PostResponse>("/posts", {
     method: "POST",
     body: JSON.stringify(payload),
   });
 
-export const publishPost = (postId: string) =>
-  apiFetch<void>(`/posts/${postId}/publish`, { method: "POST" });
+export const updatePostDraft = (
+  postId: string,
+  payload: { content: string; mode?: "single" | "overflow_comments" },
+) =>
+  apiFetch<PostResponse>(`/posts/${postId}/draft`, {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  });
 
-export const schedulePost = (postId: string, scheduledAt: string) =>
+export const publishPost = (postId: string, payload?: { mode?: "single" | "overflow_comments" }) =>
+  apiFetch<PostResponse>(`/posts/${postId}/publish`, {
+    method: "POST",
+    body: JSON.stringify(payload ?? {}),
+  });
+
+export const schedulePost = (
+  postId: string,
+  scheduledAt: string,
+  payload?: { timezone?: string; mode?: "single" | "overflow_comments" },
+) =>
   apiFetch<void>(`/posts/${postId}/schedule`, {
     method: "POST",
-    body: JSON.stringify({ scheduledAt }),
+    body: JSON.stringify({ scheduledAt, ...payload }),
   });
 
 export const listIntegrations = () => apiFetch<IntegrationsListResponse>("/integrations");
@@ -98,8 +117,31 @@ export const connectIntegration = (provider: IntegrationProvider, redirectUrl?: 
     body: JSON.stringify({ redirectUrl }),
   });
 
+export const finalizeIntegrationCallback = (
+  provider: IntegrationProvider,
+  payload: { code: string; state: string; redirectUrl?: string },
+) =>
+  apiFetch<FinalizeIntegrationResponse>(`/integrations/${provider}/callback/finalize`, {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+
 export const disconnectIntegration = (provider: IntegrationProvider) =>
   apiFetch<void>(`/integrations/${provider}/disconnect`, { method: "POST" });
+
+export const regenerateDraft = (
+  noteId: string,
+  payload: {
+    provider: "linkedin" | "medium";
+    currentContent: string;
+    instruction: string;
+    language?: "en" | "ar";
+  },
+) =>
+  apiFetch<RegenerateDraftResponse>(`/notes/${noteId}/drafts/regenerate`, {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
 
 export const createPortalSession = (returnUrl: string) =>
   apiFetch<PortalSessionResponse>("/billing/portal", {
@@ -113,6 +155,8 @@ export const createNoteUpload = (
     filename: string;
     contentType: string;
     sizeBytes: number;
+    intent: "embed" | "attach";
+    artifactType: "image" | "pdf";
   },
 ) =>
   apiFetch<NoteUploadResponse>(`/notes/${noteId}/uploads`, {
