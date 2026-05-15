@@ -68,8 +68,9 @@ export class NoteshipCoreStack extends Stack {
     Tags.of(this).add("app", "noteship");
     Tags.of(this).add("env", envName);
 
-    // Keep total max RCUs/WCUs across tables + GSIs within Always Free (25/25).
-    // Adjust caps for prod traffic; see docs/technical/ops/production-checklist.md.
+    // Keep total provisioned RCUs/WCUs across tables + GSIs within Always Free (25/25).
+    // Revisit the production throughput strategy before go-live; see
+    // docs/technical/ops/production-checklist.md.
     const capacityCaps = {
       users: { minRead: 1, maxRead: 2, minWrite: 1, maxWrite: 2 },
       notes: { minRead: 1, maxRead: 4, minWrite: 1, maxWrite: 4 },
@@ -130,7 +131,6 @@ export class NoteshipCoreStack extends Stack {
       readCapacity: capacityCaps.users.minRead,
       writeCapacity: capacityCaps.users.minWrite,
     });
-    this.configureTableAutoScaling(this.usersTable, capacityCaps.users);
 
     this.notesTable = this.createTable("NotesTable", {
       tableName: `noteship-notes-${envName}`,
@@ -147,8 +147,6 @@ export class NoteshipCoreStack extends Stack {
       readCapacity: capacityCaps.notesByUpdatedAt.minRead,
       writeCapacity: capacityCaps.notesByUpdatedAt.minWrite,
     });
-    this.configureTableAutoScaling(this.notesTable, capacityCaps.notes);
-    this.configureGsiAutoScaling(this.notesTable, "GSI1", capacityCaps.notesByUpdatedAt);
 
     this.postsTable = this.createTable("PostsTable", {
       tableName: `noteship-posts-${envName}`,
@@ -173,9 +171,6 @@ export class NoteshipCoreStack extends Stack {
       readCapacity: capacityCaps.postsBySchedule.minRead,
       writeCapacity: capacityCaps.postsBySchedule.minWrite,
     });
-    this.configureTableAutoScaling(this.postsTable, capacityCaps.posts);
-    this.configureGsiAutoScaling(this.postsTable, "GSI1", capacityCaps.postsByStatusUpdatedAt);
-    this.configureGsiAutoScaling(this.postsTable, "GSI2", capacityCaps.postsBySchedule);
 
     this.integrationsTable = this.createTable("IntegrationsTable", {
       tableName: `noteship-integrations-${envName}`,
@@ -184,7 +179,6 @@ export class NoteshipCoreStack extends Stack {
       readCapacity: capacityCaps.integrations.minRead,
       writeCapacity: capacityCaps.integrations.minWrite,
     });
-    this.configureTableAutoScaling(this.integrationsTable, capacityCaps.integrations);
 
     this.usageTable = this.createTable("UsageTable", {
       tableName: `noteship-usage-${envName}`,
@@ -193,7 +187,6 @@ export class NoteshipCoreStack extends Stack {
       readCapacity: capacityCaps.usage.minRead,
       writeCapacity: capacityCaps.usage.minWrite,
     });
-    this.configureTableAutoScaling(this.usageTable, capacityCaps.usage);
 
     this.jobsTable = this.createTable("JobsTable", {
       tableName: `noteship-jobs-${envName}`,
@@ -202,7 +195,6 @@ export class NoteshipCoreStack extends Stack {
       readCapacity: capacityCaps.jobs.minRead,
       writeCapacity: capacityCaps.jobs.minWrite,
     });
-    this.configureTableAutoScaling(this.jobsTable, capacityCaps.jobs);
 
     const dlq = new Queue(this, "JobsDlq", {
       queueName: `noteship-jobs-dlq-${envName}`,
@@ -264,35 +256,5 @@ export class NoteshipCoreStack extends Stack {
       pointInTimeRecovery: false,
       removalPolicy: RemovalPolicy.RETAIN,
     });
-  }
-
-  private configureTableAutoScaling(table: Table, caps: CapacityCaps): void {
-    table
-      .autoScaleReadCapacity({
-        minCapacity: caps.minRead,
-        maxCapacity: caps.maxRead,
-      })
-      .scaleOnUtilization({ targetUtilizationPercent: 70 });
-    table
-      .autoScaleWriteCapacity({
-        minCapacity: caps.minWrite,
-        maxCapacity: caps.maxWrite,
-      })
-      .scaleOnUtilization({ targetUtilizationPercent: 70 });
-  }
-
-  private configureGsiAutoScaling(table: Table, indexName: string, caps: CapacityCaps): void {
-    table
-      .autoScaleGlobalSecondaryIndexReadCapacity(indexName, {
-        minCapacity: caps.minRead,
-        maxCapacity: caps.maxRead,
-      })
-      .scaleOnUtilization({ targetUtilizationPercent: 70 });
-    table
-      .autoScaleGlobalSecondaryIndexWriteCapacity(indexName, {
-        minCapacity: caps.minWrite,
-        maxCapacity: caps.maxWrite,
-      })
-      .scaleOnUtilization({ targetUtilizationPercent: 70 });
   }
 }
