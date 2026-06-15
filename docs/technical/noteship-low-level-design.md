@@ -337,10 +337,11 @@ Details: see `docs/technical/index.md`.
 
 - `POST /content/session` issue CloudFront signed cookies (user-scoped)
   - Response: `{ ok: true }`
-  - Cookies are issued as `HttpOnly; Secure; SameSite=None` with optional `Domain` from `NOTESHIP_CONTENT_COOKIE_DOMAIN` (omit for host-only scope)
-  - Cookie payload supports CloudFront custom-policy (`CloudFront-Policy`) and canned-policy (`CloudFront-Expires`) formats.
+  - Cookies are issued as `HttpOnly; Secure; SameSite=None`.
+  - Cookie `Domain` uses `NOTESHIP_CONTENT_COOKIE_DOMAIN` when set. If omitted for a custom content subdomain, the API derives the parent domain so sibling API/web/content hosts can share the CloudFront cookies. Localhost, IPs, CloudFront default domains, and AWS service domains remain host-only.
+  - User-folder sessions use CloudFront custom-policy cookies (`CloudFront-Policy`) so the policy can authorize `users/{userId}/*`.
   - Session TTL is configurable via optional `NOTESHIP_CONTENT_SESSION_TTL_SECONDS` (default: 43200).
-  - Content URLs use `NOTESHIP_CONTENT_CUSTOM_DOMAIN`.
+  - Content URLs use `NOTESHIP_CONTENT_CUSTOM_DOMAIN` and URL-encode path segments in browser-facing URLs/policies while preserving the canonical S3 key.
 
 #### Search
 
