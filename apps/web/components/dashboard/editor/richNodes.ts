@@ -7,6 +7,15 @@ export type BlockAlign = "start" | "end" | "left" | "center" | "right";
 export type BlockDirection = "ltr" | "rtl";
 export type WidthPreset = "small" | "medium" | "full";
 
+type MarkdownWriter = {
+  write: (value: string) => void;
+  closeBlock: (node: unknown) => void;
+};
+
+type SerializedNode = {
+  attrs: Record<string, unknown>;
+};
+
 const WIDTH_PRESET_TO_MAX_WIDTH: Record<WidthPreset, string> = {
   small: "320px",
   medium: "680px",
@@ -55,6 +64,9 @@ const buildDirective = (name: string, attrs: Record<string, string | undefined>)
   return `:::ns-${name}${serializedAttrs ? ` ${serializedAttrs}` : ""} :::`;
 };
 
+const stringAttr = (value: unknown, fallback = ""): string =>
+  typeof value === "string" && value.length > 0 ? value : fallback;
+
 const DIRECTIVE_RE = /^:::ns-([a-z-]+)\s*(.*?)\s*:::$/;
 const DIRECTIVE_ATTR_RE = /([a-zA-Z][a-zA-Z0-9]*)="((?:\\.|[^"\\])*)"/g;
 
@@ -73,6 +85,68 @@ const parseDirectiveLine = (
 
   return { name, attrs };
 };
+
+const escapeHtmlAttribute = (value: string): string =>
+  value
+    .replaceAll("&", "&amp;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
+
+const directiveToEditorHtml = ({
+  name,
+  attrs,
+}: {
+  name: string;
+  attrs: Record<string, string>;
+}): string | null => {
+  if (name === "image") {
+    return `<img src="${escapeHtmlAttribute(attrs.src || "")}" alt="${escapeHtmlAttribute(
+      attrs.alt || "",
+    )}" data-width-preset="${parseWidthPreset(attrs.width)}" data-align="${parseAlign(
+      attrs.align,
+    )}">`;
+  }
+
+  if (name === "pdf") {
+    return `<div data-type="pdf-embed" src="${escapeHtmlAttribute(
+      attrs.src || "",
+    )}" title="${escapeHtmlAttribute(attrs.title || "PDF")}" widthPreset="${parseWidthPreset(
+      attrs.width,
+    )}" align="${parseAlign(attrs.align)}"></div>`;
+  }
+
+  if (name === "video-link") {
+    const parsed = parseVideoEmbed(attrs.url || "");
+    return `<div data-type="video-embed" url="${escapeHtmlAttribute(
+      attrs.url || "",
+    )}" provider="${escapeHtmlAttribute(attrs.provider || "video")}" embedSrc="${escapeHtmlAttribute(
+      parsed?.embedSrc || "",
+    )}" widthPreset="${parseWidthPreset(attrs.width)}" align="${parseAlign(attrs.align)}"></div>`;
+  }
+
+  if (name === "attachment") {
+    return `<div data-type="attachment-block" href="${escapeHtmlAttribute(
+      attrs.href || "",
+    )}" name="${escapeHtmlAttribute(attrs.name || "Attachment")}" mime="${escapeHtmlAttribute(
+      attrs.mime || "application/octet-stream",
+    )}" sizeBytes="${escapeHtmlAttribute(attrs.size || "0")}" align="${parseAlign(
+      attrs.align,
+    )}"></div>`;
+  }
+
+  return null;
+};
+
+export const noteshipDirectivesToEditorHtml = (markdown: string): string =>
+  markdown
+    .split(/\r?\n/)
+    .map((line) => {
+      const directive = parseDirectiveLine(line);
+      if (!directive) return line;
+      return directiveToEditorHtml(directive) ?? line;
+    })
+    .join("\n");
 
 const replaceDirectiveParagraphs = (
   element: HTMLElement,
@@ -300,11 +374,11 @@ export const RichImage = Image.extend({
   addStorage() {
     return {
       markdown: {
-        serialize(state: any, node: any) {
+        serialize(state: MarkdownWriter, node: SerializedNode) {
           state.write(
             buildDirective("image", {
-              src: node.attrs.src || "",
-              alt: node.attrs.alt || "",
+              src: stringAttr(node.attrs.src),
+              alt: stringAttr(node.attrs.alt),
               width: parseWidthPreset(node.attrs.widthPreset),
               align: parseAlign(node.attrs.align),
             }),
@@ -374,11 +448,11 @@ export const PdfEmbedNode = Node.create({
   addStorage() {
     return {
       markdown: {
-        serialize(state: any, node: any) {
+        serialize(state: MarkdownWriter, node: SerializedNode) {
           state.write(
             buildDirective("pdf", {
-              src: node.attrs.src || "",
-              title: node.attrs.title || "PDF",
+              src: stringAttr(node.attrs.src),
+              title: stringAttr(node.attrs.title, "PDF"),
               width: parseWidthPreset(node.attrs.widthPreset),
               align: parseAlign(node.attrs.align),
             }),
@@ -457,11 +531,11 @@ export const VideoEmbedNode = Node.create({
   addStorage() {
     return {
       markdown: {
-        serialize(state: any, node: any) {
+        serialize(state: MarkdownWriter, node: SerializedNode) {
           state.write(
             buildDirective("video-link", {
-              url: node.attrs.url || "",
-              provider: node.attrs.provider || "video",
+              url: stringAttr(node.attrs.url),
+              provider: stringAttr(node.attrs.provider, "video"),
               width: parseWidthPreset(node.attrs.widthPreset),
               align: parseAlign(node.attrs.align),
             }),
@@ -546,12 +620,12 @@ export const AttachmentBlockNode = Node.create({
   addStorage() {
     return {
       markdown: {
-        serialize(state: any, node: any) {
+        serialize(state: MarkdownWriter, node: SerializedNode) {
           state.write(
             buildDirective("attachment", {
-              href: node.attrs.href || "",
-              name: node.attrs.name || "Attachment",
-              mime: node.attrs.mime || "application/octet-stream",
+              href: stringAttr(node.attrs.href),
+              name: stringAttr(node.attrs.name, "Attachment"),
+              mime: stringAttr(node.attrs.mime, "application/octet-stream"),
               size: String(node.attrs.sizeBytes || "0"),
               align: parseAlign(node.attrs.align),
             }),

@@ -350,7 +350,6 @@ const NoteDetail = ({ noteId }: NoteDetailProps) => {
               }}
               titlePlaceholder={t.note.titlePlaceholder}
               contentPlaceholder={t.note.contentPlaceholder}
-              uploadLabel={t.note.uploadAsset}
               uploadingLabel={t.note.uploading}
               uploadFailedLabel={t.note.uploadFailed}
               editorDirection={editorDirection}

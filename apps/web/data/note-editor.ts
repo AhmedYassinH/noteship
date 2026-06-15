@@ -40,6 +40,7 @@ export type EditorUiStrings = {
   pdfSemanticSearchNote: string;
   markdownImportLimit: string;
   markdownImported: string;
+  preparingEmbeddedAssets: string;
   commands: {
     paragraph: string;
     heading1: string;
@@ -100,6 +101,7 @@ export const editorUiCopy: Record<Lang, EditorUiStrings> = {
     pdfSemanticSearchNote: "PDF content is not available for semantic search yet.",
     markdownImportLimit: "Markdown imports are limited to 500 KB.",
     markdownImported: "Markdown imported.",
+    preparingEmbeddedAssets: "Preparing embedded assets...",
     commands: {
       paragraph: "Paragraph",
       heading1: "Heading 1",
@@ -158,6 +160,7 @@ export const editorUiCopy: Record<Lang, EditorUiStrings> = {
     pdfSemanticSearchNote: "محتوى PDF غير متاح للبحث الدلالي حالياً.",
     markdownImportLimit: "الحد الأقصى لاستيراد Markdown هو 500 كيلوبايت.",
     markdownImported: "تم استيراد ملف Markdown.",
+    preparingEmbeddedAssets: "جاري تجهيز الأصول المضمنة...",
     commands: {
       paragraph: "فقرة",
       heading1: "عنوان 1",

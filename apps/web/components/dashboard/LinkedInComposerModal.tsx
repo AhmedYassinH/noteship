@@ -255,7 +255,6 @@ const LinkedInComposerModal = ({
             onContentChange={setContent}
             titlePlaceholder="LinkedIn draft title"
             contentPlaceholder="Write your LinkedIn post..."
-            uploadLabel="Upload"
             uploadingLabel="Uploading..."
             uploadFailedLabel="Upload failed"
             editorDirection={isAr ? "rtl" : "ltr"}
