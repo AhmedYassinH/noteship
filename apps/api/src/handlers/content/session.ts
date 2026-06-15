@@ -25,17 +25,73 @@ const buildCookie = (
   return parts.join("; ");
 };
 
+const hostnameFromContentDomain = (contentDomain: string): string => {
+  try {
+    return new URL(
+      contentDomain.includes("://") ? contentDomain : `https://${contentDomain}`,
+    ).hostname.toLowerCase();
+  } catch {
+    return contentDomain.split("/")[0]?.split(":")[0]?.toLowerCase() ?? contentDomain;
+  }
+};
+
+const isIpAddress = (hostname: string): boolean =>
+  /^\d{1,3}(?:\.\d{1,3}){3}$/.test(hostname) || hostname.includes(":");
+
+const deriveCookieDomain = (contentDomain: string): string | undefined => {
+  const hostname = hostnameFromContentDomain(contentDomain);
+  if (!hostname || hostname === "localhost" || isIpAddress(hostname)) {
+    return undefined;
+  }
+
+  if (hostname.endsWith(".cloudfront.net") || hostname.endsWith(".amazonaws.com")) {
+    return undefined;
+  }
+
+  const labels = hostname.split(".").filter(Boolean);
+  if (labels.length <= 2) {
+    return undefined;
+  }
+
+  return labels.slice(-2).join(".");
+};
+
+const contentCookieDomainFor = (
+  contentDomain: string,
+  configuredDomain?: string,
+): string | undefined => {
+  const trimmedConfiguredDomain = configuredDomain?.trim();
+  return trimmedConfiguredDomain || deriveCookieDomain(contentDomain);
+};
+
+const toEpochSeconds = (date: Date): number => Math.floor(date.getTime() / 1000);
+
+const encodeContentPathSegment = (value: string): string => encodeURIComponent(value);
+
+const buildContentSessionPolicy = (resourceUrl: string, expiresAt: Date): string =>
+  JSON.stringify({
+    Statement: [
+      {
+        Resource: resourceUrl,
+        Condition: {
+          DateLessThan: {
+            "AWS:EpochTime": toEpochSeconds(expiresAt),
+          },
+        },
+      },
+    ],
+  });
+
 export const handler = withDeps(async (deps, event) => {
   const userId = getUserId(event);
-  const resourceUrl = `https://${deps.contentDomain}/users/${userId}/*`;
+  const resourceUrl = `https://${deps.contentDomain}/users/${encodeContentPathSegment(userId)}/*`;
   const expiresAt = new Date(Date.now() + deps.contentSessionTtlSeconds * 1000);
   const privateKey = normalizePrivateKey(deps.cloudfrontPrivateKey);
 
   const signedCookies = getSignedCookies({
-    url: resourceUrl,
+    policy: buildContentSessionPolicy(resourceUrl, expiresAt),
     keyPairId: deps.cloudfrontKeyPairId,
     privateKey,
-    dateLessThan: expiresAt.toISOString(),
   });
 
   const policy = signedCookies["CloudFront-Policy"];
@@ -47,7 +103,7 @@ export const handler = withDeps(async (deps, event) => {
   }
 
   const maxAgeSeconds = Math.floor((expiresAt.getTime() - Date.now()) / 1000);
-  const domain = deps.contentCookieDomain;
+  const domain = contentCookieDomainFor(deps.contentDomain, deps.contentCookieDomain);
 
   return {
     statusCode: 200,
