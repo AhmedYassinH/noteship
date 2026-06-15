@@ -17,6 +17,9 @@ const hashContent = (content: string): string => createHash("sha256").update(con
 
 const nowIso = (): string => new Date().toISOString();
 
+const toPublicContentUrl = (contentDomain: string, s3Key: string): string =>
+  `https://${contentDomain}/${s3Key.split("/").map(encodeURIComponent).join("/")}`;
+
 export const createNote = async (
   deps: Deps,
   userId: string,
@@ -220,7 +223,7 @@ export const createNoteUploadUrl = async (
   const artifactId = randomUUID();
   const s3Key = buildNoteArtifactKey(userId, noteId, artifactId, extension);
   const uploadUrl = await createPresignedPutUrl(deps.s3, deps.bucketName, s3Key, contentType);
-  const publicUrl = `https://${deps.contentDomain}/${s3Key}`;
+  const publicUrl = toPublicContentUrl(deps.contentDomain, s3Key);
 
   return { uploadUrl, s3Key, artifactId, publicUrl };
 };
