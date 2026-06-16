@@ -20,7 +20,7 @@ const featuresCopy: Record<Lang, FeaturesCopy> = {
     heroKicker: "How Noteship works",
     heroTitle: "A practical workflow from notes to published output",
     heroSub: "Capture, preserve, recall, repurpose, then publish in a predictable system.",
-    primaryCta: "Request early access",
+    primaryCta: "Start free",
     secondaryCta: "View pricing",
     sections: [
       {
@@ -34,14 +34,14 @@ const featuresCopy: Record<Lang, FeaturesCopy> = {
         items: [
           "Semantic retrieval",
           "Voice-preserving generation",
-          "Connectors for current and upcoming platforms",
+          "LinkedIn publishing with more integrations planned",
         ],
       },
       {
         title: "Publish and track",
         copy: "Schedule or publish immediately with clear status and recovery flow.",
         items: [
-          "Current connectors: LinkedIn and Medium",
+          "Current connector: LinkedIn",
           "Expanding integrations roadmap",
           "Plan-aware limits",
         ],
@@ -55,7 +55,7 @@ const featuresCopy: Record<Lang, FeaturesCopy> = {
     ],
     ctaTitle: "Stop rewriting. Start publishing from your own knowledge base.",
     ctaCopy: "Turn your notes into consistent publishing with a workflow you can trust.",
-    ctaPrimary: "Request early access",
+    ctaPrimary: "Start free",
     ctaSecondary: "Contact us",
   },
   ar: {
@@ -78,11 +78,7 @@ const featuresCopy: Record<Lang, FeaturesCopy> = {
       {
         title: "نشر وتتبع",
         copy: "جدولة أو نشر فوري مع وضوح الحالة ومسار استرداد واضح.",
-        items: [
-          "الموصلات الحالية: LinkedIn و Medium",
-          "خارطة تكاملات تتوسع باستمرار",
-          "حدود مرتبطة بالخطة",
-        ],
+        items: ["الموصل الحالي: LinkedIn", "خارطة تكاملات تتوسع باستمرار", "حدود مرتبطة بالخطة"],
       },
     ],
     reliabilityTitle: "مصمم لتشغيل هادئ",

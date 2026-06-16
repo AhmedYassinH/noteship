@@ -2,10 +2,7 @@
 
 import { useMemo } from "react";
 import Link from "next/link";
-import {
-  useMarketingLanguage,
-  useWaitlistModal,
-} from "../../../components/marketing/MarketingShell";
+import { useMarketingLanguage } from "../../../components/marketing/MarketingShell";
 import { Button } from "../../../components/ui/Button";
 import {
   Table,
@@ -19,7 +16,6 @@ import pricingCopy from "../../../data/marketing-pricing";
 
 const PricingPage = () => {
   const { lang } = useMarketingLanguage();
-  const { openWaitlist } = useWaitlistModal();
   const t = useMemo(() => pricingCopy[lang], [lang]);
   const isAr = lang === "ar";
 
@@ -40,8 +36,8 @@ const PricingPage = () => {
           {t.heroSub}
         </p>
         <div className="flex flex-wrap gap-3">
-          <Button type="button" size="pill" onClick={openWaitlist}>
-            {t.primaryCta}
+          <Button type="button" size="pill" asChild>
+            <Link href="/login">{t.primaryCta}</Link>
           </Button>
           <Button type="button" size="pill" variant="outline" asChild>
             <Link href="/#how-it-works">{t.secondaryCta}</Link>
@@ -83,9 +79,9 @@ const PricingPage = () => {
                 type="button"
                 size="pill"
                 variant={index === 0 ? "outline" : "default"}
-                onClick={openWaitlist}
+                asChild
               >
-                {plan.cta}
+                <Link href="/login">{plan.cta}</Link>
               </Button>
             </article>
           ))}
@@ -149,8 +145,8 @@ const PricingPage = () => {
           </p>
         </div>
         <div className="flex flex-wrap justify-end gap-3 rtl:justify-start">
-          <Button type="button" size="pill" onClick={openWaitlist}>
-            {t.finalPrimary}
+          <Button type="button" size="pill" asChild>
+            <Link href="/login">{t.finalPrimary}</Link>
           </Button>
           <Button type="button" size="pill" variant="ghost" asChild>
             <Link href="mailto:me@ahmedyassin.dev">{t.finalSecondary}</Link>

@@ -2,16 +2,12 @@
 
 import { useMemo } from "react";
 import Link from "next/link";
-import {
-  useMarketingLanguage,
-  useWaitlistModal,
-} from "../../../components/marketing/MarketingShell";
+import { useMarketingLanguage } from "../../../components/marketing/MarketingShell";
 import { Button } from "../../../components/ui/Button";
 import featuresCopy from "../../../data/marketing-features";
 
 const FeaturesPage = () => {
   const { lang } = useMarketingLanguage();
-  const { openWaitlist } = useWaitlistModal();
   const t = useMemo(() => featuresCopy[lang], [lang]);
   const isAr = lang === "ar";
 
@@ -32,8 +28,8 @@ const FeaturesPage = () => {
           {t.heroSub}
         </p>
         <div className="flex flex-wrap gap-3">
-          <Button type="button" size="pill" onClick={openWaitlist}>
-            {t.primaryCta}
+          <Button type="button" size="pill" asChild>
+            <Link href="/login">{t.primaryCta}</Link>
           </Button>
           <Button type="button" size="pill" variant="outline" asChild>
             <Link href="/pricing">{t.secondaryCta}</Link>
@@ -87,8 +83,8 @@ const FeaturesPage = () => {
           </p>
         </div>
         <div className="flex flex-wrap justify-end gap-3 rtl:justify-start">
-          <Button type="button" size="pill" onClick={openWaitlist}>
-            {t.ctaPrimary}
+          <Button type="button" size="pill" asChild>
+            <Link href="/login">{t.ctaPrimary}</Link>
           </Button>
           <Button type="button" size="pill" variant="ghost" asChild>
             <Link href="mailto:me@ahmedyassin.dev">{t.ctaSecondary}</Link>

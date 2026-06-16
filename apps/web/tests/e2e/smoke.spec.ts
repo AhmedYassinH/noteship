@@ -7,4 +7,12 @@ test.describe("smoke", () => {
     await page.goto("/");
     await expect(page.locator("body")).toBeVisible();
   });
+
+  test("primary marketing CTA starts login and does not mention Medium", async ({ page }) => {
+    await page.goto("/");
+
+    const primaryCta = page.getByRole("link", { name: /start free/i }).first();
+    await expect(primaryCta).toHaveAttribute("href", "/login");
+    await expect(page.getByText(/Medium/i)).toHaveCount(0);
+  });
 });

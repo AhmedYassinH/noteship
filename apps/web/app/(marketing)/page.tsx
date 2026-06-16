@@ -4,13 +4,12 @@ import { useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ShieldCheck, Database, RefreshCw } from "lucide-react";
-import { useMarketingLanguage, useWaitlistModal } from "../../components/marketing/MarketingShell";
+import { useMarketingLanguage } from "../../components/marketing/MarketingShell";
 import { Button } from "../../components/ui/Button";
 import homeCopy from "../../data/marketing-home";
 
 const HomePage = () => {
   const { lang } = useMarketingLanguage();
-  const { openWaitlist } = useWaitlistModal();
   const t = useMemo(() => homeCopy[lang], [lang]);
   const isAr = lang === "ar";
 
@@ -34,8 +33,8 @@ const HomePage = () => {
             {t.heroSub}
           </p>
           <div className="flex flex-wrap gap-3">
-            <Button type="button" size="pill" onClick={openWaitlist}>
-              {t.heroPrimary}
+            <Button type="button" size="pill" asChild>
+              <Link href="/login">{t.heroPrimary}</Link>
             </Button>
             <Button type="button" size="pill" variant="outline" asChild>
               <Link href="#how-it-works">{t.heroSecondary}</Link>
@@ -199,8 +198,8 @@ const HomePage = () => {
                   <li key={item}>{item}</li>
                 ))}
               </ul>
-              <Button type="button" size="pill" onClick={openWaitlist}>
-                {plan.cta}
+              <Button type="button" size="pill" asChild>
+                <Link href="/login">{plan.cta}</Link>
               </Button>
             </article>
           ))}
@@ -235,8 +234,8 @@ const HomePage = () => {
           </p>
         </div>
         <div className="flex flex-wrap justify-end gap-3 rtl:justify-start">
-          <Button type="button" size="pill" onClick={openWaitlist}>
-            {t.finalPrimary}
+          <Button type="button" size="pill" asChild>
+            <Link href="/login">{t.finalPrimary}</Link>
           </Button>
           <Button type="button" size="pill" variant="ghost" asChild>
             <Link href="mailto:me@ahmedyassin.dev">{t.finalSecondary}</Link>

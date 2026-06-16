@@ -36,7 +36,7 @@ const landingCopy: Record<Lang, LandingCopy> = {
     heroKicker: "Recall by meaning. Repurpose. Publish.",
     heroTitle: "Recall ideas by meaning. Publish in your voice—without rewriting.",
     heroSub:
-      "Noteship helps consultants and coaches resurface past thinking, turn notes into LinkedIn and Medium drafts, and publish consistently with calm, reliable workflows.",
+      "Noteship helps consultants and coaches resurface past thinking, turn notes into LinkedIn drafts, and publish consistently with calm, reliable workflows.",
     primaryCta: "Start drafting",
     secondaryCta: "See how it works",
     heroImage:
@@ -61,7 +61,7 @@ const landingCopy: Record<Lang, LandingCopy> = {
     pillars: [
       { title: "Meaning-based recall", copy: "Find notes by meaning, not exact keywords." },
       { title: "Grounded drafts", copy: "Drafts stay anchored in your notes and voice." },
-      { title: "Consistent publishing", copy: "Clear scheduling and status for LinkedIn/Medium." },
+      { title: "Consistent publishing", copy: "Clear scheduling and status for LinkedIn." },
       { title: "Portable notes", copy: "Export your notes anytime, without lock-in." },
     ],
     proofTitle: "Proof points",
@@ -92,7 +92,7 @@ const landingCopy: Record<Lang, LandingCopy> = {
     faqTitle: "FAQ",
     faq: [
       { q: "Can I export my notes?", a: "Yes. Export anytime, no lock-in." },
-      { q: "Which platforms are supported?", a: "LinkedIn and Medium at launch, more later." },
+      { q: "Which platforms are supported?", a: "LinkedIn at launch, more later." },
       { q: "Is scheduling paid?", a: "Scheduling is Pro-only; manual publish is in Free." },
     ],
     finalTitle: "Ready to ship your ideas?",
@@ -111,7 +111,7 @@ const landingCopy: Record<Lang, LandingCopy> = {
     heroKicker: "استرجاع بالمعنى · إعادة توظيف · نشر",
     heroTitle: "استرجع الأفكار بالمعنى. انشر بصوتك بدون إعادة كتابة.",
     heroSub:
-      "يساعد Noteship المستشارين والمدربين على استرجاع أفكارهم السابقة، وتحويل الملاحظات إلى مسودات جاهزة لـ LinkedIn و Medium، والنشر بانتظام بهدوء.",
+      "يساعد Noteship المستشارين والمدربين على استرجاع أفكارهم السابقة، وتحويل الملاحظات إلى مسودات جاهزة لـ LinkedIn، والنشر بانتظام بهدوء.",
     primaryCta: "ابدأ المسودة",
     secondaryCta: "شاهد كيف يعمل",
     heroImage:
@@ -169,7 +169,7 @@ const landingCopy: Record<Lang, LandingCopy> = {
     faqTitle: "أسئلة شائعة",
     faq: [
       { q: "هل يمكنني تصدير ملاحظاتي؟", a: "نعم. يمكنك التصدير في أي وقت." },
-      { q: "ما هي المنصات المدعومة؟", a: "LinkedIn و Medium عند الإطلاق، والمزيد لاحقاً." },
+      { q: "ما هي المنصات المدعومة؟", a: "LinkedIn عند الإطلاق، والمزيد لاحقاً." },
       { q: "هل الجدولة مدفوعة؟", a: "الجدولة ضمن خطة Pro، والنشر اليدوي في المجانية." },
     ],
     finalTitle: "جاهز لنشر أفكارك؟",
