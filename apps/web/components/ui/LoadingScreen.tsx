@@ -3,6 +3,7 @@
 import { type ReactNode, useEffect, useId, useMemo, useState } from "react";
 import loadingCopy, { type LoadingSurface } from "../../data/loading";
 import type { Lang } from "../../data/dashboard";
+import { getStoredLang } from "../../lib/language";
 import { cn } from "../../lib/utils";
 
 const noteshipMarkPath =
@@ -20,13 +21,6 @@ type LoadingScreenProps = {
   surface?: LoadingSurface;
 };
 
-const getStoredLang = (): Lang => {
-  if (typeof window === "undefined") return "en";
-  const storedLang = window.localStorage.getItem("noteship-lang");
-  if (storedLang === "ar" || storedLang === "en") return storedLang;
-  return navigator.language.toLowerCase().startsWith("ar") ? "ar" : "en";
-};
-
 const LoadingScreen = ({
   action,
   className,
@@ -35,7 +29,7 @@ const LoadingScreen = ({
   state = "loading",
   surface = "dashboard",
 }: LoadingScreenProps) => {
-  const [activeLang, setActiveLang] = useState<Lang>(lang ?? "en");
+  const [activeLang, setActiveLang] = useState<Lang>(() => lang ?? getStoredLang());
   const [messageIndex, setMessageIndex] = useState(0);
   const reactId = useId().replace(/:/g, "");
   const pathId = `noteship-loading-mark-${reactId}`;
@@ -52,6 +46,11 @@ const LoadingScreen = ({
   useEffect(() => {
     setActiveLang(lang ?? getStoredLang());
   }, [lang]);
+
+  useEffect(() => {
+    document.documentElement.lang = activeLang;
+    document.documentElement.dir = activeLang === "ar" ? "rtl" : "ltr";
+  }, [activeLang]);
 
   useEffect(() => {
     if (state !== "loading") return;

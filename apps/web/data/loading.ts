@@ -1,6 +1,11 @@
 import type { Lang } from "./dashboard";
 
-export type LoadingSurface = "authRedirect" | "authCallback" | "dashboard" | "integrationCallback";
+export type LoadingSurface =
+  | "authRedirect"
+  | "authCallback"
+  | "authLogout"
+  | "dashboard"
+  | "integrationCallback";
 
 export type LoadingCopy = {
   title: string;
@@ -37,6 +42,13 @@ const loadingCopy: Record<Lang, LoadingCopy> = {
         errorTitle: "We could not complete sign in",
         errorCopy: "Please try again.",
         actionLabel: "Back to login",
+      },
+      authLogout: {
+        messages: ["Signing you out...", "Closing your session...", "Returning safely..."],
+        steps: ["Ending session", "Clearing access", "Almost done"],
+        errorTitle: "Could not sign out",
+        errorCopy: "Please try again.",
+        actionLabel: "Try again",
       },
       dashboard: {
         messages: ["Preparing your workspace...", "Loading your notes...", "Opening Noteship..."],
@@ -81,6 +93,13 @@ const loadingCopy: Record<Lang, LoadingCopy> = {
         errorTitle: "تعذر إكمال تسجيل الدخول",
         errorCopy: "حاول مرة أخرى.",
         actionLabel: "العودة لتسجيل الدخول",
+      },
+      authLogout: {
+        messages: ["جارٍ تسجيل الخروج...", "جارٍ إغلاق الجلسة...", "جارٍ العودة بأمان..."],
+        steps: ["إنهاء الجلسة", "مسح الوصول", "اقتربنا"],
+        errorTitle: "تعذر تسجيل الخروج",
+        errorCopy: "حاول مرة أخرى.",
+        actionLabel: "حاول مرة أخرى",
       },
       dashboard: {
         messages: ["جارٍ تجهيز مساحة العمل...", "جارٍ تحميل ملاحظاتك...", "جارٍ فتح Noteship..."],

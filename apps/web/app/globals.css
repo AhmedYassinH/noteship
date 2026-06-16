@@ -27,6 +27,11 @@
   --font-headline: var(--font-headline-ar);
 }
 
+[dir="rtl"] {
+  --font-body: var(--font-body-ar);
+  --font-headline: var(--font-headline-ar);
+}
+
 *,
 *::before,
 *::after {

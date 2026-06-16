@@ -31,6 +31,7 @@ import { apiFetch } from "../../lib/api/client";
 import { createContentSession, createNote, listNotes } from "../../lib/api/notes";
 import { updateMeSettings } from "../../lib/api/users";
 import type { NoteResponse } from "../../lib/api/types";
+import { getStoredLang, persistLang } from "../../lib/language";
 import { cn } from "@/lib/utils";
 import { useAuth } from "../auth/AuthProvider";
 import LoadingScreen from "../ui/LoadingScreen";
@@ -157,7 +158,7 @@ const DashboardShellInner = ({ children }: { children: ReactNode }) => {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [lang, setLangState] = useState<Lang>("en");
+  const [lang, setLangState] = useState<Lang>(() => getStoredLang());
   const [me, setMe] = useState<MeResponse["user"] | null>(null);
   const [recentNotes, setRecentNotes] = useState<NoteResponse[]>([]);
   const [recentNotesStatus, setRecentNotesStatus] = useState<"loading" | "ready" | "error">(
@@ -250,21 +251,9 @@ const DashboardShellInner = ({ children }: { children: ReactNode }) => {
   }, [isAuthenticated, isLoading, login, pathname, searchParams]);
 
   useEffect(() => {
-    const storedLang = window.localStorage.getItem("noteship-lang");
-    if (storedLang === "en" || storedLang === "ar") {
-      setLangState(storedLang);
-    } else {
-      const browserLang = navigator.language.toLowerCase();
-      if (browserLang.startsWith("ar")) {
-        setLangState("ar");
-      }
-    }
-  }, []);
-
-  useEffect(() => {
     document.documentElement.lang = lang;
     document.documentElement.dir = isAr ? "rtl" : "ltr";
-    window.localStorage.setItem("noteship-lang", lang);
+    persistLang(lang);
     window.localStorage.removeItem("noteship-site-direction");
     window.localStorage.removeItem("noteship-editor-direction");
     window.localStorage.removeItem("noteship-editor-direction-linked");

@@ -8,6 +8,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Check, ChevronDown, Languages } from "lucide-react";
 import sharedCopy, { Lang } from "../../data/marketing-shared";
+import { getStoredLang, persistLang } from "../../lib/language";
 import { Button } from "../ui/Button";
 import { cn } from "@/lib/utils";
 
@@ -27,7 +28,7 @@ export const useMarketingLanguage = () => {
 };
 
 const MarketingShell = ({ children }: { children: ReactNode }) => {
-  const [lang, setLang] = useState<Lang>("en");
+  const [lang, setLang] = useState<Lang>(() => getStoredLang());
   const pathname = usePathname();
   const copy = useMemo(() => sharedCopy[lang], [lang]);
   const isAr = lang === "ar";
@@ -35,15 +36,9 @@ const MarketingShell = ({ children }: { children: ReactNode }) => {
   const langMenuRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    const browserLang = navigator.language.toLowerCase();
-    if (browserLang.startsWith("ar")) {
-      setLang("ar");
-    }
-  }, []);
-
-  useEffect(() => {
     document.documentElement.lang = lang;
     document.documentElement.dir = isAr ? "rtl" : "ltr";
+    persistLang(lang);
   }, [lang, isAr]);
 
   useEffect(() => {
