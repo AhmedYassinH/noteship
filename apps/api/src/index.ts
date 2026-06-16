@@ -4,6 +4,8 @@ export { handler as listNotesHandler } from "./handlers/notes/list";
 export { handler as updateNoteHandler } from "./handlers/notes/update";
 export { handler as deleteNoteHandler } from "./handlers/notes/delete";
 export { handler as uploadNoteArtifactHandler } from "./handlers/notes/upload";
+export { handler as completeNoteUploadHandler } from "./handlers/notes/completeUpload";
+export { handler as abandonNoteUploadHandler } from "./handlers/notes/abandonUpload";
 
 export { handler as getMeHandler } from "./handlers/users/me";
 export { handler as updateMeSettingsHandler } from "./handlers/users/settings";

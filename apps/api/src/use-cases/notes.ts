@@ -1,17 +1,31 @@
 import { createHash, randomUUID } from "node:crypto";
-import type { Note } from "@noteship/domain";
+import type { Note, UploadLease } from "@noteship/domain";
 import { deleteNote, getNoteById, listNotes, putNote } from "../adapters/dynamodb/notes";
 import {
   createPresignedPutUrl,
+  copyObject,
   deleteObject,
   getObjectString,
+  headObject,
   putObjectString,
 } from "../adapters/s3";
 import { enqueueJob } from "../adapters/sqs";
 import type { Deps } from "../runtime/deps";
 import { badRequest, notFound } from "../runtime/errors";
-import { buildNoteArtifactKey, buildNoteContentKey } from "@noteship/utils";
-import { FEATURE_KEYS, assertCapacityEntitlement, incrementUsageByAmount } from "./entitlements";
+import {
+  buildNoteArtifactKey,
+  buildNoteContentKey,
+  buildTemporaryNoteArtifactKey,
+} from "@noteship/utils";
+import { decrementUserCounter } from "../adapters/dynamodb/users";
+import {
+  abandonUploadLease,
+  completeUploadLease,
+  createUploadLease,
+  getUploadLease,
+  releaseExpiredUploadLeases,
+} from "../adapters/dynamodb/upload-leases";
+import { assertAndConsumeNoteCapacity, assertCan, getStorageCapacityLimit } from "./policy";
 
 const hashContent = (content: string): string => createHash("sha256").update(content).digest("hex");
 
@@ -19,6 +33,12 @@ const nowIso = (): string => new Date().toISOString();
 
 const toPublicContentUrl = (contentDomain: string, s3Key: string): string =>
   `https://${contentDomain}/${s3Key.split("/").map(encodeURIComponent).join("/")}`;
+
+const addMinutesIso = (minutes: number): string =>
+  new Date(Date.now() + minutes * 60 * 1000).toISOString();
+
+const addDaysEpoch = (days: number): number =>
+  Math.floor((Date.now() + days * 24 * 60 * 60 * 1000) / 1000);
 
 export const createNote = async (
   deps: Deps,
@@ -30,6 +50,8 @@ export const createNote = async (
     editorFormat?: "tiptap" | "markdown";
   },
 ): Promise<Note> => {
+  await assertAndConsumeNoteCapacity(deps, userId);
+
   const noteId = randomUUID();
   const s3Key = buildNoteContentKey(userId, noteId);
   const contentHash = hashContent(input.content);
@@ -49,8 +71,13 @@ export const createNote = async (
     updatedAt: now,
   };
 
-  await putObjectString(deps.s3, deps.bucketName, s3Key, input.content);
-  await putNote(deps.ddb, deps.tableNames.notes, note);
+  try {
+    await putObjectString(deps.s3, deps.bucketName, s3Key, input.content);
+    await putNote(deps.ddb, deps.tableNames.notes, note);
+  } catch (error) {
+    await decrementUserCounter(deps.ddb, deps.tableNames.users, userId, "notesUsed");
+    throw error;
+  }
 
   if (deps.embeddingsEnabled) {
     await enqueueJob(deps.sqs, deps.jobsQueueUrl, {
@@ -154,6 +181,7 @@ export const deleteNoteById = async (deps: Deps, userId: string, noteId: string)
 
   await deleteObject(deps.s3, deps.bucketName, note.s3Key);
   await deleteNote(deps.ddb, deps.tableNames.notes, userId, noteId);
+  await decrementUserCounter(deps.ddb, deps.tableNames.users, userId, "notesUsed");
 };
 
 export const createNoteUploadUrl = async (
@@ -165,7 +193,15 @@ export const createNoteUploadUrl = async (
   sizeBytes: number,
   intent: "embed" | "attach",
   artifactType: "image" | "pdf",
-): Promise<{ uploadUrl: string; s3Key: string; artifactId: string; publicUrl: string }> => {
+): Promise<{
+  uploadUrl: string;
+  s3Key: string;
+  artifactId: string;
+  publicUrl: string;
+  expiresAt: string;
+}> => {
+  await assertCan(deps, userId, "note.upload");
+
   if (!Number.isFinite(sizeBytes) || sizeBytes <= 0) {
     throw badRequest("sizeBytes must be a positive number");
   }
@@ -204,16 +240,13 @@ export const createNoteUploadUrl = async (
   if (!note) {
     throw notFound("Note not found");
   }
-
-  const sizeMb = Math.round((sizeBytes / (1024 * 1024)) * 1000) / 1000;
-  const { periodStart } = await assertCapacityEntitlement(
-    deps,
+  await releaseExpiredUploadLeases(deps.ddb, {
+    usersTableName: deps.tableNames.users,
+    uploadLeasesTableName: deps.tableNames.uploadLeases,
     userId,
-    FEATURE_KEYS.maxStorageMb,
-    "storageUsedMb",
-    sizeMb,
-  );
-  await incrementUsageByAmount(deps, userId, periodStart, "storageUsedMb", sizeMb);
+    nowIso: nowIso(),
+    expiresAtEpoch: addDaysEpoch(deps.tempUploadLifecycleDays),
+  });
 
   const extension = filename.includes(".") ? filename.split(".").pop() : "bin";
   if (!extension) {
@@ -221,9 +254,142 @@ export const createNoteUploadUrl = async (
   }
 
   const artifactId = randomUUID();
-  const s3Key = buildNoteArtifactKey(userId, noteId, artifactId, extension);
-  const uploadUrl = await createPresignedPutUrl(deps.s3, deps.bucketName, s3Key, contentType);
-  const publicUrl = toPublicContentUrl(deps.contentDomain, s3Key);
+  const finalS3Key = buildNoteArtifactKey(userId, noteId, artifactId, extension);
+  const uploadS3Key = buildTemporaryNoteArtifactKey(userId, noteId, artifactId, extension);
+  const sizeMb = Math.ceil((sizeBytes / (1024 * 1024)) * 1000) / 1000;
+  const expiresAt = addMinutesIso(deps.tempUploadExpiryMinutes);
+  const lease: UploadLease = {
+    userId,
+    artifactId,
+    noteId,
+    s3Key: uploadS3Key,
+    finalS3Key,
+    sizeBytes,
+    sizeMb,
+    status: "reserved",
+    createdAt: nowIso(),
+    updatedAt: nowIso(),
+    expiresAt,
+  };
+  const storageLimitMb = await getStorageCapacityLimit(deps, userId);
+  await createUploadLease(deps.ddb, {
+    usersTableName: deps.tableNames.users,
+    uploadLeasesTableName: deps.tableNames.uploadLeases,
+    lease,
+    storageLimitMb,
+  });
 
-  return { uploadUrl, s3Key, artifactId, publicUrl };
+  let uploadUrl: string;
+  try {
+    uploadUrl = await createPresignedPutUrl(
+      deps.s3,
+      deps.bucketName,
+      uploadS3Key,
+      contentType,
+      deps.tempUploadExpiryMinutes * 60,
+    );
+  } catch (error) {
+    await abandonUploadLease(deps.ddb, {
+      usersTableName: deps.tableNames.users,
+      uploadLeasesTableName: deps.tableNames.uploadLeases,
+      userId,
+      artifactId,
+      sizeMb,
+      expiresAtEpoch: addDaysEpoch(deps.tempUploadLifecycleDays),
+    });
+    throw error;
+  }
+  const publicUrl = toPublicContentUrl(deps.contentDomain, finalS3Key);
+
+  return { uploadUrl, s3Key: finalS3Key, artifactId, publicUrl, expiresAt };
+};
+
+export const completeNoteUpload = async (
+  deps: Deps,
+  userId: string,
+  noteId: string,
+  artifactId: string,
+): Promise<void> => {
+  const lease = await getUploadLease(deps.ddb, deps.tableNames.uploadLeases, userId, artifactId);
+  if (!lease || lease.noteId !== noteId) {
+    throw notFound("Upload lease not found");
+  }
+
+  if (lease.status === "completed") {
+    return;
+  }
+  if (lease.status !== "reserved") {
+    throw badRequest("Upload lease is not active");
+  }
+  if (lease.expiresAt <= nowIso()) {
+    await abandonUploadLease(deps.ddb, {
+      usersTableName: deps.tableNames.users,
+      uploadLeasesTableName: deps.tableNames.uploadLeases,
+      userId,
+      artifactId,
+      sizeMb: lease.sizeMb,
+      expiresAtEpoch: addDaysEpoch(deps.tempUploadLifecycleDays),
+    });
+    throw badRequest("Upload lease expired");
+  }
+
+  const object = await headObject(deps.s3, deps.bucketName, lease.s3Key);
+  if (!object.sizeBytes || object.sizeBytes <= 0) {
+    throw badRequest("Uploaded object is empty");
+  }
+  if (object.sizeBytes > lease.sizeBytes) {
+    await abandonUploadLease(deps.ddb, {
+      usersTableName: deps.tableNames.users,
+      uploadLeasesTableName: deps.tableNames.uploadLeases,
+      userId,
+      artifactId,
+      sizeMb: lease.sizeMb,
+      expiresAtEpoch: addDaysEpoch(deps.tempUploadLifecycleDays),
+    });
+    await deleteObject(deps.s3, deps.bucketName, lease.s3Key);
+    throw badRequest("Uploaded object exceeds reserved size");
+  }
+
+  const finalS3Key = lease.finalS3Key ?? lease.s3Key;
+  if (finalS3Key !== lease.s3Key) {
+    await copyObject(deps.s3, deps.bucketName, lease.s3Key, finalS3Key);
+  }
+
+  await completeUploadLease(deps.ddb, {
+    usersTableName: deps.tableNames.users,
+    uploadLeasesTableName: deps.tableNames.uploadLeases,
+    userId,
+    artifactId,
+    sizeMb: lease.sizeMb,
+    expiresAtEpoch: addDaysEpoch(deps.tempUploadLifecycleDays),
+  });
+
+  if (finalS3Key !== lease.s3Key) {
+    try {
+      await deleteObject(deps.s3, deps.bucketName, lease.s3Key);
+    } catch {
+      // The content bucket lifecycle rule expires temporary uploads if cleanup is delayed.
+    }
+  }
+};
+
+export const abandonNoteUpload = async (
+  deps: Deps,
+  userId: string,
+  noteId: string,
+  artifactId: string,
+): Promise<void> => {
+  const lease = await getUploadLease(deps.ddb, deps.tableNames.uploadLeases, userId, artifactId);
+  if (!lease || lease.noteId !== noteId) {
+    throw notFound("Upload lease not found");
+  }
+
+  await abandonUploadLease(deps.ddb, {
+    usersTableName: deps.tableNames.users,
+    uploadLeasesTableName: deps.tableNames.uploadLeases,
+    userId,
+    artifactId,
+    sizeMb: lease.sizeMb,
+    expiresAtEpoch: addDaysEpoch(deps.tempUploadLifecycleDays),
+  });
 };

@@ -1,6 +1,8 @@
 import {
+  CopyObjectCommand,
   DeleteObjectCommand,
   GetObjectCommand,
+  HeadObjectCommand,
   PutObjectCommand,
   type S3Client,
 } from "@aws-sdk/client-s3";
@@ -62,6 +64,33 @@ export const putObjectJson = async (
 
 export const deleteObject = async (s3: S3Client, bucket: string, key: string): Promise<void> => {
   await s3.send(new DeleteObjectCommand({ Bucket: bucket, Key: key }));
+};
+
+export const copyObject = async (
+  s3: S3Client,
+  bucket: string,
+  sourceKey: string,
+  destinationKey: string,
+): Promise<void> => {
+  await s3.send(
+    new CopyObjectCommand({
+      Bucket: bucket,
+      CopySource: `${bucket}/${encodeURIComponent(sourceKey).replace(/%2F/g, "/")}`,
+      Key: destinationKey,
+    }),
+  );
+};
+
+export const headObject = async (
+  s3: S3Client,
+  bucket: string,
+  key: string,
+): Promise<{ sizeBytes?: number; contentType?: string }> => {
+  const result = await s3.send(new HeadObjectCommand({ Bucket: bucket, Key: key }));
+  return {
+    sizeBytes: result.ContentLength,
+    contentType: result.ContentType,
+  };
 };
 
 export const createPresignedPutUrl = async (
