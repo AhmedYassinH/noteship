@@ -10,12 +10,15 @@ Paths (example):
 
 - `users/{userId}/notes/{noteId}/note.md`
 - `users/{userId}/notes/{noteId}/artifacts/{artifactId}`
+- `uploads/tmp/users/{userId}/notes/{noteId}/artifacts/{artifactId}`
 
 Bucket settings:
 
 - Private access
 - Versioning ON
-- Optional lifecycle rules for old versions
+- Upload lease and presigned PUT URL expiry: `NOTESHIP_TEMP_UPLOAD_EXPIRY_MINUTES`, default `3`
+- Lifecycle rule for `uploads/tmp/`: expire current versions, non-current versions, and incomplete multipart uploads after `NOTESHIP_TEMP_UPLOAD_LIFECYCLE_DAYS` days, default `1` because native S3 lifecycle expiration is day-based
+- Presigned uploads write to `uploads/tmp/`; `/complete` verifies and promotes the object to the canonical `users/{userId}/notes/{noteId}/artifacts/` key
 
 ## Metadata: DynamoDB (suggested tables)
 
@@ -45,7 +48,7 @@ Bucket settings:
 - SK: `postId`
 - Attributes:
   - `postId`, `noteId` (source)
-  - `provider` (linkedin/medium)
+  - `provider` (linkedin)
   - `publishMode` (single|overflow_comments)
   - `status` (draft|queued|scheduled|publishing|published|failed)
   - `scheduledAt`, `scheduledTimezone`, `publishedAt`

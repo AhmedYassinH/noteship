@@ -50,5 +50,5 @@ Capture primary users, motivations, and critical workflows.
 1. Create/edit note
 2. Semantic search across notes
 3. Generate post drafts from a note (tone/persona)
-4. Publish now OR schedule to LinkedIn/Medium
+4. Publish now OR schedule to LinkedIn
 5. See post status (draft/scheduled/published/failed)

@@ -94,11 +94,11 @@ API + workers read runtime config from env vars. Required keys:
 - Auth0 (JWT authorizer): `AUTH0_ISSUER_BASE_URL`, `AUTH0_AUDIENCE`
 - Vector DB: `QDRANT_URL`, `QDRANT_COLLECTION`, optional `QDRANT_API_KEY`
 - Billing: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, optional `STRIPE_PRICE_PRO_MONTHLY`, `STRIPE_PRICE_PRO_YEARLY`
-- OAuth: `LINKEDIN_CLIENT_ID`, `LINKEDIN_CLIENT_SECRET`, `MEDIUM_CLIENT_ID`, `MEDIUM_CLIENT_SECRET`
+- OAuth: `LINKEDIN_CLIENT_ID`, `LINKEDIN_CLIENT_SECRET`
 - LinkedIn publish constraints: optional `LINKEDIN_API_VERSION`, `LINKEDIN_TEXT_MAX_CHARS`, `LINKEDIN_COMMENT_MAX_CHARS`, `LINKEDIN_MAX_IMAGES_PER_POST` (capped at 20 by API/runtime validation)
 - AI: `OPENAI_API_KEY`, `OPENAI_EMBED_MODEL`, `OPENAI_DRAFT_MODEL`, optional `NOTESHIP_LLM_PROVIDER`, `NOTESHIP_VECTOR_DB_PROVIDER`
 - API custom domain: `NOTESHIP_API_CUSTOM_DOMAIN`, `NOTESHIP_API_CERTIFICATE_ARN`
-- Content delivery/custom domain: `NOTESHIP_CONTENT_CUSTOM_DOMAIN`, `NOTESHIP_CONTENT_CERTIFICATE_ARN`, `NOTESHIP_CLOUDFRONT_KEY_PAIR_ID`, `NOTESHIP_CLOUDFRONT_PRIVATE_KEY`, optional `NOTESHIP_CONTENT_COOKIE_DOMAIN`, optional `NOTESHIP_CONTENT_SESSION_TTL_SECONDS`, `NOTESHIP_WEB_ORIGIN`, `NOTESHIP_CONTENT_UPLOAD_ORIGIN`
+- Content delivery/custom domain: `NOTESHIP_CONTENT_CUSTOM_DOMAIN`, `NOTESHIP_CONTENT_CERTIFICATE_ARN`, `NOTESHIP_CLOUDFRONT_KEY_PAIR_ID`, `NOTESHIP_CLOUDFRONT_PRIVATE_KEY`, optional `NOTESHIP_CONTENT_COOKIE_DOMAIN`, optional `NOTESHIP_CONTENT_SESSION_TTL_SECONDS`, optional `NOTESHIP_TEMP_UPLOAD_EXPIRY_MINUTES`, optional `NOTESHIP_TEMP_UPLOAD_LIFECYCLE_DAYS`, `NOTESHIP_WEB_ORIGIN`, `NOTESHIP_CONTENT_UPLOAD_ORIGIN`
 - Logging: `POWERTOOLS_SERVICE_NAME`, `POWERTOOLS_LOG_LEVEL`, optional `POWERTOOLS_LOGGER_SAMPLE_RATE`, `NOTESHIP_ENV_NAME`
   - Accepted values for `POWERTOOLS_LOG_LEVEL`: `TRACE`, `DEBUG`, `INFO`, `WARN`, `ERROR`, `SILENT`, `CRITICAL`
 
@@ -225,7 +225,7 @@ cdk deploy NoteshipOpsGuardrails-dev -c env=dev -c region=us-east-1
 ## Post-deploy steps
 
 - Create Stripe webhook (events: `checkout.session.completed`, `customer.subscription.*`, `invoice.payment_failed`) pointing to API.
-- Create LinkedIn/Medium OAuth apps; set redirect URIs; store secrets.
+- Create LinkedIn OAuth app; set redirect URIs; store secrets.
 - Seed plan entitlements consistent with `packages/domain/src/plans.ts`.
 - Set CloudWatch alarms for DLQ message count.
 

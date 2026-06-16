@@ -5,7 +5,7 @@ _Last updated: 2026-01-28_
 ## 1) Positioning (simple)
 
 **Noteship is an AI-first notes workflow for knowledge workers who publish.**  
-It helps you **recall ideas by meaning**, **repurpose notes into grounded drafts**, and **publish consistently** (LinkedIn + Medium).
+It helps you **recall ideas by meaning**, **repurpose notes into grounded drafts**, and **publish consistently** (LinkedIn now, more later).
 
 ## 2) Primary message pillars (the 3-step promise)
 
@@ -14,7 +14,7 @@ It helps you **recall ideas by meaning**, **repurpose notes into grounded drafts
 2. **Repurpose (grounded drafts)**
    - Turn notes into structured drafts in your voice.
 3. **Publish & schedule (reliable shipping)**
-   - Ship to LinkedIn/Medium with scheduling and clear status.
+   - Ship to LinkedIn with scheduling and clear status.
 
 ## 3) Differentiation (what makes switching worth it)
 
@@ -57,7 +57,7 @@ It helps you **recall ideas by meaning**, **repurpose notes into grounded drafts
 ### Set B (consultant-specific)
 
 - H1: **Stop rewriting what you already know.**
-- Sub: Recall past insights, convert them to structured drafts, and publish to LinkedIn/Medium on schedule.
+- Sub: Recall past insights, convert them to structured drafts, and publish to LinkedIn on schedule.
 
 ### Set C (authority-building)
 

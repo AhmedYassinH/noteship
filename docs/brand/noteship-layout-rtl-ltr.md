@@ -28,7 +28,7 @@ _Last updated: 2026-01-28_
 
 - If a note is English inside Arabic UI, do not force RTL.
 - Use proper direction wrappers and spacing around punctuation.
-- Keep platform names in English (LinkedIn, Medium).
+- Keep platform names in English (LinkedIn).
 
 ## 4) Alignment rules
 

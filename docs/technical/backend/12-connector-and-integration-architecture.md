@@ -50,7 +50,7 @@ sequenceDiagram
   participant DDB as DynamoDB
   participant Q as SQS
   participant W as Worker
-  participant LI as LinkedIn/Medium
+  participant LI as LinkedIn
 
   UI->>API: Publish/Schedule
   API->>DDB: Create/Update Post (queued)

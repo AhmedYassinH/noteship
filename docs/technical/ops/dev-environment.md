@@ -7,7 +7,7 @@ Use this document to set up a working dev environment. Deployment steps and env 
 - Node 18+, pnpm installed
 - AWS CLI installed
 - Auth0 tenant (single tenant with dev/prod apps)
-- Stripe/Qdrant/LinkedIn/Medium credentials for dev (use sandbox where possible)
+- Stripe/Qdrant/LinkedIn credentials for dev (use sandbox where possible)
 
 ## 2) AWS SSO profile (recommended)
 

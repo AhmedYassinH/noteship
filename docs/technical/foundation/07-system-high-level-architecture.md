@@ -14,7 +14,7 @@ Describe major components, boundaries, and data flows.
 - SQS + Lambda workers (publishing, embedding)
 - Vector DB (Qdrant Cloud)
 - Stripe (billing)
-- OAuth providers (LinkedIn, Medium)
+- OAuth providers (LinkedIn)
 
 ## High-level diagram
 
@@ -33,7 +33,6 @@ flowchart LR
   W1 --> S3
   W1 --> VDB[(Vector DB)]
   W1 --> LI[LinkedIn API]
-  W1 --> MED[Medium API]
 
   W --> STR[Stripe Checkout]
   STR --> WH[Stripe Webhook Lambda]
@@ -58,4 +57,4 @@ flowchart LR
 
 1. User creates post from note
 2. API enqueues publish job
-3. Worker calls LinkedIn/Medium, updates status, retries failures
+3. Worker calls LinkedIn, updates status, retries failures

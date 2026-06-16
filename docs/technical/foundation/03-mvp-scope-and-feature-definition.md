@@ -27,14 +27,14 @@ Define MVP features precisely and prevent scope creep.
 
 ### 4) AI content generation
 
-- Generate LinkedIn/Medium draft(s) from a note
+- Generate LinkedIn draft(s) from a note
 - Tone/persona selection
 - Regenerate/refine
 
 ### 5) Publishing integrations
 
 - Connect LinkedIn (OAuth) and publish posts
-- Connect Medium (OAuth) and publish posts
+- Future connectors are out of MVP scope
 
 ### 6) Scheduling
 

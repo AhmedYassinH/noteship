@@ -14,7 +14,7 @@ Solo professionals create lots of knowledge (notes, meeting takeaways, framework
 
 - They **can’t find** what they wrote because they don’t remember the exact wording.
 - They **waste time rewriting** the same ideas.
-- Publishing to LinkedIn/Medium is **high effort** and inconsistent.
+- Publishing to LinkedIn is **high effort** and inconsistent.
 
 ## Target customer
 
@@ -28,7 +28,7 @@ Primary: **Solo consultants / coaches** (one-person businesses) who:
 
 1. **Semantic memory**: find earlier ideas without exact keywords.
 2. **Repurposing**: turn notes into polished posts quickly.
-3. **Publish & schedule**: ship content to LinkedIn and Medium reliably.
+3. **Publish & schedule**: ship content to LinkedIn reliably.
 
 ## Differentiation
 
@@ -43,7 +43,7 @@ In scope:
 - Notes (TipTap editor), stored as Markdown in S3
 - Semantic search across notes
 - AI draft generation from a note
-- Integrations: LinkedIn + Medium (publish now + schedule)
+- Integrations: LinkedIn (publish now + schedule)
 - Plans + entitlements (feature gating; quotas)
 
 Out of scope (MVP):

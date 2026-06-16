@@ -10,7 +10,7 @@ Define backend modules, DI approach, async patterns, and boundaries.
 - Lambda (Node.js, TypeScript)
 - DynamoDB, S3
 - SQS workers (publishing + embedding)
-- External: Vector DB, Stripe, LinkedIn, Medium
+- External: Vector DB, Stripe, LinkedIn
 
 ## Code architecture
 
@@ -18,7 +18,7 @@ Layers:
 
 1. Handlers (Lambda entrypoints)
 2. Use-cases (business logic)
-3. Adapters (DDB/S3/Vector/Stripe/LinkedIn/Medium clients)
+3. Adapters (DDB/S3/Vector/Stripe/LinkedIn clients)
 4. Domain (types, feature keys, entities)
 5. Runtime (dependency wiring)
 

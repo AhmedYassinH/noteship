@@ -36,7 +36,7 @@ Primary ICP:
 
 - **Recall (semantic-powered):** find and resurface ideas by meaning, not keywords
 - **Repurpose:** turn your notes into structured drafts in your voice
-- **Publish & schedule:** ship reliably to LinkedIn/Medium with clear status
+- **Publish & schedule:** ship reliably to LinkedIn with clear status
 - **Portability-minded:** Markdown-first mindset (export/import, avoid lock-in)
 
 ### It is **not**

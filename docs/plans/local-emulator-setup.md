@@ -146,8 +146,6 @@ STRIPE_WEBHOOK_SECRET=whsec_test_xxx
 # Connectors (use sandbox)
 LINKEDIN_CLIENT_ID=test
 LINKEDIN_CLIENT_SECRET=test
-MEDIUM_CLIENT_ID=test
-MEDIUM_CLIENT_SECRET=test
 ```
 
 **Verification:**
@@ -687,7 +685,7 @@ The implementation is solid and achieves the goal. A few issues need attention b
 
 ### Issues Found
 
-#### 🟡 Medium: DynamoDB Local healthcheck may fail
+#### 🟡 DynamoDB Local healthcheck may fail
 
 **Problem:** `curl` is not installed in `amazon/dynamodb-local` image by default.
 

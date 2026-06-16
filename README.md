@@ -8,7 +8,7 @@ Read `AGENTS.md` and the docs in `docs/` before making changes.
 - `apps/api`: API Gateway + Lambda handlers
 - `apps/workers`: SQS workers and scheduled jobs
 - `packages/domain`: shared types, schemas, plan entitlements
-- `packages/connectors`: vendor connectors (LinkedIn, Medium, etc.)
+- `packages/connectors`: vendor connectors (LinkedIn now, more later)
 - `packages/utils`: shared utilities
 - `packages/infra`: infrastructure as code
 - `archive/legacy-ui`: legacy Vite UI reference (not in the workspace)

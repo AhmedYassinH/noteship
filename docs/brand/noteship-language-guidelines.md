@@ -31,7 +31,7 @@ _Last updated: 2026-01-28_
 - Translate intent and clarity first.
 - Keep product terms consistent:
   - Noteship (brand) stays **Noteship** (not translated)
-  - LinkedIn / Medium remain in English within Arabic UI when needed.
+  - LinkedIn remains in English within Arabic UI when needed.
 
 ## 5) RTL/LTR mixing rules
 

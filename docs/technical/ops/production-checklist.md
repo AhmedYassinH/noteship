@@ -75,7 +75,7 @@ Use `docs/technical/ops/deployment.md` as the source of truth. This checklist mi
 
 - [ ] Validate prod environment variables (Stripe, OAuth, Qdrant, LLM).
 - [ ] Create Stripe webhook for prod events.
-- [ ] Create LinkedIn/Medium OAuth apps with prod redirect URIs.
+- [ ] Create LinkedIn OAuth app with prod redirect URIs.
 
 ## 7) Observability + cost guardrails
 

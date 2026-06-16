@@ -87,7 +87,7 @@ Noto Naskh Arabic should feel **editorial and refined**, but avoid extreme bold.
 ### RTL/LTR behavior
 
 - Arabic pages are fully RTL mirrored.
-- Keep product/platform names in English where needed (LinkedIn, Medium, Noteship).
+- Keep product/platform names in English where needed (LinkedIn, Noteship).
 
 ---
 

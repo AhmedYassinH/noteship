@@ -21,7 +21,7 @@ Details: see `docs/technical/index.md`.
 - **Canonical content**: Markdown notes + artifacts stored in S3
 - **Metadata**: Note lists, statuses, user config, subscriptions in DynamoDB
 - **Derived indexes**: Vector embeddings in a managed Vector DB (e.g., Qdrant)
-- **Integrations**: Connector-based architecture (LinkedIn/Medium now; more later)
+- **Integrations**: Connector-based architecture (LinkedIn now; more later)
 - **Async-first**: SQS jobs processed by worker Lambdas with retries + DLQ
 
 ### High-level component diagram
@@ -50,7 +50,6 @@ flowchart LR
     VDB["Vector DB (Qdrant Cloud)"]
     STRIPE["Stripe (Billing)"]
     LI["LinkedIn API"]
-    MED["Medium API"]
     LLM["LLM Provider / Bedrock (future)<br/>Embeddings + Generation"]
   end
 
@@ -62,7 +61,6 @@ flowchart LR
   WORKER --> DDB
   WORKER --> VDB
   WORKER --> LI
-  WORKER --> MED
   API --> STRIPE
   WORKER --> LLM
 
@@ -104,7 +102,7 @@ Details: see `docs/technical/index.md`.
 ### Frontend non-responsibilities
 
 - Never enforce security/plan gates solely in UI
-- Never call vendor APIs directly (LinkedIn/Medium)
+- Never call vendor APIs directly (LinkedIn)
 - Never store secrets/tokens in the browser
 
 Details: see `docs/technical/index.md`.
@@ -150,6 +148,8 @@ Details: see `docs/technical/index.md`.
 
 - `note.md` stored per note
 - `artifacts/*` stored per note (images, exports, generated outputs)
+- Presigned uploads land under `uploads/tmp/*` first, then `/complete` promotes verified objects into the canonical `users/{userId}/notes/{noteId}/artifacts/*` prefix
+- Temporary upload leases and presigned PUT URLs expire after `NOTESHIP_TEMP_UPLOAD_EXPIRY_MINUTES` minutes, default `3`; native S3 lifecycle cleanup remains a day-based safety net for `uploads/tmp/*`, default `1` day
 - Versioning enabled (supports history + safe re-embedding)
 - Content access via CloudFront signed cookies scoped to `users/{userId}/*`
 
@@ -160,6 +160,8 @@ Details: see `docs/technical/index.md`.
 - Integration accounts: vendor connections, token references, status
 - Subscription state: current plan, status, period end
 - Usage counters: quotas per billing period (optional in MVP but recommended)
+- Rate-limit buckets: plan-aware API abuse protection with TTL
+- Upload leases: temporary storage reservations for presigned uploads
 
 ### Vector DB (derived index)
 
@@ -234,7 +236,7 @@ sequenceDiagram
 
 ### 5.3 Generate a post from a note
 
-**Intent:** Convert a note into a LinkedIn/Medium-ready draft with tone/persona.
+**Intent:** Convert a note into a LinkedIn-ready draft with tone/persona.
 
 ```mermaid
 sequenceDiagram
@@ -331,20 +333,17 @@ flowchart LR
 
   subgraph Connectors["Connector Layer"]
     LIConn["LinkedIn Connector"]
-    MEDConn["Medium Connector"]
     Future["Future Connectors<br/>Meeting AI, Notion, Docs, etc."]
   end
 
   subgraph Vendors["Vendor APIs"]
     LI["LinkedIn"]
-    MED["Medium"]
     X["Other Vendors"]
   end
 
   Note --> Post
   Post --> Job
   Job --> LIConn --> LI
-  Job --> MEDConn --> MED
   Job --> Future --> X
 ````
 
@@ -400,7 +399,6 @@ flowchart LR
     STRIPE["Stripe"]
     VDB["Vector DB"]
     LI["LinkedIn"]
-    MED["Medium"]
     LLM["LLM Provider"]
   end
 
@@ -415,7 +413,6 @@ flowchart LR
   W --> S3
   W --> VDB
   W --> LI
-  W --> MED
   LAPI --> STRIPE
   W --> LLM
   LAPI --> SM
@@ -449,6 +446,7 @@ Details: see `docs/technical/index.md`.
 - S3 for large content
 - Vector DB external to avoid OpenSearch cluster fixed costs (MVP)
 - Quotas/limits for AI usage
+- Free-only launch posture: billing UI remains visible but disabled until paid plans are enabled; backend checkout/portal calls are disabled by default.
 
 ---
 

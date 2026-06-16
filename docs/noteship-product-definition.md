@@ -8,7 +8,7 @@ _Last updated: 2026-01-28_
 
 ## 1) One-line definition
 
-**Noteship helps solo consultants and coaches recall their thinking, repurpose notes into publish-ready drafts (LinkedIn + Medium), and publish consistently — powered by meaning-based recall when they don’t remember the exact wording.**
+**Noteship helps solo consultants and coaches recall their thinking, repurpose notes into publish-ready LinkedIn drafts, and publish consistently — powered by meaning-based recall when they don’t remember the exact wording.**
 
 ---
 
@@ -65,7 +65,7 @@ _Last updated: 2026-01-28_
 ### JTBD #2 — Repurpose to drafts
 
 **When** I have a note that contains a useful insight,  
-**I want** to convert it into a LinkedIn/Medium-ready draft in my voice,  
+**I want** to convert it into a LinkedIn-ready draft in my voice,  
 **so I** can publish consistently without spending hours writing.
 
 ### JTBD #3 — Publish and schedule
@@ -105,9 +105,7 @@ _Last updated: 2026-01-28_
 
 5. **Publishing integrations**
    - Connect LinkedIn (OAuth)
-   - Connect Medium (OAuth)
    - Publish immediately to LinkedIn
-   - Publish immediately to Medium
 
 6. **Scheduling**
    - Schedule posts
@@ -129,7 +127,7 @@ flowchart TD
   C --> D[Recall finds past notes by meaning]
   B --> E[Generate drafts from note]
   E --> F{Publish now?}
-  F -->|Yes| G[Publish to LinkedIn / Medium]
+  F -->|Yes| G[Publish to LinkedIn]
   F -->|No| H[Schedule post]
   H --> I[Worker publishes later]
   G --> J[Post status updated]
@@ -161,7 +159,7 @@ These are intentionally out of scope to keep the build lean and cost-efficient:
 
 - **Recall by meaning** tailored to personal knowledge work (semantic-powered resurfacing)
 - **Note → draft pipeline** with tone/persona control, grounded in your notes
-- **Direct publishing + scheduling** to LinkedIn and Medium
+- **Direct publishing + scheduling** to LinkedIn
 - **Portability-first storage:** Markdown export/import mindset (avoid lock-in)
 
 ---
@@ -264,4 +262,4 @@ These are intentionally out of scope to keep the build lean and cost-efficient:
 - Exact plan names and pricing points
 - Best default quotas (AI and storage)
 - Whether recall includes in-note highlighting at v1.1
-- Medium integration approach depending on API constraints
+- Future connector integration approach depending on API constraints

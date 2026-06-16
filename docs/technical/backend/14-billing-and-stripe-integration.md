@@ -6,6 +6,11 @@ Define billing flows and how they map to entitlements.
 
 ## Flow: Upgrade
 
+Free-only launch note:
+
+- Checkout and portal endpoints return `BILLING_DISABLED` unless `NOTESHIP_BILLING_ENABLED=true`.
+- The web billing UI keeps upgrade/manage controls visible but disabled with a "coming soon" message.
+
 1. User clicks upgrade
 2. Backend creates Stripe checkout session
 3. User pays in Stripe
@@ -31,6 +36,8 @@ Define billing flows and how they map to entitlements.
 - priceId
 - planId (internal)
 - status (active/past_due/canceled)
+- subscriptionId
+- priceId
 - currentPeriodEnd
 
 ## Security
@@ -59,3 +66,4 @@ sequenceDiagram
 
 - Downgrade blocks gated actions but preserves data
 - Quotas reset per billing period (monthly)
+- Only `active` and `trialing` subscription statuses grant paid entitlements; all other statuses resolve to Free.

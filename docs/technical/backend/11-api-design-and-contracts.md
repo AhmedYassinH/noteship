@@ -27,8 +27,11 @@ Define the MVP API surface and request/response shapes (conceptual).
 ### Attachments
 
 - `POST /notes/{noteId}/uploads` get presigned upload URL
-  Body: `{ filename, contentType, sizeBytes }`
-  Response: `{ uploadUrl, s3Key, artifactId, publicUrl }`
+  Body: `{ filename, contentType, sizeBytes, intent, artifactType }`
+  Response: `{ uploadUrl, s3Key, artifactId, publicUrl, expiresAt }`
+  The presigned URL targets a temporary S3 key under `uploads/tmp/` and expires with the upload lease. `s3Key` and `publicUrl` reference the final canonical artifact key.
+- `POST /notes/{noteId}/uploads/{artifactId}/complete` verifies the temporary object, promotes it to the final artifact key, and commits storage usage.
+- `POST /notes/{noteId}/uploads/{artifactId}/abandon` abandons the lease and releases reserved storage.
 
 ### Content access
 
@@ -44,7 +47,7 @@ Define the MVP API surface and request/response shapes (conceptual).
 ### AI generation
 
 - `POST /notes/{noteId}/drafts` generate draft(s)
-  Body: `{ provider: "linkedin"|"medium", tone?: string }`
+  Body: `{ provider: "linkedin", tone?: string }`
   Response: `{ draftId, content }` (or stored in S3)
 
 ### Posts

@@ -45,7 +45,7 @@ Details: see `docs/technical/index.md`.
   /workers             # Async worker Lambdas (SQS consumers, scheduled)
 /packages
   /domain              # Entities, feature keys, shared types, zod schemas
-  /connectors          # Vendor connectors (LinkedIn, Medium, future)
+  /connectors          # Vendor connectors (LinkedIn now, future connectors later)
   /infra               # CDK stacks + constructs
   /utils               # cross-cutting utilities (logging, ids, time)
   # Locale copy (public pages)
@@ -75,6 +75,7 @@ Paths:
 ```
 users/{userId}/notes/{noteId}/note.md
 users/{userId}/notes/{noteId}/artifacts/{artifactId}.{ext}
+uploads/tmp/users/{userId}/notes/{noteId}/artifacts/{artifactId}.{ext}
 users/{userId}/posts/{provider}/{postId}/draft.md
 users/{userId}/posts/{provider}/{postId}/payload.json
 ```
@@ -83,6 +84,9 @@ Notes:
 
 - `note.md` is the canonical representation.
 - Artifacts are references (images, exports, generated drafts, etc.)
+- Presigned note uploads first land under `uploads/tmp/`; `/complete` verifies the object, copies it to the canonical `users/{userId}/notes/{noteId}/artifacts/` key, and deletes the temporary object.
+- Upload leases and presigned PUT URLs expire after `NOTESHIP_TEMP_UPLOAD_EXPIRY_MINUTES` minutes, default `3`.
+- The content bucket has an S3 lifecycle rule for `uploads/tmp/` that expires current versions, non-current versions, and incomplete multipart uploads after `NOTESHIP_TEMP_UPLOAD_LIFECYCLE_DAYS` days, default `1`. Native S3 lifecycle expiration is day-based, so minute-level expiry is enforced by the lease/URL.
 - Use stable IDs and never rely on raw filenames.
 
 ### 2.2 DynamoDB tables (MVP)
@@ -98,6 +102,11 @@ Attributes:
 - `planId`, `subscriptionStatus`, `currentPeriodEnd` (denormalized convenience)
 - `currentPeriodStart` (ISO, from Stripe `current_period_start`)
 - `stripeCustomerId` (optional)
+- `subscriptionId`, `priceId` (optional)
+- Account-level capacity counters:
+  - `notesUsed`
+  - `activeScheduledPosts`
+  - `storageUsedMb`, `storageReservedMb`, `storageAccountedMb`
 
 #### Table: `Notes`
 
@@ -121,7 +130,7 @@ Sort key: `postId`
 Attributes:
 
 - `postId`, `noteId` (source)
-- `provider` (linkedin|medium)
+- `provider` (linkedin)
 - `status` (draft|queued|scheduled|publishing|published|failed)
 - `scheduledAt` (ISO) nullable
 - `publishedAt` (ISO) nullable
@@ -138,7 +147,7 @@ Partition key: `userId`
 Sort key: `providerAccountId` (e.g., `${provider}#${accountId}`)
 Attributes:
 
-- `provider` (linkedin|medium|...)
+- `provider` (linkedin|...)
 - `accountId` (vendor account identifier/URN)
 - `status` (connected|revoked|error)
 - `scopes[]`, `connectedAt`, `updatedAt`
@@ -162,6 +171,37 @@ Notes:
 
 - `storageUsedMb` is reserved on upload init to enforce `max_storage_mb` entitlements.
 - Consider a later reconcile step on upload completion to adjust for failed uploads.
+
+#### Table: `RateLimits`
+
+Partition key: `userId`
+Sort key: `bucketKey` (`{featureKey}#{window}#{windowStartEpoch}`)
+Attributes:
+
+- `count`
+- `expiresAtEpoch` (DynamoDB TTL)
+- `updatedAt`
+
+Purpose:
+
+- Enforce plan-aware request limits for authenticated API usage.
+- Use atomic conditional increments so concurrent requests cannot exceed a bucket limit.
+
+#### Table: `UploadLeases`
+
+Partition key: `userId`
+Sort key: `artifactId`
+Attributes:
+
+- `noteId`, `s3Key`, `finalS3Key`, `sizeBytes`, `sizeMb`
+- `status` (`reserved|completed|abandoned`)
+- `createdAt`, `updatedAt`, `expiresAt`
+- `expiresAtEpoch` is optional and set only after the lease reaches `completed` or `abandoned`, so DynamoDB TTL cannot delete unresolved reservations before counters are released.
+
+Purpose:
+
+- Reserve storage before a presigned upload URL is issued.
+- Complete after S3 upload verification and promotion from the temporary S3 prefix, or abandon to release reserved storage. Expired temporary S3 objects are also covered by the bucket lifecycle rule.
 
 #### Table: `Jobs` (optional, recommended)
 
@@ -331,7 +371,9 @@ Details: see `docs/technical/index.md`.
     - pdf (embed): max 1 MB
     - pdf (attach): max 5 MB
     - video upload: not supported (embed external link instead)
-  - Response: `{ uploadUrl, s3Key, artifactId, publicUrl }`
+  - Response: `{ uploadUrl, s3Key, artifactId, publicUrl, expiresAt }`; `uploadUrl` targets `uploads/tmp/` and expires with the upload lease, while `s3Key` and `publicUrl` reference the final artifact key.
+- `POST /notes/{noteId}/uploads/{artifactId}/complete` verify uploaded object and commit storage usage
+- `POST /notes/{noteId}/uploads/{artifactId}/abandon` abandon reserved upload and release storage reservation
 
 #### Content access
 
@@ -435,7 +477,7 @@ Conceptual:
 - `refreshTokenIfNeeded(account): IntegrationAccount`
 - `disconnect(account): void`
 
-### 7.2 LinkedIn + Medium specifics (MVP)
+### 7.2 LinkedIn specifics (MVP)
 
 - Store per-user integration account
 - LinkedIn OAuth uses `openid profile w_member_social`; resolve member identity via `/v2/userinfo` (`sub`)
@@ -485,10 +527,15 @@ Webhook handler rules:
 ### 8.3 Plan -> entitlements mapping (MVP)
 
 - Keep entitlements in code config (JSON/TS) for MVP to avoid admin tooling.
+- New users persist `planId=free`; missing historical `planId` is lazily backfilled on `/me`.
+- Effective Pro access requires both `planId=pro` and Stripe subscription status `active` or `trialing`.
 - Types:
   - boolean: `scheduled_publish`
   - quota: `ai_generations_per_month`
   - capacity: `max_notes`
+  - capacity: `max_scheduled_posts`
+  - capacity: `max_storage_mb`
+  - rate limit: API and endpoint-group windows
 
 ### 8.4 Enforcement
 
@@ -496,6 +543,14 @@ Webhook handler rules:
   - before generation: check quota
   - before scheduling: check boolean entitlement
   - before creating note: check capacity limit
+- Plan-aware API rate limits are enforced server-side using `RateLimits`.
+- Free launch defaults:
+  - global API: 60 requests/minute and 1000 requests/day
+  - search: 30/hour
+  - AI generation: 3/hour and 20/month
+  - upload sessions: 20/day
+  - publish requests: 10/day
+- Billing checkout/portal endpoints are disabled by default for free-only launch via `NOTESHIP_BILLING_ENABLED=false`.
 - Frontend uses entitlements to hide/disable and upsell.
 
 ### 8.5 Usage counters
@@ -583,7 +638,7 @@ Cover only business-critical flows:
 3. Embedding worker + Vector DB
 4. Semantic search endpoint
 5. Post generation (LLM) + draft storage
-6. Integrations OAuth + publish worker (LinkedIn/Medium)
+6. Integrations OAuth + publish worker (LinkedIn)
 7. Scheduling dispatcher + retries/DLQ
 8. Stripe checkout + webhook + entitlements enforcement
 9. Minimal E2E suite
@@ -609,7 +664,7 @@ Details: see `docs/technical/index.md`.
   - Preserve language metadata on notes/posts (`language: ar|en`) and render containers with `lang`/`dir`.
   - On export (Markdown) include language in frontmatter; on render keep direction attributes.
 - Search/embeddings/AI: use multilingual embeddings and generation models; store language with embeddings to allow language-aware ranking; normalize Arabic text (diacritics optional) for search robustness; prompts respect selected language.
-- Publishing: render body/title with correct direction; keep platform names (LinkedIn/Medium) in English inside Arabic UI.
+- Publishing: render body/title with correct direction; keep platform names (LinkedIn) in English inside Arabic UI.
 - Testing: add E2E cases for RTL layout, mixed-language content in editor, and search/publish flows in Arabic UI.
 - **Localized copy storage (public pages):** keep EN/AR marketing copy in `apps/web/data/<surface>.ts` exporting `{ en, ar }` objects (typed). Include locale-specific assets (hero/proof screenshots) and direction hints alongside text to keep components lean and ensure RTL-safe rendering.
 

@@ -31,7 +31,7 @@ Define what the system must do (MVP).
 ## Publishing & scheduling
 
 - FR-P1: User can connect LinkedIn via OAuth and publish a post
-- FR-P2: User can connect Medium via OAuth and publish a post
+- FR-P2: Future connector publishing is deferred
 - FR-P3: User can schedule a post for later
 - FR-P4: Publish/schedule runs as async jobs with retries and DLQ
 - FR-P5: User can view post status (draft/scheduled/published/failed) and retry/cancel

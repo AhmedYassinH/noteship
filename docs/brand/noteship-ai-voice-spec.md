@@ -16,7 +16,7 @@ AI supports the workflow end-to-end, but must remain **grounded in the user’s 
    - Offer variants and iterative edits on request.
 
 3. **Publish (formatting & readiness)**
-   - Format output for the target platform (LinkedIn/Medium).
+   - Format output for the target platform (LinkedIn).
    - Help the user finalize (titles/hooks/structure), without inventing facts.
 
 ---
@@ -65,7 +65,7 @@ Even when persona is selected:
 - Excess emojis
 - Hashtag stuffing
 
-## 7) Output structure rules (Medium)
+## 7) Future connector output rules
 
 - Title + subtitle
 - Sections with headings

@@ -9,7 +9,7 @@ This matrix makes required tests explicit and avoids bikeshedding.
 | Data model change (DDB/S3 paths)   | Unit + integration tests                | `pnpm lint`, `pnpm test`, `pnpm build` |
 | New API endpoint or handler        | Unit + integration tests                | `pnpm lint`, `pnpm test`, `pnpm build` |
 | Worker job logic change            | Unit + integration tests                | `pnpm lint`, `pnpm test`, `pnpm build` |
-| Connector change (LinkedIn/Medium) | Unit + integration tests                | `pnpm lint`, `pnpm test`, `pnpm build` |
+| Connector change (LinkedIn/future) | Unit + integration tests                | `pnpm lint`, `pnpm test`, `pnpm build` |
 | New UI flow (app/web)              | Playwright E2E                          | `pnpm lint`, `pnpm test`, `pnpm build` |
 | UI copy/visual change only         | No tests required                       | `pnpm lint`, `pnpm build`              |
 | Billing/entitlements change        | Unit + integration + E2E (if user flow) | `pnpm lint`, `pnpm test`, `pnpm build` |
