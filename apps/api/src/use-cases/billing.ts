@@ -1,8 +1,10 @@
 import type Stripe from "stripe";
+import { DEFAULT_PLAN_ID, isActiveSubscriptionStatus } from "@noteship/domain";
 import type { Deps } from "../runtime/deps";
-import { badRequest, notFound } from "../runtime/errors";
+import { badRequest, billingDisabled, notFound } from "../runtime/errors";
 import { getUserById, putUser } from "../adapters/dynamodb/users";
 import { resolvePlanIdFromPriceId } from "./entitlements";
+import { assertCan } from "./policy";
 
 const toIso = (seconds: number | null | undefined): string | undefined =>
   typeof seconds === "number" ? new Date(seconds * 1000).toISOString() : undefined;
@@ -24,6 +26,11 @@ export const createCheckoutSession = async (
     cancelUrl: string;
   },
 ): Promise<{ url: string }> => {
+  if (!deps.billingEnabled) {
+    throw billingDisabled("Billing is coming soon");
+  }
+  await assertCan(deps, userId, "billing.open");
+
   const user = await getUserOrThrow(deps, userId);
 
   const session = await deps.stripe.checkout.sessions.create({
@@ -51,6 +58,11 @@ export const createPortalSession = async (
   userId: string,
   input: { returnUrl: string },
 ): Promise<{ url: string }> => {
+  if (!deps.billingEnabled) {
+    throw billingDisabled("Billing is coming soon");
+  }
+  await assertCan(deps, userId, "billing.open");
+
   const user = await getUserOrThrow(deps, userId);
 
   if (!user.stripeCustomerId) {
@@ -73,18 +85,25 @@ const updateUserFromSubscription = async (
     status: string | null;
     currentPeriodStart?: number | null;
     currentPeriodEnd?: number | null;
+    subscriptionId?: string | null;
     priceId?: string | null;
   },
 ): Promise<void> => {
   const user = await getUserOrThrow(deps, input.userId);
-  const planId = input.priceId
+  const mappedPlanId = input.priceId
     ? resolvePlanIdFromPriceId(input.priceId, deps.stripePriceMap)
-    : "free";
+    : DEFAULT_PLAN_ID;
+  const planId =
+    mappedPlanId === "pro" && isActiveSubscriptionStatus(input.status)
+      ? mappedPlanId
+      : DEFAULT_PLAN_ID;
 
   await putUser(deps.ddb, deps.tableNames.users, {
     ...user,
     planId,
     stripeCustomerId: input.customerId ?? user.stripeCustomerId,
+    subscriptionId: input.subscriptionId ?? user.subscriptionId,
+    priceId: input.priceId ?? user.priceId,
     subscriptionStatus: input.status ?? user.subscriptionStatus,
     currentPeriodStart: toIso(input.currentPeriodStart) ?? user.currentPeriodStart,
     currentPeriodEnd: toIso(input.currentPeriodEnd) ?? user.currentPeriodEnd,
@@ -104,6 +123,7 @@ const handleSubscriptionEvent = async (
   await updateUserFromSubscription(deps, {
     userId,
     customerId: typeof subscription.customer === "string" ? subscription.customer : null,
+    subscriptionId: subscription.id,
     status: subscription.status,
     currentPeriodStart: subscription.current_period_start,
     currentPeriodEnd: subscription.current_period_end,

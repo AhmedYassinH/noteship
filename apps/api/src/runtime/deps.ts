@@ -22,6 +22,8 @@ export type Deps = {
     integrations: string;
     usage: string;
     jobs: string;
+    rateLimits: string;
+    uploadLeases: string;
   };
   bucketName: string;
   jobsQueueUrl: string;
@@ -35,6 +37,7 @@ export type Deps = {
   vectorDbCollection: string;
   stripe: Stripe;
   stripeWebhookSecret: string;
+  billingEnabled: boolean;
   stripePriceMap: {
     proMonthly?: string;
     proYearly?: string;
@@ -42,6 +45,8 @@ export type Deps = {
   contentDomain: string;
   contentCookieDomain?: string;
   contentSessionTtlSeconds: number;
+  tempUploadExpiryMinutes: number;
+  tempUploadLifecycleDays: number;
   cloudfrontKeyPairId: string;
   cloudfrontPrivateKey: string;
   connectors: {
@@ -49,10 +54,6 @@ export type Deps = {
       clientId: string;
       clientSecret: string;
       apiVersion?: string;
-    };
-    medium: {
-      clientId: string;
-      clientSecret: string;
     };
   };
   integrationSecurity: {
@@ -126,6 +127,8 @@ export const getDeps = (): Deps => {
         integrations: requireEnv("NOTESHIP_INTEGRATIONS_TABLE_NAME"),
         usage: requireEnv("NOTESHIP_USAGE_TABLE_NAME"),
         jobs: requireEnv("NOTESHIP_JOBS_TABLE_NAME"),
+        rateLimits: requireEnv("NOTESHIP_RATE_LIMITS_TABLE_NAME"),
+        uploadLeases: requireEnv("NOTESHIP_UPLOAD_LEASES_TABLE_NAME"),
       },
       bucketName: requireEnv("NOTESHIP_CONTENT_BUCKET_NAME"),
       jobsQueueUrl: requireEnv("NOTESHIP_JOBS_QUEUE_URL"),
@@ -143,6 +146,7 @@ export const getDeps = (): Deps => {
       vectorDbCollection: requireEnv("QDRANT_COLLECTION"),
       stripe: createStripeClient(requireEnv("STRIPE_SECRET_KEY")),
       stripeWebhookSecret: requireEnv("STRIPE_WEBHOOK_SECRET"),
+      billingEnabled: parseBoolean(process.env.NOTESHIP_BILLING_ENABLED, false),
       stripePriceMap: {
         proMonthly: process.env.STRIPE_PRICE_PRO_MONTHLY,
         proYearly: process.env.STRIPE_PRICE_PRO_YEARLY,
@@ -150,6 +154,8 @@ export const getDeps = (): Deps => {
       contentDomain: requireEnv("NOTESHIP_CONTENT_CUSTOM_DOMAIN"),
       contentCookieDomain: process.env.NOTESHIP_CONTENT_COOKIE_DOMAIN,
       contentSessionTtlSeconds: parsePositiveIntEnv("NOTESHIP_CONTENT_SESSION_TTL_SECONDS", 43200),
+      tempUploadExpiryMinutes: parsePositiveIntEnv("NOTESHIP_TEMP_UPLOAD_EXPIRY_MINUTES", 3),
+      tempUploadLifecycleDays: parsePositiveIntEnv("NOTESHIP_TEMP_UPLOAD_LIFECYCLE_DAYS", 1),
       cloudfrontKeyPairId: requireEnv("NOTESHIP_CLOUDFRONT_KEY_PAIR_ID"),
       cloudfrontPrivateKey: requireEnv("NOTESHIP_CLOUDFRONT_PRIVATE_KEY"),
       connectors: {
@@ -157,10 +163,6 @@ export const getDeps = (): Deps => {
           clientId: requireEnv("LINKEDIN_CLIENT_ID"),
           clientSecret: requireEnv("LINKEDIN_CLIENT_SECRET"),
           apiVersion: process.env.LINKEDIN_API_VERSION,
-        },
-        medium: {
-          clientId: requireEnv("MEDIUM_CLIENT_ID"),
-          clientSecret: requireEnv("MEDIUM_CLIENT_SECRET"),
         },
       },
       integrationSecurity: {
