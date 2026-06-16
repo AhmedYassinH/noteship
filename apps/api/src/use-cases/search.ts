@@ -1,6 +1,7 @@
 import type { Note } from "@noteship/domain";
 import { batchGetNotesByIds } from "../adapters/dynamodb/notes";
 import type { Deps } from "../runtime/deps";
+import { assertCan } from "./policy";
 
 export type SearchResult = {
   note: Note;
@@ -15,6 +16,8 @@ export const searchNotes = async (
   query: string,
   limit = 10,
 ): Promise<SearchResult[]> => {
+  await assertCan(deps, userId, "search.query");
+
   if (!deps.embeddingsEnabled) {
     return [];
   }

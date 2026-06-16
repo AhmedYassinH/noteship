@@ -5,3 +5,5 @@ export * from "./posts";
 export * from "./users";
 export * from "./usage";
 export * from "./integrations";
+export * from "./rate-limits";
+export * from "./upload-leases";

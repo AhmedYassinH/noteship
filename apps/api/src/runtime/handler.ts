@@ -5,6 +5,7 @@ import { appendRequestContext, logger } from "./logger";
 import { HttpError } from "./errors";
 import { getUserId } from "./auth";
 import { safeStringify } from "@noteship/utils";
+import { assertCan } from "../use-cases/policy";
 
 export type HandlerFn = (
   _deps: Deps,
@@ -37,6 +38,9 @@ export const withDeps =
 
     try {
       const deps = overrideDeps ?? getDeps();
+      if (userId) {
+        await assertCan(deps, userId, "api.request");
+      }
       logger.info("request_start", {
         requestId,
         routeKey: event.routeKey,
