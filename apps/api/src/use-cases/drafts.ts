@@ -6,7 +6,7 @@ import { getObjectString, putObjectString } from "../adapters/s3";
 import type { Deps } from "../runtime/deps";
 import { notFound } from "../runtime/errors";
 import { buildPostDraftKey } from "@noteship/utils";
-import { FEATURE_KEYS, assertQuotaEntitlement, incrementUsageForField } from "./entitlements";
+import { reserveAiGenerationQuota } from "./policy";
 
 const nowIso = (): string => new Date().toISOString();
 
@@ -15,7 +15,7 @@ export const generateDrafts = async (
   userId: string,
   noteId: string,
   input: {
-    provider: "linkedin" | "medium";
+    provider: "linkedin";
     tone?: string;
     language?: "en" | "ar";
   },
@@ -25,44 +25,43 @@ export const generateDrafts = async (
     throw notFound("Note not found");
   }
 
-  const { periodStart } = await assertQuotaEntitlement(
-    deps,
-    userId,
-    FEATURE_KEYS.aiGenerationsPerMonth,
-    "aiGenerationsUsed",
-  );
+  const reservation = await reserveAiGenerationQuota(deps, userId);
+  try {
+    const noteContent = await getObjectString(deps.s3, deps.bucketName, note.s3Key);
+    const generated = await deps.llm.generateDraft({
+      noteContent,
+      provider: input.provider,
+      tone: input.tone,
+      language: input.language,
+      model: deps.llmModels.draft,
+    });
 
-  const noteContent = await getObjectString(deps.s3, deps.bucketName, note.s3Key);
-  const generated = await deps.llm.generateDraft({
-    noteContent,
-    provider: input.provider,
-    tone: input.tone,
-    language: input.language,
-    model: deps.llmModels.draft,
-  });
+    const postId = randomUUID();
+    const now = nowIso();
+    const s3Key = buildPostDraftKey(userId, input.provider, postId);
 
-  const postId = randomUUID();
-  const now = nowIso();
-  const s3Key = buildPostDraftKey(userId, input.provider, postId);
+    const post: Post = {
+      userId,
+      postId,
+      noteId,
+      provider: input.provider,
+      status: "draft",
+      contentS3Key: s3Key,
+      createdAt: now,
+      updatedAt: now,
+    };
 
-  const post: Post = {
-    userId,
-    postId,
-    noteId,
-    provider: input.provider,
-    status: "draft",
-    contentS3Key: s3Key,
-    createdAt: now,
-    updatedAt: now,
-  };
+    await putObjectString(deps.s3, deps.bucketName, s3Key, generated);
+    await putPost(deps.ddb, deps.tableNames.posts, post);
+    await reservation.commit();
 
-  await putObjectString(deps.s3, deps.bucketName, s3Key, generated);
-  await putPost(deps.ddb, deps.tableNames.posts, post);
-  await incrementUsageForField(deps, userId, periodStart, "aiGenerationsUsed");
-
-  return {
-    drafts: [{ post, content: generated }],
-  };
+    return {
+      drafts: [{ post, content: generated }],
+    };
+  } catch (error) {
+    await reservation.release();
+    throw error;
+  }
 };
 
 export const regenerateDraft = async (
@@ -70,7 +69,7 @@ export const regenerateDraft = async (
   userId: string,
   noteId: string,
   input: {
-    provider: "linkedin" | "medium";
+    provider: "linkedin";
     currentContent: string;
     instruction: string;
     language?: "en" | "ar";
@@ -81,21 +80,20 @@ export const regenerateDraft = async (
     throw notFound("Note not found");
   }
 
-  const { periodStart } = await assertQuotaEntitlement(
-    deps,
-    userId,
-    FEATURE_KEYS.aiGenerationsPerMonth,
-    "aiGenerationsUsed",
-  );
+  const reservation = await reserveAiGenerationQuota(deps, userId);
+  try {
+    const content = await deps.llm.regenerateDraft({
+      provider: input.provider,
+      currentContent: input.currentContent,
+      instruction: input.instruction,
+      language: input.language,
+      model: deps.llmModels.draft,
+    });
 
-  const content = await deps.llm.regenerateDraft({
-    provider: input.provider,
-    currentContent: input.currentContent,
-    instruction: input.instruction,
-    language: input.language,
-    model: deps.llmModels.draft,
-  });
-
-  await incrementUsageForField(deps, userId, periodStart, "aiGenerationsUsed");
-  return { content };
+    await reservation.commit();
+    return { content };
+  } catch (error) {
+    await reservation.release();
+    throw error;
+  }
 };

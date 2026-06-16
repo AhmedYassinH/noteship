@@ -9,6 +9,7 @@ import { linkedInPublishPayloadSchema } from "@noteship/domain";
 import { safeStringify, buildPostPayloadKey } from "@noteship/utils";
 import { getPostById, listScheduledPostsDue, putPost } from "../adapters/dynamodb/posts";
 import { listIntegrationsForProvider } from "../adapters/dynamodb/integrations";
+import { decrementUserCounter } from "../adapters/dynamodb/users";
 import { getObjectBinary, getObjectString } from "../adapters/s3";
 import { enqueueJob } from "../adapters/sqs";
 import type { Deps } from "../runtime/deps";
@@ -67,6 +68,13 @@ const loadLinkedInPayload = async (
     });
     return null;
   }
+};
+
+const releaseScheduledCapacityIfNeeded = async (deps: Deps, post: Post): Promise<void> => {
+  if (post.status !== "scheduled") {
+    return;
+  }
+  await decrementUserCounter(deps.ddb, deps.tableNames.users, post.userId, "activeScheduledPosts");
 };
 
 const inferContentType = (s3Key: string, hinted?: string): string => {
@@ -195,6 +203,7 @@ export const publishPost = async (
       updatedAt: nowIso(),
     };
     await putPost(deps.ddb, deps.tableNames.posts, failed);
+    await releaseScheduledCapacityIfNeeded(deps, post);
     logger.warn("publish_post_failed_no_integration", {
       postId: post.postId,
       provider: post.provider,
@@ -217,6 +226,7 @@ export const publishPost = async (
       updatedAt: nowIso(),
     };
     await putPost(deps.ddb, deps.tableNames.posts, failed);
+    await releaseScheduledCapacityIfNeeded(deps, post);
     logger.error("publish_post_failed_credentials_decrypt", {
       postId: post.postId,
       provider: post.provider,
@@ -234,6 +244,7 @@ export const publishPost = async (
       updatedAt: nowIso(),
     };
     await putPost(deps.ddb, deps.tableNames.posts, failed);
+    await releaseScheduledCapacityIfNeeded(deps, post);
     logger.warn("publish_post_failed_token_expired", {
       postId: post.postId,
       provider: post.provider,
@@ -254,69 +265,60 @@ export const publishPost = async (
     charCount: [...content].length,
   });
 
-  const connectorConfig = deps.connectors[post.provider];
-  const apiVersion = post.provider === "linkedin" ? deps.connectors.linkedin.apiVersion : undefined;
-  const connector = createConnector(post.provider, {
+  const connectorConfig = deps.connectors.linkedin;
+  const connector = createConnector("linkedin", {
     clientId: connectorConfig.clientId,
     clientSecret: connectorConfig.clientSecret,
-    apiVersion,
+    apiVersion: connectorConfig.apiVersion,
   });
 
   const accountTarget = account.providerMetadata?.personUrn ?? account.accountId;
 
   try {
-    if (post.provider === "linkedin") {
-      const payload = await loadLinkedInPayload(deps, post);
-      const normalized = payload?.normalizedContent ?? normalizeLinkedInContent(content);
+    const payload = await loadLinkedInPayload(deps, post);
+    const normalized = payload?.normalizedContent ?? normalizeLinkedInContent(content);
 
-      if (mode === "overflow_comments") {
-        if (!connector.publishComment) {
-          throw new Error("Connector does not support overflow comments");
-        }
-        const overflow = splitLinkedInOverflowToComments(
-          normalized,
-          deps.linkedin.textMaxChars,
-          deps.linkedin.commentMaxChars,
+    if (mode === "overflow_comments") {
+      if (!connector.publishComment) {
+        throw new Error("Connector does not support overflow comments");
+      }
+      const overflow = splitLinkedInOverflowToComments(
+        normalized,
+        deps.linkedin.textMaxChars,
+        deps.linkedin.commentMaxChars,
+      );
+
+      if (payload?.media.type === "pdf") {
+        throw new Error(
+          "LinkedIn overflow_comments mode is not supported when publishing a PDF document.",
         );
+      }
 
-        if (payload?.media.type === "pdf") {
-          throw new Error(
-            "LinkedIn overflow_comments mode is not supported when publishing a PDF document.",
-          );
-        }
+      const media = payload ? await loadLinkedInMediaInput(deps, payload.media) : undefined;
 
-        const media = payload ? await loadLinkedInMediaInput(deps, payload.media) : undefined;
+      const root = await connector.publishPost({
+        accountId: accountTarget,
+        accessToken: credentials.accessToken,
+        content: overflow.root,
+        media,
+      });
 
-        const root = await connector.publishPost({
+      for (const comment of overflow.comments) {
+        await connector.publishComment({
           accountId: accountTarget,
           accessToken: credentials.accessToken,
-          content: overflow.root,
-          media,
-        });
-
-        for (const comment of overflow.comments) {
-          await connector.publishComment({
-            accountId: accountTarget,
-            accessToken: credentials.accessToken,
-            parentId: root.remoteId,
-            content: comment,
-          });
-        }
-      } else {
-        const media = payload ? await loadLinkedInMediaInput(deps, payload.media) : undefined;
-
-        await connector.publishPost({
-          accountId: accountTarget,
-          accessToken: credentials.accessToken,
-          content: normalized,
-          media,
+          parentId: root.remoteId,
+          content: comment,
         });
       }
     } else {
+      const media = payload ? await loadLinkedInMediaInput(deps, payload.media) : undefined;
+
       await connector.publishPost({
         accountId: accountTarget,
         accessToken: credentials.accessToken,
-        content,
+        content: normalized,
+        media,
       });
     }
 
@@ -328,6 +330,7 @@ export const publishPost = async (
       updatedAt: nowIso(),
     };
     await putPost(deps.ddb, deps.tableNames.posts, updated);
+    await releaseScheduledCapacityIfNeeded(deps, post);
     logger.info("publish_post_completed", {
       postId: post.postId,
       provider: post.provider,
@@ -362,6 +365,7 @@ export const publishPost = async (
       updatedAt: nowIso(),
     };
     await putPost(deps.ddb, deps.tableNames.posts, failed);
+    await releaseScheduledCapacityIfNeeded(deps, post);
     return failed;
   }
 };

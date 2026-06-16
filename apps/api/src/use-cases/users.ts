@@ -1,4 +1,4 @@
-import type { User } from "@noteship/domain";
+import { DEFAULT_PLAN_ID, type User } from "@noteship/domain";
 import type { Deps } from "../runtime/deps";
 import { getUserById, putUser } from "../adapters/dynamodb/users";
 import { notFound } from "../runtime/errors";
@@ -11,7 +11,15 @@ export const getOrCreateUser = async (
 ): Promise<User> => {
   const existing = await getUserById(deps.ddb, deps.tableNames.users, input.userId);
   if (existing) {
-    return existing;
+    if (existing.planId) {
+      return existing;
+    }
+    const updated: User = {
+      ...existing,
+      planId: DEFAULT_PLAN_ID,
+    };
+    await putUser(deps.ddb, deps.tableNames.users, updated);
+    return updated;
   }
 
   const user: User = {
@@ -19,6 +27,7 @@ export const getOrCreateUser = async (
     email: input.email,
     name: input.name,
     createdAt: nowIso(),
+    planId: DEFAULT_PLAN_ID,
     language: "en",
     siteDirection: "ltr",
     editorDirection: "ltr",

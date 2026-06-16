@@ -14,6 +14,7 @@ export type Deps = {
   s3: S3Client;
   sqs: SQSClient;
   tableNames: {
+    users: string;
     notes: string;
     posts: string;
     integrations: string;
@@ -33,10 +34,6 @@ export type Deps = {
       clientId: string;
       clientSecret: string;
       apiVersion?: string;
-    };
-    medium: {
-      clientId: string;
-      clientSecret: string;
     };
   };
   integrationSecurity: {
@@ -93,6 +90,7 @@ export const getDeps = (): Deps => {
       s3: new S3Client({}),
       sqs: new SQSClient({}),
       tableNames: {
+        users: requireEnv("NOTESHIP_USERS_TABLE_NAME"),
         notes: requireEnv("NOTESHIP_NOTES_TABLE_NAME"),
         posts: requireEnv("NOTESHIP_POSTS_TABLE_NAME"),
         integrations: requireEnv("NOTESHIP_INTEGRATIONS_TABLE_NAME"),
@@ -116,10 +114,6 @@ export const getDeps = (): Deps => {
           clientId: requireEnv("LINKEDIN_CLIENT_ID"),
           clientSecret: requireEnv("LINKEDIN_CLIENT_SECRET"),
           apiVersion: process.env.LINKEDIN_API_VERSION,
-        },
-        medium: {
-          clientId: requireEnv("MEDIUM_CLIENT_ID"),
-          clientSecret: requireEnv("MEDIUM_CLIENT_SECRET"),
         },
       },
       integrationSecurity: {

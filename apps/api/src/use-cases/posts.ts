@@ -15,14 +15,9 @@ import { enqueueJob } from "../adapters/sqs";
 import type { Deps } from "../runtime/deps";
 import { HttpError, badRequest, notFound } from "../runtime/errors";
 import { buildPostDraftKey, buildPostPayloadKey } from "@noteship/utils";
-import {
-  FEATURE_KEYS,
-  assertBooleanEntitlement,
-  getUsagePeriodStart,
-  incrementUsageForField,
-  requireUser,
-  resolvePlanForUser,
-} from "./entitlements";
+import { getUsagePeriodStart, incrementUsageForField, requireUser } from "./entitlements";
+import { decrementUserCounter } from "../adapters/dynamodb/users";
+import { assertAndConsumeScheduleCapacity, assertCan } from "./policy";
 
 const nowIso = (): string => new Date().toISOString();
 
@@ -188,7 +183,7 @@ export const createPost = async (
   userId: string,
   input: {
     noteId: string;
-    provider: "linkedin" | "medium";
+    provider: "linkedin";
     content?: string;
     mode?: "single" | "overflow_comments";
   },
@@ -239,6 +234,8 @@ export const savePostDraft = async (
   postId: string,
   input: { content: string; mode?: "single" | "overflow_comments" },
 ): Promise<Post> => {
+  await assertCan(deps, userId, "post.publish");
+
   const post = await getPostById(deps.ddb, deps.tableNames.posts, userId, postId);
   if (!post) {
     throw notFound("Post not found");
@@ -274,12 +271,11 @@ export const publishPostNow = async (
   const mode = input?.mode ?? post.publishMode ?? "single";
   let normalizedContent: string | undefined;
   let linkedInPayload: LinkedInPublishPayload | undefined;
+  const wasScheduled = post.status === "scheduled";
 
-  if (post.provider === "linkedin") {
-    const validated = await validateLinkedInDraft(deps, { ...post, publishMode: mode });
-    normalizedContent = validated.normalized;
-    linkedInPayload = validated.payload;
-  }
+  const validated = await validateLinkedInDraft(deps, { ...post, publishMode: mode });
+  normalizedContent = validated.normalized;
+  linkedInPayload = validated.payload;
 
   if (normalizedContent) {
     await putObjectString(deps.s3, deps.bucketName, post.contentS3Key, normalizedContent);
@@ -297,6 +293,9 @@ export const publishPostNow = async (
   };
 
   await putPost(deps.ddb, deps.tableNames.posts, updated);
+  if (wasScheduled) {
+    await decrementUserCounter(deps.ddb, deps.tableNames.users, userId, "activeScheduledPosts");
+  }
   await enqueueJob(deps.sqs, deps.jobsQueueUrl, {
     jobId: randomUUID(),
     type: "PUBLISH_POST",
@@ -319,8 +318,6 @@ export const schedulePost = async (
   input?: { timezone?: string; mode?: "single" | "overflow_comments" },
 ): Promise<Post> => {
   const user = await requireUser(deps, userId);
-  const plan = resolvePlanForUser(user);
-  assertBooleanEntitlement(plan, FEATURE_KEYS.scheduledPublish);
 
   const post = await getPostById(deps.ddb, deps.tableNames.posts, userId, postId);
   if (!post) {
@@ -328,30 +325,41 @@ export const schedulePost = async (
   }
 
   const mode = input?.mode ?? post.publishMode ?? "single";
+  const shouldConsumeScheduleCapacity = post.status !== "scheduled";
+  if (shouldConsumeScheduleCapacity) {
+    await assertAndConsumeScheduleCapacity(deps, userId);
+  } else {
+    await assertCan(deps, userId, "post.schedule");
+  }
 
-  if (post.provider === "linkedin") {
+  try {
     const validated = await validateLinkedInDraft(deps, { ...post, publishMode: mode });
     if (post.contentS3Key) {
       await putObjectString(deps.s3, deps.bucketName, post.contentS3Key, validated.normalized);
     }
     await persistLinkedInPayload(deps, post, validated.payload);
+
+    const updated: Post = {
+      ...post,
+      publishMode: mode,
+      status: "scheduled",
+      scheduledAt,
+      scheduledTimezone: input?.timezone ?? user.timezone ?? "UTC",
+      updatedAt: nowIso(),
+    };
+
+    await putPost(deps.ddb, deps.tableNames.posts, updated);
+
+    const periodStart = getUsagePeriodStart(user);
+    await incrementUsageForField(deps, userId, periodStart, "scheduledPostsUsed");
+
+    return updated;
+  } catch (error) {
+    if (shouldConsumeScheduleCapacity) {
+      await decrementUserCounter(deps.ddb, deps.tableNames.users, userId, "activeScheduledPosts");
+    }
+    throw error;
   }
-
-  const updated: Post = {
-    ...post,
-    publishMode: mode,
-    status: "scheduled",
-    scheduledAt,
-    scheduledTimezone: input?.timezone ?? user.timezone ?? "UTC",
-    updatedAt: nowIso(),
-  };
-
-  await putPost(deps.ddb, deps.tableNames.posts, updated);
-
-  const periodStart = getUsagePeriodStart(user);
-  await incrementUsageForField(deps, userId, periodStart, "scheduledPostsUsed");
-
-  return updated;
 };
 
 export const cancelScheduledPost = async (
@@ -373,5 +381,8 @@ export const cancelScheduledPost = async (
   };
 
   await putPost(deps.ddb, deps.tableNames.posts, updated);
+  if (post.status === "scheduled") {
+    await decrementUserCounter(deps.ddb, deps.tableNames.users, userId, "activeScheduledPosts");
+  }
   return updated;
 };
