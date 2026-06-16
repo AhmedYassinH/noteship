@@ -1,4 +1,3 @@
-import * as cdk from "aws-cdk-lib";
 import { Duration, Stack, type StackProps, Tags } from "aws-cdk-lib";
 import { Rule, Schedule } from "aws-cdk-lib/aws-events";
 import { LambdaFunction } from "aws-cdk-lib/aws-events-targets";
@@ -15,6 +14,7 @@ import type { NoteshipEnv } from "../config";
 export interface NoteshipWorkersStackProps extends StackProps {
   envConfig: NoteshipEnv;
   contentBucket: Bucket;
+  usersTable: Table;
   notesTable: Table;
   postsTable: Table;
   integrationsTable: Table;
@@ -52,14 +52,22 @@ export class NoteshipWorkersStack extends Stack {
     Tags.of(this).add("env", envName);
     const repoRoot = path.resolve(__dirname, "../../../..");
 
-    const { contentBucket, notesTable, postsTable, integrationsTable, usageTable, jobsQueue } =
-      props;
+    const {
+      contentBucket,
+      usersTable,
+      notesTable,
+      postsTable,
+      integrationsTable,
+      usageTable,
+      jobsQueue,
+    } = props;
 
     const powertoolsLogLevel = envName === "prod" ? "INFO" : "DEBUG";
 
     const envVars: Record<string, string> = {
       NOTESHIP_ENV_NAME: envName,
       NOTESHIP_CONTENT_BUCKET_NAME: contentBucket.bucketName,
+      NOTESHIP_USERS_TABLE_NAME: usersTable.tableName,
       NOTESHIP_NOTES_TABLE_NAME: notesTable.tableName,
       NOTESHIP_POSTS_TABLE_NAME: postsTable.tableName,
       NOTESHIP_INTEGRATIONS_TABLE_NAME: integrationsTable.tableName,
@@ -74,8 +82,6 @@ export class NoteshipWorkersStack extends Stack {
       NOTESHIP_INTEGRATION_CREDENTIALS_KEY_B64: requireEnv(
         "NOTESHIP_INTEGRATION_CREDENTIALS_KEY_B64",
       ),
-      MEDIUM_CLIENT_ID: requireEnv("MEDIUM_CLIENT_ID"),
-      MEDIUM_CLIENT_SECRET: requireEnv("MEDIUM_CLIENT_SECRET"),
       POWERTOOLS_SERVICE_NAME: "noteship-workers",
       POWERTOOLS_LOG_LEVEL: powertoolsLogLevel,
     };
@@ -132,6 +138,7 @@ export class NoteshipWorkersStack extends Stack {
     jobsQueue.grantSendMessages(schedulerHandler);
 
     [jobsHandler, schedulerHandler].forEach((handler) => {
+      usersTable.grantReadWriteData(handler);
       notesTable.grantReadWriteData(handler);
       postsTable.grantReadWriteData(handler);
       integrationsTable.grantReadWriteData(handler);

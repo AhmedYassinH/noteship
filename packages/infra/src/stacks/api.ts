@@ -28,6 +28,8 @@ export interface NoteshipApiStackProps extends StackProps {
   postsTable: Table;
   integrationsTable: Table;
   usageTable: Table;
+  rateLimitsTable: Table;
+  uploadLeasesTable: Table;
   jobsTable: Table;
   jobsQueue: Queue;
 }
@@ -76,6 +78,8 @@ export class NoteshipApiStack extends Stack {
       postsTable,
       integrationsTable,
       usageTable,
+      rateLimitsTable,
+      uploadLeasesTable,
       jobsTable,
       jobsQueue,
     } = props;
@@ -96,6 +100,8 @@ export class NoteshipApiStack extends Stack {
       NOTESHIP_POSTS_TABLE_NAME: postsTable.tableName,
       NOTESHIP_INTEGRATIONS_TABLE_NAME: integrationsTable.tableName,
       NOTESHIP_USAGE_TABLE_NAME: usageTable.tableName,
+      NOTESHIP_RATE_LIMITS_TABLE_NAME: rateLimitsTable.tableName,
+      NOTESHIP_UPLOAD_LEASES_TABLE_NAME: uploadLeasesTable.tableName,
       NOTESHIP_JOBS_TABLE_NAME: jobsTable.tableName,
       NOTESHIP_JOBS_QUEUE_URL: jobsQueue.queueUrl,
       AUTH0_ISSUER_BASE_URL: auth0IssuerBaseUrl,
@@ -112,8 +118,6 @@ export class NoteshipApiStack extends Stack {
       NOTESHIP_INTEGRATION_CREDENTIALS_KEY_B64: requireEnv(
         "NOTESHIP_INTEGRATION_CREDENTIALS_KEY_B64",
       ),
-      MEDIUM_CLIENT_ID: requireEnv("MEDIUM_CLIENT_ID"),
-      MEDIUM_CLIENT_SECRET: requireEnv("MEDIUM_CLIENT_SECRET"),
       NOTESHIP_CONTENT_CUSTOM_DOMAIN: requireEnv("NOTESHIP_CONTENT_CUSTOM_DOMAIN"),
       NOTESHIP_CLOUDFRONT_KEY_PAIR_ID: requireEnv("NOTESHIP_CLOUDFRONT_KEY_PAIR_ID"),
       NOTESHIP_CLOUDFRONT_PRIVATE_KEY: requireEnv("NOTESHIP_CLOUDFRONT_PRIVATE_KEY"),
@@ -122,6 +126,7 @@ export class NoteshipApiStack extends Stack {
     };
 
     maybeSetEnv(envVars, "NOTESHIP_LLM_PROVIDER");
+    maybeSetEnv(envVars, "NOTESHIP_BILLING_ENABLED");
     maybeSetEnv(envVars, "NOTESHIP_EMBEDDING_ENABLED");
     maybeSetEnv(envVars, "NOTESHIP_VECTOR_DB_PROVIDER");
     maybeSetEnv(envVars, "QDRANT_API_KEY");
@@ -129,6 +134,8 @@ export class NoteshipApiStack extends Stack {
     maybeSetEnv(envVars, "STRIPE_PRICE_PRO_YEARLY");
     maybeSetEnv(envVars, "NOTESHIP_CONTENT_COOKIE_DOMAIN");
     maybeSetEnv(envVars, "NOTESHIP_CONTENT_SESSION_TTL_SECONDS");
+    maybeSetEnv(envVars, "NOTESHIP_TEMP_UPLOAD_EXPIRY_MINUTES");
+    maybeSetEnv(envVars, "NOTESHIP_TEMP_UPLOAD_LIFECYCLE_DAYS");
     maybeSetEnv(envVars, "POWERTOOLS_LOGGER_SAMPLE_RATE");
     maybeSetEnv(envVars, "NOTESHIP_INTEGRATION_CREDENTIALS_KEY_VERSION");
     maybeSetEnv(envVars, "LINKEDIN_API_VERSION");
@@ -184,6 +191,18 @@ export class NoteshipApiStack extends Stack {
         path: "/notes/{noteId}/uploads",
         methods: [HttpMethod.POST],
         entry: "notes/upload.ts",
+      },
+      {
+        id: "CompleteNoteUpload",
+        path: "/notes/{noteId}/uploads/{artifactId}/complete",
+        methods: [HttpMethod.POST],
+        entry: "notes/completeUpload.ts",
+      },
+      {
+        id: "AbandonNoteUpload",
+        path: "/notes/{noteId}/uploads/{artifactId}/abandon",
+        methods: [HttpMethod.POST],
+        entry: "notes/abandonUpload.ts",
       },
       {
         id: "ContentSession",
@@ -303,6 +322,8 @@ export class NoteshipApiStack extends Stack {
       postsTable.grantReadWriteData(handler);
       integrationsTable.grantReadWriteData(handler);
       usageTable.grantReadWriteData(handler);
+      rateLimitsTable.grantReadWriteData(handler);
+      uploadLeasesTable.grantReadWriteData(handler);
       jobsTable.grantReadWriteData(handler);
       contentBucket.grantReadWrite(handler);
       jobsQueue.grantSendMessages(handler);

@@ -46,6 +46,19 @@ const parseCsv = (value: string): string[] =>
     .map((item) => item.trim())
     .filter((item) => item.length > 0);
 
+const parsePositiveIntEnv = (key: string, fallback: number): number => {
+  const value = process.env[key];
+  if (!value) {
+    return fallback;
+  }
+
+  const parsed = Number.parseInt(value, 10);
+  if (!Number.isFinite(parsed) || parsed <= 0) {
+    throw new Error(`${key} must be a positive integer`);
+  }
+  return parsed;
+};
+
 export class NoteshipCoreStack extends Stack {
   public readonly contentBucket: Bucket;
   public readonly usersTable: Table;
@@ -53,6 +66,8 @@ export class NoteshipCoreStack extends Stack {
   public readonly postsTable: Table;
   public readonly integrationsTable: Table;
   public readonly usageTable: Table;
+  public readonly rateLimitsTable: Table;
+  public readonly uploadLeasesTable: Table;
   public readonly jobsTable: Table;
   public readonly jobsQueue: Queue;
   constructor(scope: Construct, id: string, props: NoteshipCoreStackProps) {
@@ -80,10 +95,13 @@ export class NoteshipCoreStack extends Stack {
       postsBySchedule: { minRead: 1, maxRead: 2, minWrite: 1, maxWrite: 2 },
       integrations: { minRead: 1, maxRead: 1, minWrite: 1, maxWrite: 1 },
       usage: { minRead: 1, maxRead: 1, minWrite: 1, maxWrite: 1 },
+      rateLimits: { minRead: 1, maxRead: 1, minWrite: 1, maxWrite: 2 },
+      uploadLeases: { minRead: 1, maxRead: 1, minWrite: 1, maxWrite: 2 },
       jobs: { minRead: 1, maxRead: 2, minWrite: 1, maxWrite: 2 },
     } satisfies Record<string, CapacityCaps>;
 
     const contentUploadOrigins = parseCsv(requireEnv("NOTESHIP_CONTENT_UPLOAD_ORIGIN"));
+    const tempUploadLifecycleDays = parsePositiveIntEnv("NOTESHIP_TEMP_UPLOAD_LIFECYCLE_DAYS", 1);
 
     this.contentBucket = new Bucket(this, "ContentBucket", {
       bucketName: `noteship-content-${envName}`,
@@ -91,6 +109,15 @@ export class NoteshipCoreStack extends Stack {
       encryption: BucketEncryption.S3_MANAGED,
       blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
       enforceSSL: true,
+      lifecycleRules: [
+        {
+          id: "ExpireTemporaryUploads",
+          prefix: "uploads/tmp/",
+          expiration: cdk.Duration.days(tempUploadLifecycleDays),
+          noncurrentVersionExpiration: cdk.Duration.days(tempUploadLifecycleDays),
+          abortIncompleteMultipartUploadAfter: cdk.Duration.days(tempUploadLifecycleDays),
+        },
+      ],
       cors: [
         {
           allowedOrigins: contentUploadOrigins,
@@ -188,6 +215,24 @@ export class NoteshipCoreStack extends Stack {
       writeCapacity: capacityCaps.usage.minWrite,
     });
 
+    this.rateLimitsTable = this.createTable("RateLimitsTable", {
+      tableName: `noteship-rate-limits-${envName}`,
+      partitionKey: { name: "userId", type: AttributeType.STRING },
+      sortKey: { name: "bucketKey", type: AttributeType.STRING },
+      readCapacity: capacityCaps.rateLimits.minRead,
+      writeCapacity: capacityCaps.rateLimits.minWrite,
+      timeToLiveAttribute: "expiresAtEpoch",
+    });
+
+    this.uploadLeasesTable = this.createTable("UploadLeasesTable", {
+      tableName: `noteship-upload-leases-${envName}`,
+      partitionKey: { name: "userId", type: AttributeType.STRING },
+      sortKey: { name: "artifactId", type: AttributeType.STRING },
+      readCapacity: capacityCaps.uploadLeases.minRead,
+      writeCapacity: capacityCaps.uploadLeases.minWrite,
+      timeToLiveAttribute: "expiresAtEpoch",
+    });
+
     this.jobsTable = this.createTable("JobsTable", {
       tableName: `noteship-jobs-${envName}`,
       partitionKey: { name: "userId", type: AttributeType.STRING },
@@ -229,6 +274,10 @@ export class NoteshipCoreStack extends Stack {
     new cdk.CfnOutput(this, "PostsTableName", { value: this.postsTable.tableName });
     new cdk.CfnOutput(this, "IntegrationsTableName", { value: this.integrationsTable.tableName });
     new cdk.CfnOutput(this, "UsageTableName", { value: this.usageTable.tableName });
+    new cdk.CfnOutput(this, "RateLimitsTableName", { value: this.rateLimitsTable.tableName });
+    new cdk.CfnOutput(this, "UploadLeasesTableName", {
+      value: this.uploadLeasesTable.tableName,
+    });
     new cdk.CfnOutput(this, "JobsTableName", { value: this.jobsTable.tableName });
     new cdk.CfnOutput(this, "JobsQueueUrl", { value: this.jobsQueue.queueUrl });
     new cdk.CfnOutput(this, "JobsDlqUrl", { value: dlq.queueUrl });
@@ -242,6 +291,7 @@ export class NoteshipCoreStack extends Stack {
       sortKey?: { name: string; type: AttributeType };
       readCapacity?: number;
       writeCapacity?: number;
+      timeToLiveAttribute?: string;
     },
   ): Table {
     return new Table(this, id, {
@@ -251,6 +301,7 @@ export class NoteshipCoreStack extends Stack {
       billingMode: BillingMode.PROVISIONED,
       readCapacity: props.readCapacity ?? 1,
       writeCapacity: props.writeCapacity ?? 1,
+      timeToLiveAttribute: props.timeToLiveAttribute,
       encryption: TableEncryption.AWS_MANAGED,
       // PITR is disabled for cost control; enable for prod (see docs/technical/ops/production-checklist.md).
       pointInTimeRecovery: false,

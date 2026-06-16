@@ -26,6 +26,8 @@ new NoteshipApiStack(app, `NoteshipApi-${envConfig.envName}`, {
   postsTable: coreStack.postsTable,
   integrationsTable: coreStack.integrationsTable,
   usageTable: coreStack.usageTable,
+  rateLimitsTable: coreStack.rateLimitsTable,
+  uploadLeasesTable: coreStack.uploadLeasesTable,
   jobsTable: coreStack.jobsTable,
   jobsQueue: coreStack.jobsQueue,
 });
@@ -33,6 +35,7 @@ new NoteshipApiStack(app, `NoteshipApi-${envConfig.envName}`, {
 new NoteshipWorkersStack(app, `NoteshipWorkers-${envConfig.envName}`, {
   envConfig,
   contentBucket: coreStack.contentBucket,
+  usersTable: coreStack.usersTable,
   notesTable: coreStack.notesTable,
   postsTable: coreStack.postsTable,
   integrationsTable: coreStack.integrationsTable,
