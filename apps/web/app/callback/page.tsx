@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { handleAuthCallback } from "../../lib/auth-spa";
+import LoadingScreen from "../../components/ui/LoadingScreen";
 
 const CallbackPage = () => {
-  const [message, setMessage] = useState("Completing sign-in...");
+  const [status, setStatus] = useState<"loading" | "error">("loading");
 
   useEffect(() => {
     const complete = async () => {
@@ -12,14 +13,20 @@ const CallbackPage = () => {
         const returnTo = await handleAuthCallback();
         window.location.replace(returnTo ?? "/dashboard");
       } catch {
-        setMessage("We could not complete sign-in. Please try again.");
+        setStatus("error");
       }
     };
 
     void complete();
   }, []);
 
-  return <div>{message}</div>;
+  return (
+    <LoadingScreen
+      state={status}
+      surface="authCallback"
+      onErrorAction={() => window.location.replace("/login")}
+    />
+  );
 };
 
 export default CallbackPage;

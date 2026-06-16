@@ -33,6 +33,7 @@ import { updateMeSettings } from "../../lib/api/users";
 import type { NoteResponse } from "../../lib/api/types";
 import { cn } from "@/lib/utils";
 import { useAuth } from "../auth/AuthProvider";
+import LoadingScreen from "../ui/LoadingScreen";
 import ContentShell from "./shell/ContentShell";
 import ResizableHandle from "./shell/ResizableHandle";
 import SidebarNav from "./shell/SidebarNav";
@@ -376,17 +377,7 @@ const DashboardShellInner = ({ children }: { children: ReactNode }) => {
   );
 
   if (isLoading || (!isAuthenticated && !me)) {
-    return (
-      <DirectionProvider dir={isAr ? "rtl" : "ltr"}>
-        <div className={cn("min-h-screen bg-[#f6f7fb] text-[var(--ns-ink)] font-body")}>
-          <div className="flex flex-1 flex-col gap-6 px-4 py-4 md:px-6 md:py-5 lg:px-8 lg:py-6">
-            <div className="mx-auto w-full max-w-[1280px]">
-              <div className={emptyStateClass}>{copy.common.loading}</div>
-            </div>
-          </div>
-        </div>
-      </DirectionProvider>
-    );
+    return <LoadingScreen lang={lang} surface="dashboard" />;
   }
 
   return (
@@ -465,17 +456,7 @@ const DashboardShellInner = ({ children }: { children: ReactNode }) => {
 
 const DashboardShell = ({ children }: { children: ReactNode }) => {
   return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen bg-[#f6f7fb] text-[var(--ns-ink)]">
-          <div className="flex flex-col gap-6 px-4 py-4 md:px-6 md:py-5 lg:px-8 lg:py-6">
-            <div className="mx-auto w-full max-w-[1280px]">
-              <div className={emptyStateClass}>{dashboardCopy.en.common.loading}</div>
-            </div>
-          </div>
-        </div>
-      }
-    >
+    <Suspense fallback={<LoadingScreen surface="dashboard" />}>
       <DashboardShellInner>{children}</DashboardShellInner>
     </Suspense>
   );
