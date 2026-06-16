@@ -172,7 +172,10 @@ const DashboardShellInner = ({ children }: { children: ReactNode }) => {
   const isAr = lang === "ar";
   const copy = useMemo(() => dashboardCopy[lang], [lang]);
   const shared = useMemo(() => sharedCopy[lang], [lang]);
-  const entitlements = useMemo(() => getEntitlements(me?.planId), [me?.planId]);
+  const entitlements = useMemo(
+    () => getEntitlements(me?.planId, me?.subscriptionStatus),
+    [me?.planId, me?.subscriptionStatus],
+  );
 
   const isMobile = viewportWidth <= SHELL_BREAKPOINTS.mobileMax;
   const isTablet =

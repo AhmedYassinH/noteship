@@ -38,6 +38,7 @@ export type EditorUiStrings = {
   embeddedPdfLimit: string;
   attachedPdfLimit: string;
   pdfSemanticSearchNote: string;
+  uploadExpired: string;
   markdownImportLimit: string;
   markdownImported: string;
   preparingEmbeddedAssets: string;
@@ -99,6 +100,7 @@ export const editorUiCopy: Record<Lang, EditorUiStrings> = {
     embeddedPdfLimit: "Embedded PDFs are limited to 1 MB.",
     attachedPdfLimit: "Attached PDFs are limited to 5 MB.",
     pdfSemanticSearchNote: "PDF content is not available for semantic search yet.",
+    uploadExpired: "Upload link expired after 3 minutes. Choose the file again to retry.",
     markdownImportLimit: "Markdown imports are limited to 500 KB.",
     markdownImported: "Markdown imported.",
     preparingEmbeddedAssets: "Preparing embedded assets...",
@@ -158,6 +160,7 @@ export const editorUiCopy: Record<Lang, EditorUiStrings> = {
     embeddedPdfLimit: "الحد الأقصى لتضمين PDF هو 1 ميغابايت.",
     attachedPdfLimit: "الحد الأقصى لإرفاق PDF هو 5 ميغابايت.",
     pdfSemanticSearchNote: "محتوى PDF غير متاح للبحث الدلالي حالياً.",
+    uploadExpired: "انتهت صلاحية رابط الرفع بعد 3 دقائق. اختر الملف مرة أخرى للمحاولة.",
     markdownImportLimit: "الحد الأقصى لاستيراد Markdown هو 500 كيلوبايت.",
     markdownImported: "تم استيراد ملف Markdown.",
     preparingEmbeddedAssets: "جاري تجهيز الأصول المضمنة...",

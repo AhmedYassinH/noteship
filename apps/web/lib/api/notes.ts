@@ -2,11 +2,13 @@ import { apiFetch } from "./client";
 import type {
   ConnectIntegrationResponse,
   ContentSessionResponse,
+  CheckoutSessionResponse,
   DraftCreateResponse,
   FinalizeIntegrationResponse,
   IntegrationProvider,
   IntegrationsListResponse,
   NoteListResponse,
+  NoteUploadLifecycleResponse,
   NoteResponse,
   NoteWithContentResponse,
   NoteUploadResponse,
@@ -59,7 +61,7 @@ export const searchNotes = (query: string, limit = 10) =>
 
 export const generateDrafts = (
   noteId: string,
-  provider: "linkedin" | "medium",
+  provider: "linkedin",
   tone?: string,
   language?: "en" | "ar",
 ) =>
@@ -75,7 +77,7 @@ export const listPosts = (status?: string) => {
 
 export const createPost = (payload: {
   noteId: string;
-  provider: "linkedin" | "medium";
+  provider: "linkedin";
   content?: string;
   mode?: "single" | "overflow_comments";
 }) =>
@@ -132,7 +134,7 @@ export const disconnectIntegration = (provider: IntegrationProvider) =>
 export const regenerateDraft = (
   noteId: string,
   payload: {
-    provider: "linkedin" | "medium";
+    provider: "linkedin";
     currentContent: string;
     instruction: string;
     language?: "en" | "ar";
@@ -149,6 +151,16 @@ export const createPortalSession = (returnUrl: string) =>
     body: JSON.stringify({ returnUrl }),
   });
 
+export const createCheckoutSession = (payload: {
+  priceId: string;
+  successUrl: string;
+  cancelUrl: string;
+}) =>
+  apiFetch<CheckoutSessionResponse>("/billing/checkout", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+
 export const createNoteUpload = (
   noteId: string,
   payload: {
@@ -162,6 +174,16 @@ export const createNoteUpload = (
   apiFetch<NoteUploadResponse>(`/notes/${noteId}/uploads`, {
     method: "POST",
     body: JSON.stringify(payload),
+  });
+
+export const completeNoteUpload = (noteId: string, artifactId: string) =>
+  apiFetch<NoteUploadLifecycleResponse>(`/notes/${noteId}/uploads/${artifactId}/complete`, {
+    method: "POST",
+  });
+
+export const abandonNoteUpload = (noteId: string, artifactId: string) =>
+  apiFetch<NoteUploadLifecycleResponse>(`/notes/${noteId}/uploads/${artifactId}/abandon`, {
+    method: "POST",
   });
 
 export const createContentSession = () =>

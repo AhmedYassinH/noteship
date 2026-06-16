@@ -10,14 +10,8 @@ import { Badge } from "../../components/ui/Badge";
 import { Button } from "../../components/ui/Button";
 import { Card } from "../../components/ui/Card";
 import { Input } from "../../components/ui/Input";
-import {
-  createPost,
-  generateDrafts,
-  getNote,
-  publishPost,
-  schedulePost,
-  updateNote,
-} from "../../lib/api/notes";
+import { createPost, getNote, publishPost, schedulePost, updateNote } from "../../lib/api/notes";
+import { formatApiError } from "../../lib/api/errors";
 import type { DraftResponse, NoteWithContentResponse } from "../../lib/api/types";
 import { cn } from "@/lib/utils";
 
@@ -42,6 +36,7 @@ const NoteDetail = ({ noteId }: NoteDetailProps) => {
   const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [loadStatus, setLoadStatus] = useState<"loading" | "ready" | "error">("loading");
   const [draftStatus, setDraftStatus] = useState<"idle" | "loading" | "error">("idle");
+  const [actionMessage, setActionMessage] = useState<string | null>(null);
   const [isLinkedInComposerOpen, setIsLinkedInComposerOpen] = useState(false);
   const [isDesktopPanel, setIsDesktopPanel] = useState(false);
   const [isPanelOpen, setIsPanelOpen] = useState(false);
@@ -66,6 +61,7 @@ const NoteDetail = ({ noteId }: NoteDetailProps) => {
     setScheduleAt("");
     setStatus("idle");
     setDraftStatus("idle");
+    setActionMessage(null);
     setIsLinkedInComposerOpen(false);
     void loadNote();
     return () => {
@@ -108,22 +104,9 @@ const NoteDetail = ({ noteId }: NoteDetailProps) => {
     }, 800);
   };
 
-  const handleGenerateDraft = async (provider: "linkedin" | "medium") => {
-    if (provider === "linkedin") {
-      setIsLinkedInComposerOpen(true);
-      return;
-    }
-
-    setDraftStatus("loading");
-    try {
-      const response = await generateDrafts(noteId, provider, undefined, lang);
-      setDrafts(response.drafts);
-      setSelectedDraft(response.drafts[0] ?? null);
-      setDraftStatus("idle");
-    } catch {
-      setDrafts([]);
-      setDraftStatus("error");
-    }
+  const handleGenerateDraft = () => {
+    setActionMessage(null);
+    setIsLinkedInComposerOpen(true);
   };
 
   const handlePublish = async () => {
@@ -135,8 +118,9 @@ const NoteDetail = ({ noteId }: NoteDetailProps) => {
         content: selectedDraft.content,
       });
       await publishPost(post.postId);
-    } catch {
-      // ignore for now
+      setActionMessage(t.note.publishQueued);
+    } catch (error) {
+      setActionMessage(formatApiError(error, lang, t.note.publishFailed));
     }
   };
 
@@ -151,8 +135,9 @@ const NoteDetail = ({ noteId }: NoteDetailProps) => {
       await schedulePost(post.postId, new Date(scheduleAt).toISOString(), {
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       });
-    } catch {
-      // ignore
+      setActionMessage(t.note.scheduleSaved);
+    } catch (error) {
+      setActionMessage(formatApiError(error, lang, t.note.scheduleFailed));
     }
   };
 
@@ -173,19 +158,10 @@ const NoteDetail = ({ noteId }: NoteDetailProps) => {
             type="button"
             variant="outline"
             size="pill"
-            onClick={() => handleGenerateDraft("linkedin")}
+            onClick={handleGenerateDraft}
             disabled={draftStatus === "loading"}
           >
             {t.note.generateLinkedIn}
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            size="pill"
-            onClick={() => handleGenerateDraft("medium")}
-            disabled={draftStatus === "loading"}
-          >
-            {t.note.generateMedium}
           </Button>
         </div>
         {draftStatus === "loading" ? (
@@ -243,11 +219,16 @@ const NoteDetail = ({ noteId }: NoteDetailProps) => {
             </Button>
             {!canSchedule ? (
               <Badge variant="secondary" className="rounded-full">
-                Pro
+                {t.note.comingSoonBadge}
               </Badge>
             ) : null}
           </div>
         </div>
+        {actionMessage ? (
+          <p className="m-0 rounded-[12px] border border-[rgba(15,23,42,0.1)] bg-[#f9fafb] p-3 text-[0.85rem] text-[#5b6474]">
+            {actionMessage}
+          </p>
+        ) : null}
         {!canSchedule ? (
           <div className="flex flex-wrap items-center justify-between gap-3 rounded-[12px] border border-dashed border-[rgba(15,23,42,0.25)] bg-white p-3 text-[0.85rem] text-[#5b6474]">
             <span>{t.note.scheduleUpsell}</span>

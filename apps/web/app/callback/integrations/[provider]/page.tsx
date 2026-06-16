@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import IntegrationCallbackClient from "./IntegrationCallbackClient";
 
-export const generateStaticParams = () => [{ provider: "linkedin" }, { provider: "medium" }];
+export const generateStaticParams = () => [{ provider: "linkedin" }];
 
 type IntegrationCallbackPageProps = {
   params: {

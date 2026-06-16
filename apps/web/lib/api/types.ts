@@ -34,7 +34,7 @@ export type SearchResponse = {
 export type PostResponse = {
   postId: string;
   noteId: string;
-  provider: "linkedin" | "medium";
+  provider: "linkedin";
   publishMode?: "single" | "overflow_comments";
   status: "draft" | "queued" | "scheduled" | "publishing" | "published" | "failed";
   scheduledAt?: string;
@@ -52,7 +52,7 @@ export type PostListResponse = {
 
 export type DraftResponse = {
   postId: string;
-  provider: "linkedin" | "medium";
+  provider: "linkedin";
   content: string;
 };
 
@@ -60,7 +60,7 @@ export type DraftCreateResponse = {
   drafts: DraftResponse[];
 };
 
-export type IntegrationProvider = "linkedin" | "medium";
+export type IntegrationProvider = "linkedin";
 
 export type IntegrationAccountResponse = {
   provider: IntegrationProvider;
@@ -86,11 +86,20 @@ export type PortalSessionResponse = {
   url: string;
 };
 
+export type CheckoutSessionResponse = {
+  url: string;
+};
+
 export type NoteUploadResponse = {
   uploadUrl: string;
   s3Key: string;
   artifactId: string;
   publicUrl: string;
+  expiresAt?: string;
+};
+
+export type NoteUploadLifecycleResponse = {
+  ok: true;
 };
 
 export type ContentSessionResponse = {

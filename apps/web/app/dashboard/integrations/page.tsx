@@ -13,7 +13,7 @@ import {
 } from "../../../lib/api/notes";
 import type { IntegrationAccountResponse, IntegrationProvider } from "../../../lib/api/types";
 
-const providers: IntegrationProvider[] = ["linkedin", "medium"];
+const providers: IntegrationProvider[] = ["linkedin"];
 
 const IntegrationsPage = () => {
   const { lang, isAr } = useDashboard();
@@ -46,7 +46,7 @@ const IntegrationsPage = () => {
       const response = await connectIntegration(provider, callbackUrl);
       window.location.href = response.url;
     } catch {
-      // ignore for now
+      setError(true);
     }
   };
 
@@ -55,7 +55,7 @@ const IntegrationsPage = () => {
       await disconnectIntegration(provider);
       await load();
     } catch {
-      // ignore
+      setError(true);
     }
   };
 

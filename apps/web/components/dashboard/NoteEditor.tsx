@@ -311,6 +311,7 @@ const NoteEditor = ({
     fileInputRef,
     ui,
     uploadFailedLabel,
+    lang,
   });
 
   useEffect(() => {

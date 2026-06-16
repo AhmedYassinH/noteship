@@ -5,20 +5,10 @@ import dashboardCopy from "../../../data/dashboard";
 import { useDashboard } from "../../../components/dashboard/DashboardShell";
 import { Button } from "../../../components/ui/Button";
 import { Card } from "../../../components/ui/Card";
-import { createPortalSession } from "../../../lib/api/notes";
 
 const BillingPage = () => {
   const { lang, isAr, me } = useDashboard();
   const t = useMemo(() => dashboardCopy[lang], [lang]);
-
-  const handlePortal = async () => {
-    try {
-      const response = await createPortalSession(window.location.href);
-      window.location.href = response.url;
-    } catch {
-      // ignore
-    }
-  };
 
   return (
     <main className="flex flex-col gap-6" lang={lang} dir={isAr ? "rtl" : "ltr"}>
@@ -38,13 +28,16 @@ const BillingPage = () => {
               {me?.subscriptionStatus ?? t.billing.defaultStatus}
             </p>
           </div>
-          <div className="flex flex-wrap gap-2">
-            <Button type="button" size="pill" onClick={handlePortal}>
-              {t.billing.upgrade}
-            </Button>
-            <Button type="button" variant="outline" size="pill" onClick={handlePortal}>
-              {t.billing.manage}
-            </Button>
+          <div className="flex flex-col gap-2 md:items-end">
+            <div className="flex flex-wrap gap-2">
+              <Button type="button" size="pill" disabled>
+                {t.billing.upgrade}
+              </Button>
+              <Button type="button" variant="outline" size="pill" disabled>
+                {t.billing.manage}
+              </Button>
+            </div>
+            <p className="m-0 text-[0.85rem] text-[#5b6474]">{t.billing.comingSoon}</p>
           </div>
         </div>
       </Card>

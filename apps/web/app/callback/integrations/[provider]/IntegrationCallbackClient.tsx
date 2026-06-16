@@ -8,8 +8,7 @@ import { Button } from "../../../../components/ui/Button";
 
 const finalizeRequestKeys = new Set<string>();
 
-const isIntegrationProvider = (value: string): value is IntegrationProvider =>
-  value === "linkedin" || value === "medium";
+const isIntegrationProvider = (value: string): value is IntegrationProvider => value === "linkedin";
 
 type IntegrationCallbackClientProps = {
   provider: string;

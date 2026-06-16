@@ -1,4 +1,10 @@
-import { FEATURE_KEYS, PLANS, type PlanConfig, type PlanId } from "@noteship/domain";
+import {
+  FEATURE_KEYS,
+  PLANS,
+  resolveEffectivePlanId,
+  type PlanConfig,
+  type PlanId,
+} from "@noteship/domain";
 
 export type EntitlementsSnapshot = {
   planId: PlanId;
@@ -9,8 +15,6 @@ export type EntitlementsSnapshot = {
   aiGenerationsPerMonth: number;
 };
 
-const resolvePlanId = (planId?: string): PlanId => (planId === "pro" ? "pro" : "free");
-
 const getLimit = (plan: PlanConfig, featureKey: string, fallback = 0): number => {
   const entitlement = plan.entitlements.find((item) => item.featureKey === featureKey);
   if (!entitlement || entitlement.type === "boolean") {
@@ -19,8 +23,11 @@ const getLimit = (plan: PlanConfig, featureKey: string, fallback = 0): number =>
   return entitlement.limit;
 };
 
-export const getEntitlements = (planId?: string): EntitlementsSnapshot => {
-  const resolvedPlanId = resolvePlanId(planId);
+export const getEntitlements = (
+  planId?: string,
+  subscriptionStatus?: string,
+): EntitlementsSnapshot => {
+  const resolvedPlanId = resolveEffectivePlanId({ planId, subscriptionStatus });
   const plan = PLANS[resolvedPlanId];
   const scheduled = plan.entitlements.find(
     (item) => item.featureKey === FEATURE_KEYS.scheduledPublish,

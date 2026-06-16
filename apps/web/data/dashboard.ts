@@ -60,7 +60,11 @@ export type DashboardCopy = {
     scheduleUpsell: string;
     upgradeCta: string;
     generateLinkedIn: string;
-    generateMedium: string;
+    comingSoonBadge: string;
+    publishQueued: string;
+    publishFailed: string;
+    scheduleSaved: string;
+    scheduleFailed: string;
     publishNow: string;
     schedule: string;
   };
@@ -96,6 +100,7 @@ export type DashboardCopy = {
     manage: string;
     currentPlanLabel: string;
     defaultStatus: string;
+    comingSoon: string;
   };
   settings: {
     title: string;
@@ -179,10 +184,14 @@ const dashboardCopy: Record<Lang, DashboardCopy> = {
       uploadAsset: "Upload",
       uploading: "Uploading...",
       uploadFailed: "Upload failed",
-      scheduleUpsell: "Scheduling is available on Pro plans.",
-      upgradeCta: "Upgrade to Pro",
+      scheduleUpsell: "Scheduled publishing is coming soon for paid plans.",
+      upgradeCta: "View billing",
       generateLinkedIn: "Generate LinkedIn",
-      generateMedium: "Generate Medium",
+      comingSoonBadge: "Coming soon",
+      publishQueued: "Publish request queued.",
+      publishFailed: "Could not publish. Please try again.",
+      scheduleSaved: "Post scheduled.",
+      scheduleFailed: "Could not schedule. Please try again.",
       publishNow: "Publish now",
       schedule: "Schedule",
     },
@@ -197,17 +206,17 @@ const dashboardCopy: Record<Lang, DashboardCopy> = {
       title: "Drafts",
       subtitle: "Generated drafts ready to publish or refine.",
       empty: "No drafts yet. Generate one from a note.",
-      upsell: "Upgrade to Pro to unlock scheduled publishing.",
+      upsell: "Scheduled publishing is coming soon for paid plans.",
     },
     publishing: {
       title: "Publishing",
       subtitle: "Track scheduled and published posts.",
       empty: "No publishing activity yet.",
-      upsell: "Scheduling is a Pro feature. Upgrade to schedule posts.",
+      upsell: "Scheduled publishing is coming soon for paid plans.",
     },
     integrations: {
       title: "Integrations",
-      subtitle: "Connect LinkedIn and Medium to publish directly.",
+      subtitle: "Connect LinkedIn to publish directly.",
       connect: "Connect",
       disconnect: "Disconnect",
     },
@@ -218,6 +227,7 @@ const dashboardCopy: Record<Lang, DashboardCopy> = {
       manage: "Manage billing",
       currentPlanLabel: "Current plan",
       defaultStatus: "active",
+      comingSoon: "Paid plans are coming soon.",
     },
     settings: {
       title: "Settings",
@@ -299,10 +309,14 @@ const dashboardCopy: Record<Lang, DashboardCopy> = {
       uploadAsset: "رفع",
       uploading: "جارٍ الرفع...",
       uploadFailed: "فشل الرفع",
-      scheduleUpsell: "الجدولة متاحة ضمن خطة Pro.",
-      upgradeCta: "الترقية إلى Pro",
+      scheduleUpsell: "النشر المجدول قريبًا ضمن الخطط المدفوعة.",
+      upgradeCta: "عرض الفوترة",
       generateLinkedIn: "إنشاء LinkedIn",
-      generateMedium: "إنشاء Medium",
+      comingSoonBadge: "قريبًا",
+      publishQueued: "تم وضع طلب النشر في قائمة الانتظار.",
+      publishFailed: "تعذر النشر. حاول مرة أخرى.",
+      scheduleSaved: "تمت جدولة المنشور.",
+      scheduleFailed: "تعذرت الجدولة. حاول مرة أخرى.",
       publishNow: "انشر الآن",
       schedule: "جدولة",
     },
@@ -317,17 +331,17 @@ const dashboardCopy: Record<Lang, DashboardCopy> = {
       title: "المسودات",
       subtitle: "مسودات جاهزة للنشر أو التنقيح.",
       empty: "لا توجد مسودات بعد. أنشئ واحدة من ملاحظة.",
-      upsell: "قم بالترقية إلى Pro لفتح ميزة الجدولة.",
+      upsell: "النشر المجدول قريبًا ضمن الخطط المدفوعة.",
     },
     publishing: {
       title: "النشر",
       subtitle: "تابع المنشورات المجدولة والمنشورة.",
       empty: "لا يوجد نشاط نشر بعد.",
-      upsell: "الجدولة ميزة في Pro. قم بالترقية للجدولة.",
+      upsell: "النشر المجدول قريبًا ضمن الخطط المدفوعة.",
     },
     integrations: {
       title: "التكاملات",
-      subtitle: "اربط LinkedIn و Medium للنشر مباشرة.",
+      subtitle: "اربط LinkedIn للنشر مباشرة.",
       connect: "ربط",
       disconnect: "إلغاء الربط",
     },
@@ -338,6 +352,7 @@ const dashboardCopy: Record<Lang, DashboardCopy> = {
       manage: "إدارة الفوترة",
       currentPlanLabel: "الخطة الحالية",
       defaultStatus: "نشط",
+      comingSoon: "الخطط المدفوعة قريباً.",
     },
     settings: {
       title: "الإعدادات",

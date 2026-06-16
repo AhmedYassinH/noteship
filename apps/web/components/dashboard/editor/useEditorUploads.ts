@@ -1,8 +1,15 @@
 import { useCallback, useState, type ChangeEvent, type RefObject } from "react";
 import type { Editor } from "@tiptap/react";
 import { ApiError } from "../../../lib/api/client";
-import { createContentSession, createNoteUpload } from "../../../lib/api/notes";
+import { formatApiError } from "../../../lib/api/errors";
+import {
+  abandonNoteUpload,
+  completeNoteUpload,
+  createContentSession,
+  createNoteUpload,
+} from "../../../lib/api/notes";
 import type { EditorUiStrings } from "../../../data/note-editor";
+import type { Lang } from "../../../data/dashboard";
 import type { ArtifactType, UploadIntent } from "./editorTypes";
 import {
   MAX_IMAGE_BYTES,
@@ -18,6 +25,7 @@ type UseEditorUploadsArgs = {
   fileInputRef: RefObject<HTMLInputElement>;
   ui: EditorUiStrings;
   uploadFailedLabel: string;
+  lang: Lang;
 };
 
 type PendingUpload = {
@@ -34,6 +42,7 @@ export const useEditorUploads = ({
   fileInputRef,
   ui,
   uploadFailedLabel,
+  lang,
 }: UseEditorUploadsArgs) => {
   const [uploadState, setUploadState] = useState<"idle" | "uploading" | "error">("idle");
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
@@ -103,6 +112,8 @@ export const useEditorUploads = ({
 
       setUploadState("uploading");
       setStatusMessage(null);
+      let reservedArtifactId: string | null = null;
+      let uploadCompleted = false;
       try {
         const response = await createNoteUpload(noteId, {
           filename: file.name,
@@ -111,14 +122,19 @@ export const useEditorUploads = ({
           intent,
           artifactType,
         });
+        reservedArtifactId = response.artifactId;
         const uploadResponse = await fetch(response.uploadUrl, {
           method: "PUT",
           headers: { "Content-Type": file.type || "application/octet-stream" },
           body: file,
         });
         if (!uploadResponse.ok) {
-          throw new Error(uploadFailedLabel);
+          await abandonNoteUpload(noteId, response.artifactId);
+          reservedArtifactId = null;
+          throw new ApiError(ui.uploadExpired, uploadResponse.status, "UPLOAD_LEASE_EXPIRED");
         }
+        await completeNoteUpload(noteId, response.artifactId);
+        uploadCompleted = true;
 
         await createContentSession();
 
@@ -164,15 +180,22 @@ export const useEditorUploads = ({
         }
         setUploadState("idle");
       } catch (error) {
+        if (reservedArtifactId && !uploadCompleted) {
+          try {
+            await abandonNoteUpload(noteId, reservedArtifactId);
+          } catch {
+            // The next upload attempt and bucket lifecycle cleanup are the fallback paths.
+          }
+        }
         setUploadState("error");
-        setStatusMessage(error instanceof ApiError ? error.message : uploadFailedLabel);
+        setStatusMessage(formatApiError(error, lang, uploadFailedLabel));
       } finally {
         if (fileInputRef.current) {
           fileInputRef.current.value = "";
         }
       }
     },
-    [editor, fileInputRef, insertAttachment, noteId, rejectUpload, ui, uploadFailedLabel],
+    [editor, fileInputRef, insertAttachment, lang, noteId, rejectUpload, ui, uploadFailedLabel],
   );
 
   const handleUploadInputChange = useCallback(
