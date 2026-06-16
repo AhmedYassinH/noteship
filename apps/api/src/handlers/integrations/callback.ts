@@ -20,7 +20,7 @@ export const handler = withDeps(async (deps, event) => {
   }
 
   const account = await handleIntegrationCallback(deps, userId, {
-    provider: provider as "linkedin" | "medium",
+    provider: provider as "linkedin",
     code,
     state,
     redirectUrl,

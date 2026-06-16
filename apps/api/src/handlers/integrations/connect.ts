@@ -12,7 +12,7 @@ export const handler = withDeps(async (deps, event) => {
   const input = connectIntegrationSchema.parse(payload);
 
   const result = await startIntegration(deps, userId, {
-    provider: provider as "linkedin" | "medium",
+    provider: provider as "linkedin",
     redirectUrl: input.redirectUrl,
   });
 

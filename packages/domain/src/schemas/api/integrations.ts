@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { idSchema, isoDateTimeSchema, nonEmptyStringSchema } from "../common";
 
-export const apiIntegrationProviderSchema = z.enum(["linkedin", "medium"]);
+export const apiIntegrationProviderSchema = z.enum(["linkedin"]);
 export const apiIntegrationStatusSchema = z.enum(["connected", "revoked", "error"]);
 
 export const connectIntegrationSchema = z.object({

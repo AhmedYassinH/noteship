@@ -12,7 +12,7 @@ export const handler = withDeps(async (deps, event) => {
   const input = finalizeIntegrationCallbackSchema.parse(payload);
 
   const account = await handleIntegrationCallback(deps, userId, {
-    provider: provider as "linkedin" | "medium",
+    provider: provider as "linkedin",
     code: input.code,
     state: input.state,
     redirectUrl: input.redirectUrl,

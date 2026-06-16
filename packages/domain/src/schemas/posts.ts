@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { idSchema, isoDateTimeSchema, nonEmptyStringSchema } from "./common";
 
-export const postProviderSchema = z.enum(["linkedin", "medium"]);
+export const postProviderSchema = z.enum(["linkedin"]);
 export const publishModeSchema = z.enum(["single", "overflow_comments"]);
 export const postStatusSchema = z.enum([
   "draft",

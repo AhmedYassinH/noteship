@@ -12,7 +12,7 @@ export const handler = withDeps(async (deps, event) => {
   disconnectIntegrationSchema.parse(payload);
 
   const result = await disconnectIntegration(deps, userId, {
-    provider: provider as "linkedin" | "medium",
+    provider: provider as "linkedin",
   });
 
   return jsonResponse(200, { items: result.items });

@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { idSchema, isoDateTimeSchema, nonEmptyStringSchema } from "./common";
 
-export const integrationProviderSchema = z.enum(["linkedin", "medium"]);
+export const integrationProviderSchema = z.enum(["linkedin"]);
 export const integrationStatusSchema = z.enum(["connected", "revoked", "error"]);
 export const integrationCredentialAlgSchema = z.literal("aes-256-gcm");
 

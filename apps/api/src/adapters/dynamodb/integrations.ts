@@ -42,12 +42,8 @@ export const listIntegrationsForUser = async (
   tableName: string,
   userId: string,
 ): Promise<IntegrationAccount[]> => {
-  const [linkedin, medium] = await Promise.all([
-    listIntegrationsForProvider(ddb, tableName, userId, "linkedin"),
-    listIntegrationsForProvider(ddb, tableName, userId, "medium"),
-  ]);
-
-  return [...linkedin, ...medium].sort((a, b) => (a.updatedAt < b.updatedAt ? 1 : -1));
+  const linkedin = await listIntegrationsForProvider(ddb, tableName, userId, "linkedin");
+  return linkedin.sort((a, b) => (a.updatedAt < b.updatedAt ? 1 : -1));
 };
 
 export const listIntegrationsForProvider = async (

@@ -4,7 +4,7 @@ import OpenAI from "openai";
 export const createOpenAiClient = (apiKey: string): LlmClient => {
   const client = new OpenAI({ apiKey });
   const buildDraftPrompt = (input: {
-    provider: "linkedin" | "medium";
+    provider: "linkedin";
     noteContent: string;
     tone?: string;
     language?: "en" | "ar";
@@ -13,9 +13,7 @@ export const createOpenAiClient = (apiKey: string): LlmClient => {
       `Provider: ${input.provider}`,
       input.tone ? `Tone: ${input.tone}` : null,
       input.language ? `Language: ${input.language}` : null,
-      input.provider === "linkedin"
-        ? "Constraint: Keep content LinkedIn compatible, plain text, and <= 3000 characters."
-        : null,
+      "Constraint: Keep content LinkedIn compatible, plain text, and <= 3000 characters.",
       "Source note:",
       input.noteContent,
       "Output only the post content with no surrounding commentary.",
@@ -24,7 +22,7 @@ export const createOpenAiClient = (apiKey: string): LlmClient => {
       .join("\n");
 
   const buildRegeneratePrompt = (input: {
-    provider: "linkedin" | "medium";
+    provider: "linkedin";
     currentContent: string;
     instruction: string;
     language?: "en" | "ar";
@@ -32,9 +30,7 @@ export const createOpenAiClient = (apiKey: string): LlmClient => {
     [
       `Provider: ${input.provider}`,
       input.language ? `Language: ${input.language}` : null,
-      input.provider === "linkedin"
-        ? "Constraint: Keep output LinkedIn compatible and <= 3000 characters."
-        : null,
+      "Constraint: Keep output LinkedIn compatible and <= 3000 characters.",
       "Current draft:",
       input.currentContent,
       "User instruction:",

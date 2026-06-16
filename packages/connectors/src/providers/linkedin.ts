@@ -1,4 +1,4 @@
-import type { Connector, ConnectorConfig, PublishPostInput } from "../types";
+import type { Connector, ConnectorConfig } from "../types";
 
 const DEFAULT_SCOPES = ["openid", "profile", "w_member_social"];
 const RESTLI_PROTOCOL_VERSION = "2.0.0";

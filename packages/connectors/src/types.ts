@@ -1,4 +1,4 @@
-export type ConnectorProvider = "linkedin" | "medium";
+export type ConnectorProvider = "linkedin";
 
 export type ConnectorConfig = {
   clientId: string;

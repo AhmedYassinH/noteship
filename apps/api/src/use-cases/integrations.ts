@@ -12,13 +12,14 @@ import type { Deps } from "../runtime/deps";
 import { HttpError, badRequest } from "../runtime/errors";
 import { createConnector, type ConnectorProvider } from "@noteship/connectors";
 import { encryptCredentials } from "../runtime/encryption";
+import { assertCan } from "./policy";
 
 const nowIso = (): string => new Date().toISOString();
 const addMinutesIso = (minutes: number): string =>
   new Date(Date.now() + minutes * 60 * 1000).toISOString();
 
 const resolveProvider = (provider: string): ConnectorProvider => {
-  if (provider === "linkedin" || provider === "medium") {
+  if (provider === "linkedin") {
     return provider;
   }
 
@@ -72,13 +73,14 @@ export const startIntegration = async (
     redirectUrl?: string;
   },
 ): Promise<{ url: string; state: string }> => {
+  await assertCan(deps, userId, "integration.connect");
+
   const provider = resolveProvider(input.provider);
   const connectorConfig = deps.connectors[provider];
-  const apiVersion = provider === "linkedin" ? deps.connectors.linkedin.apiVersion : undefined;
   const connector = createConnector(provider, {
     clientId: connectorConfig.clientId,
     clientSecret: connectorConfig.clientSecret,
-    apiVersion,
+    apiVersion: connectorConfig.apiVersion,
   });
 
   const state = randomUUID();
@@ -147,11 +149,10 @@ export const handleIntegrationCallback = async (
   const redirectUri = oauthTransaction.redirectUrl ?? input.redirectUrl;
 
   const connectorConfig = deps.connectors[provider];
-  const apiVersion = provider === "linkedin" ? deps.connectors.linkedin.apiVersion : undefined;
   const connector = createConnector(provider, {
     clientId: connectorConfig.clientId,
     clientSecret: connectorConfig.clientSecret,
-    apiVersion,
+    apiVersion: connectorConfig.apiVersion,
   });
 
   let result: Awaited<ReturnType<typeof connector.exchangeCode>>;
