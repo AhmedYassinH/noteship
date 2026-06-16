@@ -178,7 +178,7 @@ export const ArtifactsPanel = ({ selectedNoteId }: ArtifactsPanelProps) => {
               <div className="mt-2 space-y-2">
                 <Button variant="outline" size="sm" className="w-full justify-start h-9">
                   <Sparkles className="h-3.5 w-3.5 mr-2" />
-                  Rewrite for Medium
+                  Rewrite for LinkedIn
                 </Button>
                 <Button variant="outline" size="sm" className="w-full justify-start h-9">
                   <Sparkles className="h-3.5 w-3.5 mr-2" />

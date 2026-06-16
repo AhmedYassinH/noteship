@@ -232,7 +232,7 @@ export const mockArtifacts: Artifact[] = [
   {
     id: "a1",
     noteId: "n1",
-    platform: "Medium",
+    platform: "LinkedIn",
     status: "draft",
     lastUpdated: "2 hours ago",
     versions: [
