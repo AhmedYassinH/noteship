@@ -5,5 +5,7 @@ export * from "./notes";
 export * from "./posts";
 export * from "./integration-accounts";
 export * from "./usage";
+export * from "./rate-limits";
+export * from "./upload-leases";
 export * from "./jobs";
 export * from "./publish-payload";

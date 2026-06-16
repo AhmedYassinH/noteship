@@ -5,6 +5,8 @@ export const usageSchema = z.object({
   userId: idSchema,
   periodStart: isoDateTimeSchema,
   aiGenerationsUsed: z.number().int().nonnegative(),
+  aiGenerationsReserved: z.number().int().nonnegative().optional(),
+  aiGenerationsAccounted: z.number().int().nonnegative().optional(),
   scheduledPostsUsed: z.number().int().nonnegative(),
   postsPublished: z.number().int().nonnegative().optional(),
   storageUsedMb: z.number().nonnegative().optional(),

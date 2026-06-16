@@ -33,6 +33,11 @@ export const noteUploadResponseSchema = z.object({
   s3Key: nonEmptyStringSchema,
   artifactId: nonEmptyStringSchema,
   publicUrl: nonEmptyStringSchema,
+  expiresAt: isoDateTimeSchema.optional(),
+});
+
+export const noteUploadLifecycleResponseSchema = z.object({
+  ok: z.literal(true),
 });
 
 export const noteResponseSchema = z.object({
