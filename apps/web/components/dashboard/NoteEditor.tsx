@@ -31,6 +31,7 @@ import { cn } from "@/lib/utils";
 import type { Lang } from "../../data/dashboard";
 import { editorUiCopy } from "../../data/note-editor";
 import {
+  BLOCK_CONTROL_OFFSET_PX,
   DRAG_BLOCK_MIME,
   deleteCurrentBlock,
   duplicateCurrentBlock,
@@ -117,6 +118,7 @@ const NoteEditor = ({
   const [mobileSheetOpen, setMobileSheetOpen] = useState(false);
   const [mobileSheetBlock, setMobileSheetBlock] = useState<TopLevelBlockSelection | null>(null);
   const [isTyping, setIsTyping] = useState(false);
+  const [controlsOutsideEditor, setControlsOutsideEditor] = useState(false);
   const draggingBlockRef = useRef<TopLevelBlockSelection | null>(null);
   const editorInstanceRef = useRef<Editor | null>(null);
   const menuModeRef = useRef<MenuMode>("insert");
@@ -153,6 +155,36 @@ const NoteEditor = ({
     media.addEventListener("change", update);
     return () => media.removeEventListener("change", update);
   }, []);
+
+  useEffect(() => {
+    const shell = editorShellRef.current;
+    if (!shell) return;
+
+    const updateControlPlacement = () => {
+      const rect = shell.getBoundingClientRect();
+      const contentRect = shell.closest("main")?.getBoundingClientRect();
+      const gutter = BLOCK_CONTROL_OFFSET_PX + 8;
+      const inlineSpace = contentRect
+        ? editorDirection === "rtl"
+          ? contentRect.right - rect.right
+          : rect.left - contentRect.left
+        : editorDirection === "rtl"
+          ? window.innerWidth - rect.right
+          : rect.left;
+      const hasInlineSpace = inlineSpace >= gutter;
+      setControlsOutsideEditor(hasInlineSpace && window.innerWidth >= 768);
+    };
+
+    updateControlPlacement();
+    const observer = new ResizeObserver(updateControlPlacement);
+    observer.observe(shell);
+    window.addEventListener("resize", updateControlPlacement);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", updateControlPlacement);
+    };
+  }, [editorDirection]);
 
   useEffect(
     () => () => {
@@ -196,6 +228,7 @@ const NoteEditor = ({
         },
       }),
     ],
+    immediatelyRender: false,
     content: initialEditorContent,
     editorProps: {
       attributes: {
@@ -750,6 +783,7 @@ const NoteEditor = ({
           ) : null}
           <BlockControls
             blockControlsTop={blockControlsTop}
+            controlsOutsideEditor={controlsOutsideEditor && !isCoarsePointer}
             isCoarsePointer={isCoarsePointer}
             onAddBlock={() =>
               openInsertMenuAt(blockControlsBottom(blockControlsTop), visibleBlock ?? currentBlock)

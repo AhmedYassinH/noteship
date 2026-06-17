@@ -200,6 +200,7 @@ export const BubbleToolbar = ({
 
 type BlockControlsProps = {
   blockControlsTop: number;
+  controlsOutsideEditor: boolean;
   isCoarsePointer: boolean;
   onAddBlock: () => void;
   onDragEnd: () => void;
@@ -213,6 +214,7 @@ type BlockControlsProps = {
 
 export const BlockControls = ({
   blockControlsTop,
+  controlsOutsideEditor,
   isCoarsePointer,
   onAddBlock,
   onDragEnd,
@@ -233,7 +235,7 @@ export const BlockControls = ({
       onMouseLeave={onMouseLeave}
       style={{
         top: `${blockControlsTop}px`,
-        insetInlineStart: `-${BLOCK_CONTROL_OFFSET_PX}px`,
+        insetInlineStart: controlsOutsideEditor ? `-${BLOCK_CONTROL_OFFSET_PX}px` : "8px",
       }}
     >
       <Button
