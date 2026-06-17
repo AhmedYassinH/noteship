@@ -2,6 +2,8 @@ export type Lang = "en" | "ar";
 
 export type SharedCopy = {
   brandTagline: string;
+  navAriaLabel: string;
+  chooseLanguage: string;
   navLinks: { label: string; href: string }[];
   ctas: {
     primary: string;
@@ -15,34 +17,36 @@ export type SharedCopy = {
 
 const sharedCopy: Record<Lang, SharedCopy> = {
   en: {
-    brandTagline: "Capture, preserve, recall, repurpose, publish.",
+    brandTagline: "Your publishing partner",
+    navAriaLabel: "Main navigation",
+    chooseLanguage: "Choose language",
     navLinks: [
-      { label: "How it works", href: "/#how-it-works" },
+      { label: "Workflow", href: "/#workflow" },
+      { label: "Launch plan", href: "/#launch-plan" },
+      { label: "Trust", href: "/#trust" },
       { label: "Pricing", href: "/pricing" },
-      { label: "FAQ", href: "/#faq" },
-      { label: "Contact", href: "/#contact" },
     ],
     ctas: {
-      primary: "Start free",
+      primary: "Log in",
     },
     footer: {
       summary:
-        "A knowledge system that turns notes into output. Stop rewriting what you already know.",
+        "Noteship turns your notes into a living publishing system: capture ideas, recall them by meaning, generate grounded drafts, and publish with confidence.",
       columns: [
         {
           title: "Product",
           links: [
-            { label: "How it works", href: "/#how-it-works" },
+            { label: "Workflow", href: "/#workflow" },
+            { label: "Features", href: "/features" },
             { label: "Pricing", href: "/pricing" },
-            { label: "FAQ", href: "/#faq" },
           ],
         },
         {
           title: "Company",
           links: [
             { label: "Contact", href: "mailto:me@ahmedyassin.dev" },
-            { label: "Privacy", href: "/#security" },
-            { label: "Reliability", href: "/#security" },
+            { label: "Trust", href: "/#trust" },
+            { label: "FAQ", href: "/#faq" },
           ],
         },
       ],
@@ -50,33 +54,36 @@ const sharedCopy: Record<Lang, SharedCopy> = {
     },
   },
   ar: {
-    brandTagline: "التقط، احفظ، استرجع، أعد التوظيف، ثم انشر.",
+    brandTagline: "شريكك في النشر",
+    navAriaLabel: "التنقل الرئيسي",
+    chooseLanguage: "اختيار اللغة",
     navLinks: [
-      { label: "كيف يعمل", href: "/#how-it-works" },
-      { label: "الأسعار", href: "/pricing" },
-      { label: "الأسئلة الشائعة", href: "/#faq" },
-      { label: "تواصل", href: "/#contact" },
+      { label: "سير العمل", href: "/#workflow" },
+      { label: "خطة الإطلاق", href: "/#launch-plan" },
+      { label: "الثقة", href: "/#trust" },
+      { label: "التسعير", href: "/pricing" },
     ],
     ctas: {
-      primary: "ابدأ مجانًا",
+      primary: "تسجيل الدخول",
     },
     footer: {
-      summary: "نظام معرفة يحول الملاحظات إلى مخرجات. توقف عن إعادة كتابة ما تعرفه بالفعل.",
+      summary:
+        "يحوّل Noteship ملاحظاتك إلى نظام نشر حي: التقط الأفكار، واسترجعها بالمعنى، وأنشئ مسودات مرتبطة بملاحظاتك، وانشر بثقة.",
       columns: [
         {
           title: "المنتج",
           links: [
-            { label: "كيف يعمل", href: "/#how-it-works" },
-            { label: "الأسعار", href: "/pricing" },
-            { label: "الأسئلة الشائعة", href: "/#faq" },
+            { label: "سير العمل", href: "/#workflow" },
+            { label: "المزايا", href: "/features" },
+            { label: "التسعير", href: "/pricing" },
           ],
         },
         {
           title: "الشركة",
           links: [
             { label: "تواصل", href: "mailto:me@ahmedyassin.dev" },
-            { label: "الخصوصية", href: "/#security" },
-            { label: "الاعتمادية", href: "/#security" },
+            { label: "الثقة", href: "/#trust" },
+            { label: "الأسئلة الشائعة", href: "/#faq" },
           ],
         },
       ],

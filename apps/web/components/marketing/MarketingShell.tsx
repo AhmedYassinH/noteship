@@ -9,7 +9,6 @@ import { usePathname } from "next/navigation";
 import { Check, ChevronDown, Languages } from "lucide-react";
 import sharedCopy, { Lang } from "../../data/marketing-shared";
 import { getStoredLang, persistLang } from "../../lib/language";
-import { Button } from "../ui/Button";
 import { cn } from "@/lib/utils";
 
 type MarketingLanguageState = {
@@ -42,9 +41,7 @@ const MarketingShell = ({ children }: { children: ReactNode }) => {
   }, [lang, isAr]);
 
   useEffect(() => {
-    if (!isLangMenuOpen) {
-      return;
-    }
+    if (!isLangMenuOpen) return;
 
     const onPointerDown = (event: PointerEvent) => {
       if (!langMenuRef.current?.contains(event.target as Node)) {
@@ -53,44 +50,57 @@ const MarketingShell = ({ children }: { children: ReactNode }) => {
     };
 
     document.addEventListener("pointerdown", onPointerDown);
-    return () => {
-      document.removeEventListener("pointerdown", onPointerDown);
-    };
+    return () => document.removeEventListener("pointerdown", onPointerDown);
   }, [isLangMenuOpen]);
 
   return (
     <MarketingLanguageContext.Provider value={{ lang, setLang }}>
       <DirectionProvider dir={isAr ? "rtl" : "ltr"}>
         <div
-          className={cn(
-            "relative min-h-screen bg-[linear-gradient(180deg,#f8f9f8_0%,#f4f6f8_55%,#f8f7f4_100%)] px-6 pb-16 pt-6 text-[var(--ns-ink)]",
-            "font-body text-left rtl:text-right",
-          )}
+          className="relative min-h-screen overflow-x-hidden bg-[#f7f8f4] text-[#101817] font-body text-left rtl:text-right"
+          lang={lang}
+          dir={isAr ? "rtl" : "ltr"}
         >
-          <header className="relative z-40 mx-auto flex w-full max-w-[1160px] items-center justify-between gap-4 border-b border-[rgba(15,23,42,0.12)] pb-4 max-[1020px]:flex-wrap">
+          <div
+            className="pointer-events-none fixed inset-0 -z-10 opacity-[0.55]"
+            style={{
+              backgroundImage:
+                "linear-gradient(rgba(16,24,23,0.11) 1px, transparent 1px), linear-gradient(90deg, rgba(16,24,23,0.11) 1px, transparent 1px)",
+              backgroundSize: "44px 44px",
+            }}
+          />
+
+          <header className="sticky top-0 z-40 grid grid-cols-[auto_1fr_auto] items-center gap-6 border-b border-[rgba(16,24,23,0.08)] bg-[#f7f8f4]/85 px-[clamp(18px,5vw,56px)] py-4 backdrop-blur-[18px] max-[900px]:grid-cols-[1fr_auto]">
             <Link
               href="/"
-              className="inline-flex items-center gap-3 text-inherit no-underline"
+              className="inline-flex items-center gap-2.5 text-inherit no-underline"
               aria-label="Noteship home"
             >
-              <span className="grid h-11 w-11 place-items-center rounded-xl border border-[rgba(15,118,110,0.18)] bg-white">
-                <Image src="/noteship-mark.svg" alt="" width={34} height={34} priority />
+              <span className="grid h-10 w-10 place-items-center overflow-hidden rounded-xl border border-[rgba(16,24,23,0.12)] bg-white">
+                <Image src="/noteship-mark.svg" alt="" width={25} height={27} priority />
               </span>
-              <span className="text-[1.04rem] font-semibold">Noteship</span>
+              <span className="grid">
+                <span className="text-[1rem] font-extrabold leading-tight">Noteship</span>
+                <span className="max-w-[170px] truncate text-[0.74rem] text-[#5f6b66]">
+                  {copy.brandTagline}
+                </span>
+              </span>
             </Link>
 
             <nav
-              className="flex flex-wrap items-center gap-2"
-              aria-label={isAr ? "التنقل الرئيسي" : "Main navigation"}
+              className="flex flex-wrap items-center justify-center gap-2 max-[900px]:hidden"
+              aria-label={copy.navAriaLabel}
             >
               {copy.navLinks.map((link) => {
-                const isActive = pathname === link.href;
+                const baseHref = link.href.split("#")[0];
+                const isPageLink = !link.href.includes("#");
+                const isActive = isPageLink && pathname === baseHref;
                 return (
                   <Link
-                    key={link.href}
+                    key={`${link.href}-${link.label}`}
                     className={cn(
-                      "rounded-full px-3 py-1.5 text-[0.9rem] font-medium text-[var(--ns-muted)] transition-colors hover:text-slate-900",
-                      isActive && "bg-[rgba(15,23,42,0.06)] text-slate-900",
+                      "rounded-full border border-transparent px-3.5 py-2 text-[0.92rem] text-[#263531] transition-colors hover:border-[rgba(16,24,23,0.14)] hover:bg-white/75",
+                      isActive && "border-[rgba(16,24,23,0.14)] bg-white/75",
                     )}
                     href={link.href}
                     aria-current={isActive ? "page" : undefined}
@@ -102,16 +112,19 @@ const MarketingShell = ({ children }: { children: ReactNode }) => {
             </nav>
 
             <div className="flex items-center gap-2">
-              <Button type="button" size="pill" asChild>
-                <Link href="/login">{copy.ctas.primary}</Link>
-              </Button>
+              <Link
+                href="/login"
+                className="inline-flex min-h-10 items-center justify-center rounded-full bg-[#101817] px-4 text-[0.92rem] font-bold text-white transition-opacity hover:opacity-90"
+              >
+                {copy.ctas.primary}
+              </Link>
 
               <div className="relative z-[80]" ref={langMenuRef}>
                 <button
                   type="button"
                   onClick={() => setIsLangMenuOpen((open) => !open)}
-                  className="inline-flex h-9 items-center gap-1.5 rounded-full border border-[rgba(15,23,42,0.14)] bg-white px-2.5 text-[var(--ns-muted)] transition-colors hover:text-slate-900"
-                  aria-label={isAr ? "اختيار اللغة" : "Choose language"}
+                  className="inline-flex h-10 items-center gap-1.5 rounded-full border border-[rgba(16,24,23,0.14)] bg-white/75 px-3 text-[#263531] transition-colors hover:bg-white"
+                  aria-label={copy.chooseLanguage}
                   aria-haspopup="menu"
                   aria-expanded={isLangMenuOpen}
                 >
@@ -122,70 +135,54 @@ const MarketingShell = ({ children }: { children: ReactNode }) => {
                 {isLangMenuOpen ? (
                   <div
                     role="menu"
-                    className="absolute end-0 z-[90] mt-2 w-[210px] overflow-hidden rounded-xl border border-[rgba(15,23,42,0.14)] bg-white p-1.5 shadow-[0_12px_28px_rgba(15,23,42,0.14)]"
+                    className="absolute end-0 z-[90] mt-2 w-[210px] overflow-hidden rounded-xl border border-[rgba(16,24,23,0.14)] bg-white p-1.5 shadow-[0_12px_28px_rgba(16,24,23,0.14)]"
                   >
-                    <button
-                      type="button"
-                      className="flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-left text-[0.92rem] transition-colors hover:bg-[rgba(15,23,42,0.06)]"
-                      onClick={() => {
-                        setLang("en");
-                        setIsLangMenuOpen(false);
-                      }}
-                      role="menuitem"
-                    >
-                      <span className="inline-flex items-center gap-2">
-                        <span aria-hidden="true">🇺🇸</span>
-                        <span>English</span>
-                      </span>
-                      {lang === "en" ? <Check className="h-3.5 w-3.5" aria-hidden="true" /> : null}
-                    </button>
-
-                    <button
-                      type="button"
-                      className="flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-left text-[0.92rem] transition-colors hover:bg-[rgba(15,23,42,0.06)]"
-                      onClick={() => {
-                        setLang("ar");
-                        setIsLangMenuOpen(false);
-                      }}
-                      role="menuitem"
-                    >
-                      <span className="inline-flex items-center gap-2">
-                        <span aria-hidden="true">🇸🇦</span>
-                        <span>العربية</span>
-                      </span>
-                      {lang === "ar" ? <Check className="h-3.5 w-3.5" aria-hidden="true" /> : null}
-                    </button>
+                    {(["en", "ar"] as Lang[]).map((nextLang) => (
+                      <button
+                        key={nextLang}
+                        type="button"
+                        className="flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-left text-[0.92rem] transition-colors hover:bg-[rgba(16,24,23,0.06)] rtl:text-right"
+                        onClick={() => {
+                          setLang(nextLang);
+                          setIsLangMenuOpen(false);
+                        }}
+                        role="menuitem"
+                      >
+                        <span>{nextLang === "en" ? "English" : "العربية"}</span>
+                        {lang === nextLang ? (
+                          <Check className="h-3.5 w-3.5" aria-hidden="true" />
+                        ) : null}
+                      </button>
+                    ))}
                   </div>
                 ) : null}
               </div>
             </div>
           </header>
 
-          <div className="relative z-10 mx-auto mt-12 flex w-full max-w-[1160px] flex-col gap-14">
-            {children}
-          </div>
+          {children}
 
           <footer
             id="contact"
-            className="relative z-10 mx-auto mt-20 grid w-full max-w-[1160px] gap-6 border-t border-[rgba(15,23,42,0.12)] pt-8"
+            className="mx-auto grid w-full max-w-[1260px] gap-8 px-[clamp(18px,5vw,56px)] pb-10 pt-16"
           >
-            <div className="grid gap-2.5">
+            <div className="grid gap-3 border-t border-[rgba(16,24,23,0.12)] pt-8">
               <div className="flex items-center gap-2.5">
                 <Image src="/noteship-mark.svg" alt="" width={30} height={30} />
-                <span className="text-[1rem] font-semibold">Noteship</span>
+                <span className="text-[1rem] font-bold">Noteship</span>
               </div>
-              <p className="m-0 max-w-[640px] text-[var(--ns-muted)]">{copy.footer.summary}</p>
+              <p className="m-0 max-w-[720px] text-[#5f6b66] leading-7">{copy.footer.summary}</p>
             </div>
 
-            <div className="grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-[18px]">
+            <div className="grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-5">
               {copy.footer.columns.map((column) => (
                 <div key={column.title} className="grid gap-2">
-                  <span className="text-[0.95rem] font-semibold">{column.title}</span>
+                  <span className="text-[0.95rem] font-bold">{column.title}</span>
                   {column.links.map((link) => (
                     <Link
                       key={link.href}
                       href={link.href}
-                      className="w-fit text-[var(--ns-muted)] underline-offset-4 transition-colors hover:text-slate-900 hover:underline"
+                      className="w-fit text-[#5f6b66] underline-offset-4 transition-colors hover:text-[#101817] hover:underline"
                     >
                       {link.label}
                     </Link>
@@ -194,7 +191,7 @@ const MarketingShell = ({ children }: { children: ReactNode }) => {
               ))}
             </div>
 
-            <div className="text-[0.88rem] text-[var(--ns-muted)]">{copy.footer.bottom}</div>
+            <div className="text-[0.88rem] text-[#5f6b66]">{copy.footer.bottom}</div>
           </footer>
         </div>
       </DirectionProvider>

@@ -1,9 +1,9 @@
 import { Lang } from "./marketing-shared";
 
 export type FeaturesCopy = {
-  heroKicker: string;
+  heroEyebrow: string;
   heroTitle: string;
-  heroSub: string;
+  heroLead: string;
   primaryCta: string;
   secondaryCta: string;
   sections: { title: string; copy: string; items: string[] }[];
@@ -17,79 +17,73 @@ export type FeaturesCopy = {
 
 const featuresCopy: Record<Lang, FeaturesCopy> = {
   en: {
-    heroKicker: "How Noteship works",
-    heroTitle: "A practical workflow from notes to published output",
-    heroSub: "Capture, preserve, recall, repurpose, then publish in a predictable system.",
+    heroEyebrow: "Product workflow",
+    heroTitle: "A practical system from notes to published output.",
+    heroLead:
+      "Noteship keeps capture, recall, drafting, and publishing in one focused workflow for solo operators who publish from lived knowledge.",
     primaryCta: "Start free",
     secondaryCta: "View pricing",
     sections: [
       {
         title: "Capture and preserve",
-        copy: "Store notes in a format that stays readable and reusable over time.",
-        items: ["Markdown-backed storage", "Structured metadata", "Export-ready from day one"],
+        copy: "Store rough thinking in a calm editor that stays useful after the first draft.",
+        items: ["Markdown-backed notes", "Upload small artifacts", "Exportable source material"],
       },
       {
         title: "Recall and repurpose",
-        copy: "Find what matters by meaning, then convert it into channel-ready drafts.",
-        items: [
-          "Semantic retrieval",
-          "Voice-preserving generation",
-          "LinkedIn publishing with more integrations planned",
-        ],
+        copy: "Find relevant ideas by meaning, then turn the source note into grounded angles.",
+        items: ["Meaning-based retrieval", "Context-rich snippets", "Source-grounded drafts"],
       },
       {
         title: "Publish and track",
-        copy: "Schedule or publish immediately with clear status and recovery flow.",
-        items: [
-          "Current connector: LinkedIn",
-          "Expanding integrations roadmap",
-          "Plan-aware limits",
-        ],
+        copy: "Move from draft to LinkedIn with clear state, retries, and recovery visibility.",
+        items: ["LinkedIn connector", "Publish now", "Scheduling prepared for paid plans"],
       },
     ],
     reliabilityTitle: "Built for calm operations",
     reliabilityItems: [
-      { title: "Clarity", copy: "Every stage has a visible state." },
-      { title: "Control", copy: "You decide what to schedule or publish now." },
-      { title: "Portability", copy: "Your notes stay yours." },
+      { title: "Backend enforcement", copy: "Plan limits are enforced server-side." },
+      { title: "Async publishing", copy: "Worker jobs handle unreliable vendor calls." },
+      { title: "Portable content", copy: "Notes and drafts stay exportable." },
     ],
-    ctaTitle: "Stop rewriting. Start publishing from your own knowledge base.",
-    ctaCopy: "Turn your notes into consistent publishing with a workflow you can trust.",
+    ctaTitle: "Stop rewriting what your notes already know.",
+    ctaCopy: "Start free and turn captured thinking into publish-ready work.",
     ctaPrimary: "Start free",
     ctaSecondary: "Contact us",
   },
   ar: {
-    heroKicker: "كيف يعمل Noteship",
-    heroTitle: "سير عملي من الملاحظات إلى مخرجات منشورة",
-    heroSub: "التقاط، حفظ، استرجاع، إعادة توظيف، ثم نشر ضمن نظام متوقع.",
-    primaryCta: "اطلب الوصول المبكر",
+    heroEyebrow: "سير عمل المنتج",
+    heroTitle: "نظام عملي من الملاحظات إلى المخرجات المنشورة.",
+    heroLead:
+      "يجمع Noteship الالتقاط والاسترجاع والصياغة والنشر في سير عمل مركز للمستقلين الذين ينشرون من معرفة متراكمة.",
+    primaryCta: "ابدأ مجانًا",
     secondaryCta: "عرض التسعير",
     sections: [
       {
         title: "التقاط وحفظ",
-        copy: "احفظ ملاحظاتك بصيغة تبقى قابلة للقراءة وإعادة الاستخدام مع الوقت.",
-        items: ["تخزين قائم على Markdown", "بيانات وصفية منظمة", "جاهزية للتصدير من البداية"],
+        copy: "احفظ التفكير الخام في محرر هادئ يبقى مفيدًا بعد المسودة الأولى.",
+        items: ["ملاحظات قائمة على Markdown", "رفع مرفقات صغيرة", "مواد مصدر قابلة للتصدير"],
       },
       {
         title: "استرجاع وإعادة توظيف",
-        copy: "اعثر على المهم بالمعنى ثم حوّله إلى مسودات مناسبة لكل قناة.",
-        items: ["استرجاع دلالي", "توليد يحافظ على الصوت", "موصلات لمنصات حالية وقادمة"],
+        copy: "اعثر على الأفكار المناسبة بالمعنى ثم حوّل الملاحظة الأصلية إلى زوايا grounded.",
+        items: ["استرجاع بالمعنى", "مقاطع سياقية واضحة", "مسودات مرتبطة بالمصدر"],
       },
       {
         title: "نشر وتتبع",
-        copy: "جدولة أو نشر فوري مع وضوح الحالة ومسار استرداد واضح.",
-        items: ["الموصل الحالي: LinkedIn", "خارطة تكاملات تتوسع باستمرار", "حدود مرتبطة بالخطة"],
+        copy: "انتقل من المسودة إلى LinkedIn مع حالة واضحة وإعادة محاولة ومسار استرداد.",
+        items: ["موصل LinkedIn", "نشر فوري", "جدولة مجهزة للخطط المدفوعة"],
       },
     ],
     reliabilityTitle: "مصمم لتشغيل هادئ",
     reliabilityItems: [
-      { title: "وضوح", copy: "لكل مرحلة حالة مرئية." },
-      { title: "تحكم", copy: "أنت من يقرر الجدولة أو النشر الفوري." },
-      { title: "قابلية النقل", copy: "ملاحظاتك تبقى ملكك." },
+      { title: "فرض من الخلفية", copy: "يتم فرض حدود الخطة من الخادم." },
+      { title: "نشر غير متزامن", copy: "تتعامل وظائف الخلفية مع مكالمات المنصات غير المستقرة." },
+      { title: "محتوى قابل للنقل", copy: "تبقى الملاحظات والمسودات قابلة للتصدير." },
     ],
-    ctaTitle: "توقّف عن إعادة الكتابة وابدأ النشر من قاعدة معرفتك.",
-    ctaCopy: "حوّل ملاحظاتك إلى نشر منتظم عبر سير عمل موثوق.",
-    ctaPrimary: "اطلب الوصول المبكر",
+    ctaTitle: "توقف عن إعادة كتابة ما تعرفه ملاحظاتك بالفعل.",
+    ctaCopy: "ابدأ مجانًا وحوّل تفكيرك المحفوظ إلى عمل جاهز للنشر.",
+    ctaPrimary: "ابدأ مجانًا",
     ctaSecondary: "تواصل معنا",
   },
 };

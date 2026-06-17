@@ -1,11 +1,8 @@
 "use client";
 
 import { useMemo } from "react";
-import Image from "next/image";
 import Link from "next/link";
-import { ShieldCheck, Database, RefreshCw } from "lucide-react";
 import { useMarketingLanguage } from "../../components/marketing/MarketingShell";
-import { Button } from "../../components/ui/Button";
 import homeCopy from "../../data/marketing-home";
 
 const HomePage = () => {
@@ -13,233 +10,266 @@ const HomePage = () => {
   const t = useMemo(() => homeCopy[lang], [lang]);
   const isAr = lang === "ar";
 
-  const trustIcons = [ShieldCheck, Database, RefreshCw];
-
   return (
-    <main
-      className="flex flex-col gap-20 text-left rtl:text-right"
-      lang={lang}
-      dir={isAr ? "rtl" : "ltr"}
-    >
-      <section className="grid items-center gap-8 border-b border-[rgba(15,23,42,0.12)] pb-12 [grid-template-columns:repeat(auto-fit,minmax(280px,1fr))]">
-        <div className="grid gap-4">
-          <p className="m-0 text-[0.75rem] font-semibold uppercase tracking-[0.2em] text-[var(--ns-muted)]">
-            {t.heroKicker}
+    <main className="text-left rtl:text-right" lang={lang} dir={isAr ? "rtl" : "ltr"}>
+      <section className="grid min-h-[calc(100vh-74px)] grid-cols-[minmax(0,0.88fr)_minmax(380px,1.12fr)] items-center gap-[clamp(30px,5vw,76px)] px-[clamp(18px,5vw,56px)] pb-9 pt-[clamp(42px,6vw,78px)] max-[980px]:grid-cols-1">
+        <div className="grid max-w-[680px] gap-5">
+          <p className="m-0 w-fit rounded-full border border-[rgba(15,118,110,0.24)] bg-white/75 px-3 py-2 text-[0.78rem] font-extrabold uppercase tracking-[0.06em] text-[#094b47]">
+            {t.heroEyebrow}
           </p>
-          <h1 className="m-0 max-w-[16ch] font-headline text-[clamp(2.25rem,4.8vw,3.35rem)] leading-[1.14]">
+          <h1 className="m-0 max-w-[690px] text-[clamp(3.25rem,6.6vw,6.6rem)] font-extrabold leading-[0.94] tracking-normal max-[620px]:text-[clamp(2.75rem,11.4vw,3.55rem)] max-[620px]:leading-[1.02]">
             {t.heroTitle}
           </h1>
-          <p className="m-0 max-w-[55ch] text-[1.02rem] leading-[1.72] text-[var(--ns-muted)] rtl:leading-[1.9]">
-            {t.heroSub}
+          <p className="m-0 max-w-[590px] text-[clamp(1rem,1.55vw,1.18rem)] leading-[1.55] text-[#3f4d48] rtl:leading-[1.85]">
+            {t.heroLead}
           </p>
           <div className="flex flex-wrap gap-3">
-            <Button type="button" size="pill" asChild>
-              <Link href="/login">{t.heroPrimary}</Link>
-            </Button>
-            <Button type="button" size="pill" variant="outline" asChild>
-              <Link href="#how-it-works">{t.heroSecondary}</Link>
-            </Button>
             <Link
-              href="#security"
-              className="inline-flex items-center px-1 text-[0.95rem] text-[var(--ns-muted)] underline-offset-4 transition-colors hover:text-slate-900 hover:underline"
+              href="/login"
+              className="inline-flex min-h-12 items-center justify-center rounded-full bg-[var(--ns-accent)] px-5 font-extrabold text-white shadow-[0_16px_34px_rgba(15,118,110,0.22)]"
             >
-              {t.heroTertiary}
+              {t.heroPrimary}
+            </Link>
+            <Link
+              href="#workflow"
+              className="inline-flex min-h-12 items-center justify-center rounded-full border border-[rgba(16,24,23,0.14)] bg-white/80 px-5 font-extrabold text-[#101817]"
+            >
+              {t.heroSecondary}
             </Link>
           </div>
-          <div className="flex flex-wrap gap-2.5 text-[0.86rem] text-[var(--ns-muted)]">
-            {t.heroProof.map((item) => (
+          <div className="flex flex-wrap gap-3 text-[0.9rem] text-[#31423d]">
+            {t.proof.map((item) => (
               <span
                 key={item}
-                className="rounded-full border border-[rgba(15,23,42,0.12)] px-3 py-1"
+                className="rounded-full border border-[rgba(16,24,23,0.1)] bg-white/65 px-3 py-2"
               >
                 {item}
               </span>
             ))}
           </div>
         </div>
-        <div className="rounded-2xl border border-[rgba(15,23,42,0.12)] bg-white p-4 shadow-[0_18px_40px_rgba(15,23,42,0.1)]">
-          <Image
-            src={t.heroImage}
-            alt={t.heroImageAlt}
-            width={540}
-            height={410}
-            className="block h-auto w-full rounded-xl"
-            priority
-          />
-        </div>
-      </section>
-      <section className="grid gap-6 [grid-template-columns:1.2fr_0.8fr] max-[920px]:grid-cols-1">
-        <div className="grid gap-4">
-          <h2 className="m-0 max-w-[19ch] font-headline text-[clamp(1.7rem,3vw,2.3rem)] leading-[1.2]">
-            {t.problemTitle}
-          </h2>
-          <p className="m-0 text-[1rem] leading-[1.72] text-[var(--ns-muted)] rtl:leading-[1.9]">
-            {t.problemLead}
-          </p>
-          <ul className="m-0 grid list-disc gap-2 pl-5 text-[var(--ns-muted)] leading-[1.68] rtl:pl-0 rtl:pr-5 rtl:leading-[1.9]">
-            {t.problemPoints.map((point) => (
-              <li key={point}>{point}</li>
-            ))}
-          </ul>
-        </div>
-        <aside className="self-start border-s-2 border-[rgba(15,118,110,0.35)] bg-white/70 px-5 py-4 text-[1.02rem] text-slate-800 leading-[1.72] rtl:border-s-0 rtl:border-e-2 rtl:leading-[1.9]">
-          {t.problemQuote}
-        </aside>
-      </section>
-      <section id="how-it-works" className="grid gap-6">
-        <header className="grid gap-2">
-          <h2 className="m-0 font-headline text-[clamp(1.7rem,3vw,2.3rem)] leading-[1.2]">
-            {t.workflowTitle}
-          </h2>
-          <p className="m-0 max-w-[62ch] text-[1rem] leading-[1.72] text-[var(--ns-muted)] rtl:leading-[1.9]">
-            {t.workflowLead}
-          </p>
-        </header>
 
-        <div className="grid gap-3.5 border-y border-[rgba(15,23,42,0.12)] py-6">
-          {t.workflowSteps.map((step, index) => (
-            <article
-              key={step.title}
-              className="grid grid-cols-[auto_1fr] gap-3 rounded-xl bg-white px-4 py-3.5"
-            >
-              <div className="grid h-8 w-8 place-items-center rounded-full border border-[rgba(15,118,110,0.26)] text-[0.88rem] font-semibold text-[var(--ns-accent-strong)]">
-                {index + 1}
-              </div>
-              <div>
-                <h3 className="m-0 font-headline text-[1.1rem] leading-[1.25]">{step.title}</h3>
-                <p className="m-0 mt-1 text-[0.96rem] text-[var(--ns-muted)] leading-[1.65] rtl:leading-[1.85]">
-                  {step.copy}
-                </p>
-              </div>
-            </article>
-          ))}
-        </div>
-        <p className="m-0 text-[0.92rem] text-[var(--ns-muted)] leading-[1.65] rtl:leading-[1.85]">
-          {t.workflowNote}
-        </p>
-      </section>
-      <section className="grid gap-6">
-        <header className="grid gap-2">
-          <h2 className="m-0 font-headline text-[clamp(1.7rem,3vw,2.3rem)] leading-[1.2]">
-            {t.pillarsTitle}
-          </h2>
-          <p className="m-0 text-[1rem] text-[var(--ns-muted)] leading-[1.72] rtl:leading-[1.9]">
-            {t.pillarsLead}
-          </p>
-        </header>
-        <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(220px,1fr))]">
-          {t.pillars.map((pillar) => (
-            <article
-              key={pillar.title}
-              className="grid gap-2 rounded-xl border border-[rgba(15,23,42,0.1)] bg-white p-5 shadow-[0_6px_20px_rgba(15,23,42,0.06)]"
-            >
-              <h3 className="m-0 font-headline text-[1.15rem] leading-[1.25]">{pillar.title}</h3>
-              <p className="m-0 text-[0.95rem] text-[var(--ns-muted)] leading-[1.65] rtl:leading-[1.85]">
-                {pillar.copy}
-              </p>
-              <ul className="m-0 mt-1 grid list-disc gap-1.5 pl-4 text-[0.92rem] text-[var(--ns-muted)] rtl:pl-0 rtl:pr-4">
-                {pillar.bullets.map((bullet) => (
-                  <li key={bullet}>{bullet}</li>
-                ))}
-              </ul>
-            </article>
-          ))}
-        </div>
-      </section>
-      <section id="security" className="grid gap-6">
-        <header className="grid gap-2">
-          <h2 className="m-0 font-headline text-[clamp(1.7rem,3vw,2.3rem)] leading-[1.2]">
-            {t.trustTitle}
-          </h2>
-          <p className="m-0 text-[1rem] text-[var(--ns-muted)] leading-[1.72] rtl:leading-[1.9]">
-            {t.trustLead}
-          </p>
-        </header>
-        <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(220px,1fr))]">
-          {t.trustItems.map((item, index) => {
-            const Icon = trustIcons[index % trustIcons.length];
-            return (
-              <article
-                key={item.title}
-                className="grid gap-2 border border-[rgba(15,23,42,0.1)] bg-white px-5 py-4"
-              >
-                <Icon className="h-4.5 w-4.5 text-[var(--ns-accent-strong)]" aria-hidden="true" />
-                <h3 className="m-0 text-[1rem] font-semibold">{item.title}</h3>
-                <p className="m-0 text-[0.94rem] text-[var(--ns-muted)] leading-[1.65] rtl:leading-[1.85]">
-                  {item.copy}
-                </p>
-              </article>
-            );
-          })}
+        <div className="relative min-h-[570px] min-w-0 max-[980px]:min-h-0">
+          <div className="relative max-w-full overflow-hidden rounded-[28px] border border-[rgba(16,24,23,0.12)] bg-white/80 shadow-[0_26px_80px_rgba(16,24,23,0.14)] rotate-[1.4deg] rtl:-rotate-[1.4deg] max-[620px]:w-full max-[620px]:rotate-0">
+            <div className="flex items-center gap-2 border-b border-[rgba(16,24,23,0.1)] p-4">
+              <span className="h-2.5 w-2.5 rounded-full bg-[#ffb3a7]" />
+              <span className="h-2.5 w-2.5 rounded-full bg-[#c7f36b]" />
+              <span className="h-2.5 w-2.5 rounded-full bg-[#99e9ff]" />
+              <strong className="ms-auto">Noteship</strong>
+            </div>
+            <div className="grid min-h-[470px] grid-cols-[76px_1fr_180px] max-[980px]:grid-cols-[64px_1fr] max-[620px]:grid-cols-1">
+              <aside className="grid content-start gap-3 border-e border-[rgba(16,24,23,0.08)] p-5 max-[620px]:hidden">
+                <span className="h-11 rounded-2xl bg-[#101817]" />
+                <span className="h-11 rounded-2xl bg-[rgba(16,24,23,0.08)]" />
+                <span className="h-11 rounded-2xl bg-[rgba(16,24,23,0.08)]" />
+                <span className="h-11 rounded-2xl bg-[rgba(16,24,23,0.08)]" />
+              </aside>
+              <section className="grid content-start gap-5 p-5">
+                <div className="h-[18px] w-[90%] rounded-full bg-[rgba(16,24,23,0.1)]" />
+                <div className="h-[18px] rounded-full bg-[rgba(16,24,23,0.1)]" />
+                <div className="h-[18px] w-1/2 rounded-full bg-[rgba(16,24,23,0.1)]" />
+                <div className="rounded-[20px] border border-[rgba(16,24,23,0.1)] bg-[#101817] p-[18px] text-white">
+                  <span className="mb-2 block text-[0.78rem] font-extrabold uppercase text-[#b8eee8]">
+                    {t.visual.recallLabel}
+                  </span>
+                  <strong>{t.visual.recallTitle}</strong>
+                </div>
+                <div className="rounded-[20px] border border-[rgba(16,24,23,0.1)] bg-white/85 p-[18px]">
+                  <span className="mb-2 block text-[0.78rem] font-extrabold uppercase text-[#5f6b66]">
+                    {t.visual.draftLabel}
+                  </span>
+                  <p className="m-0 text-[1.02rem] leading-[1.45] text-[#31423d]">
+                    {t.visual.draftCopy}
+                  </p>
+                </div>
+              </section>
+              <aside className="grid content-start gap-3 border-s border-[rgba(16,24,23,0.08)] bg-[#f7f8f4]/70 p-5 max-[980px]:col-span-full max-[980px]:grid-cols-3 max-[980px]:border-s-0 max-[980px]:border-t max-[620px]:grid-cols-1">
+                <div className="rounded-[20px] border border-[rgba(16,24,23,0.1)] bg-white/85 p-[18px]">
+                  <span className="mb-2 block text-[0.78rem] font-extrabold uppercase text-[#5f6b66]">
+                    {t.visual.metricDrafts}
+                  </span>
+                  <strong className="block text-[clamp(1.55rem,2.6vw,2.05rem)] leading-none">
+                    {t.visual.metricDraftsValue}
+                  </strong>
+                </div>
+                <div className="rounded-[20px] border border-[rgba(16,24,23,0.1)] bg-white/85 p-[18px]">
+                  <span className="mb-2 block text-[0.78rem] font-extrabold uppercase text-[#5f6b66]">
+                    {t.visual.metricRecall}
+                  </span>
+                  <strong className="block text-[clamp(1.55rem,2.6vw,2.05rem)] leading-none">
+                    {t.visual.metricRecallValue}
+                  </strong>
+                </div>
+                <button
+                  type="button"
+                  className="min-h-[46px] rounded-full border-0 bg-[var(--ns-accent)] px-4 font-extrabold text-white"
+                >
+                  {t.visual.publish}
+                </button>
+              </aside>
+            </div>
+          </div>
         </div>
       </section>
-      <section className="grid gap-6" id="pricing">
-        <header className="grid gap-2">
-          <h2 className="m-0 font-headline text-[clamp(1.7rem,3vw,2.3rem)] leading-[1.2]">
-            {t.pricingTitle}
-          </h2>
-          <p className="m-0 text-[1rem] text-[var(--ns-muted)] leading-[1.72] rtl:leading-[1.9]">
-            {t.pricingLead}
-          </p>
-        </header>
-        <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(240px,1fr))]">
-          {t.pricingCards.map((plan) => (
-            <article
-              key={plan.name}
-              className="grid gap-3 rounded-xl border border-[rgba(15,23,42,0.1)] bg-white p-5 shadow-[0_6px_20px_rgba(15,23,42,0.06)]"
-            >
-              <div className="text-[1.05rem] font-semibold">{plan.name}</div>
-              <div className="text-[1.9rem] font-semibold">{plan.price}</div>
-              <p className="m-0 text-[0.95rem] text-[var(--ns-muted)] leading-[1.65] rtl:leading-[1.85]">
-                {plan.desc}
-              </p>
-              <ul className="m-0 grid list-disc gap-1.5 pl-4 text-[0.92rem] text-[var(--ns-muted)] rtl:pl-0 rtl:pr-4">
-                {plan.items.map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
-              <Button type="button" size="pill" asChild>
-                <Link href="/login">{plan.cta}</Link>
-              </Button>
-            </article>
-          ))}
-        </div>
-        <Link
-          href="/pricing"
-          className="w-fit text-[0.95rem] text-[var(--ns-muted)] underline-offset-4 transition-colors hover:text-slate-900 hover:underline"
-        >
-          {isAr ? "اعرض مقارنة الخطط" : "Compare plans in detail"}
-        </Link>
-      </section>
-      <section id="faq" className="grid gap-4 border-y border-[rgba(15,23,42,0.12)] py-6">
-        <h2 className="m-0 font-headline text-[clamp(1.7rem,3vw,2.3rem)] leading-[1.2]">
-          {t.faqTitle}
-        </h2>
-        {t.faq.map((item) => (
-          <details key={item.q} className="group border-b border-[rgba(15,23,42,0.1)] py-3">
-            <summary className="cursor-pointer list-none pe-6 text-[1rem] font-semibold">
-              {item.q}
-            </summary>
-            <p className="m-0 pt-2 text-[0.95rem] text-[var(--ns-muted)] leading-[1.65] rtl:leading-[1.85]">
-              {item.a}
-            </p>
-          </details>
+
+      <section className="grid grid-cols-3 gap-3.5 px-[clamp(18px,5vw,56px)] py-3 max-[980px]:grid-cols-1">
+        {t.strip.map((item) => (
+          <article
+            key={item.value}
+            className="grid min-h-[120px] gap-1 rounded-3xl border border-[rgba(16,24,23,0.12)] bg-white/75 p-6 shadow-[0_16px_50px_rgba(16,24,23,0.08)]"
+          >
+            <strong className="text-[clamp(2rem,4vw,3.45rem)] leading-none">{item.value}</strong>
+            <span className="text-[#5f6b66]">{item.label}</span>
+          </article>
         ))}
       </section>
-      <section className="grid items-center gap-4 border border-[rgba(15,23,42,0.12)] bg-white px-6 py-7 [grid-template-columns:repeat(auto-fit,minmax(220px,1fr))]">
-        <div>
-          <h2 className="m-0 font-headline text-[1.55rem] leading-[1.22]">{t.finalTitle}</h2>
-          <p className="m-0 mt-2 text-[0.96rem] text-[var(--ns-muted)] leading-[1.65] rtl:leading-[1.85]">
-            {t.finalCopy}
+
+      <section id="workflow" className="px-[clamp(18px,5vw,56px)] py-[clamp(56px,8vw,110px)]">
+        <div className="max-w-[760px]">
+          <p className="mb-5 w-fit rounded-full border border-[rgba(15,118,110,0.24)] bg-white/75 px-3 py-2 text-[0.78rem] font-extrabold uppercase tracking-[0.06em] text-[#094b47]">
+            {t.workflowEyebrow}
           </p>
+          <h2 className="m-0 text-[clamp(2.2rem,5vw,4.5rem)] font-extrabold leading-none">
+            {t.workflowTitle}
+          </h2>
+          <p className="mt-4 text-[1.12rem] leading-[1.6] text-[#3f4d48]">{t.workflowLead}</p>
         </div>
-        <div className="flex flex-wrap justify-end gap-3 rtl:justify-start">
-          <Button type="button" size="pill" asChild>
-            <Link href="/login">{t.finalPrimary}</Link>
-          </Button>
-          <Button type="button" size="pill" variant="ghost" asChild>
-            <Link href="mailto:me@ahmedyassin.dev">{t.finalSecondary}</Link>
-          </Button>
+        <div className="mt-9 grid grid-cols-5 gap-3.5 max-[980px]:grid-cols-1">
+          {t.workflowSteps.map((step) => (
+            <article
+              key={step.number}
+              className="min-h-[250px] rounded-3xl border border-[rgba(16,24,23,0.12)] bg-white/75 p-6 shadow-[0_16px_50px_rgba(16,24,23,0.08)] max-[980px]:min-h-[180px]"
+            >
+              <span className="mb-10 inline-flex font-black text-[var(--ns-accent)]">
+                {step.number}
+              </span>
+              <h3 className="m-0 text-[1.5rem] font-extrabold">{step.title}</h3>
+              <p className="mt-2 text-[#4b5c56] leading-[1.55]">{step.copy}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section
+        id="launch-plan"
+        className="grid grid-cols-[0.9fr_1.1fr] items-center gap-7 bg-[#101817] px-[clamp(18px,5vw,56px)] py-[clamp(56px,8vw,110px)] text-white max-[980px]:grid-cols-1"
+      >
+        <div>
+          <p className="mb-5 w-fit rounded-full border border-white/15 bg-white/10 px-3 py-2 text-[0.78rem] font-extrabold uppercase tracking-[0.06em] text-[#b8eee8]">
+            {t.launchEyebrow}
+          </p>
+          <h2 className="m-0 text-[clamp(2.2rem,5vw,4.5rem)] font-extrabold leading-none">
+            {t.launchTitle}
+          </h2>
+          <p className="mt-4 text-[1.12rem] leading-[1.6] text-white/75">{t.launchLead}</p>
+        </div>
+        <div className="grid grid-cols-2 gap-3.5 max-[620px]:grid-cols-1">
+          {t.launchItems.map((item) => (
+            <div
+              key={item.value}
+              className="min-h-[190px] rounded-[26px] border border-white/15 bg-white/[0.07] p-7"
+            >
+              <strong className="block text-[clamp(2rem,4vw,3.5rem)] leading-none text-[#c7f36b]">
+                {item.value}
+              </strong>
+              <span className="mt-4 block text-white/75">{item.label}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section id="trust" className="px-[clamp(18px,5vw,56px)] py-[clamp(56px,8vw,110px)]">
+        <div className="max-w-[760px]">
+          <p className="mb-5 w-fit rounded-full border border-[rgba(15,118,110,0.24)] bg-white/75 px-3 py-2 text-[0.78rem] font-extrabold uppercase tracking-[0.06em] text-[#094b47]">
+            {t.trustEyebrow}
+          </p>
+          <h2 className="m-0 text-[clamp(2.2rem,5vw,4.5rem)] font-extrabold leading-none">
+            {t.trustTitle}
+          </h2>
+        </div>
+        <div className="mt-7 grid grid-cols-3 gap-3.5 max-[980px]:grid-cols-1">
+          {t.trustItems.map((item) => (
+            <article
+              key={item.title}
+              className="min-h-[220px] rounded-3xl border border-[rgba(16,24,23,0.12)] bg-white/75 p-6 shadow-[0_16px_50px_rgba(16,24,23,0.08)]"
+            >
+              <h3 className="m-0 text-[1.5rem] font-extrabold">{item.title}</h3>
+              <p className="mt-2 leading-[1.55] text-[#4b5c56]">{item.copy}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section
+        id="pricing"
+        className="grid grid-cols-2 gap-3.5 px-[clamp(18px,5vw,56px)] py-[clamp(56px,8vw,110px)] max-[980px]:grid-cols-1"
+      >
+        <article className="grid gap-4 rounded-3xl border border-[rgba(16,24,23,0.12)] bg-white/75 p-[clamp(26px,5vw,44px)] shadow-[0_16px_50px_rgba(16,24,23,0.08)]">
+          <span className="w-fit rounded-full bg-[#c7f36b] px-3 py-2 font-black">
+            {t.pricing.freeBadge}
+          </span>
+          <h2 className="m-0 text-3xl font-extrabold">{t.pricing.freeTitle}</h2>
+          <p className="text-[#4b5c56]">{t.pricing.freeCopy}</p>
+          <strong className="text-[clamp(3rem,8vw,7rem)] leading-[0.9]">
+            {t.pricing.freePrice}
+          </strong>
+          <Link
+            href="/login"
+            className="inline-flex min-h-12 w-fit items-center justify-center rounded-full bg-[var(--ns-accent)] px-5 font-extrabold text-white shadow-[0_16px_34px_rgba(15,118,110,0.22)]"
+          >
+            {t.pricing.freeCta}
+          </Link>
+        </article>
+        <article className="grid gap-4 rounded-3xl border border-[rgba(16,24,23,0.12)] bg-white/65 p-[clamp(26px,5vw,44px)] opacity-80 shadow-[0_16px_50px_rgba(16,24,23,0.08)]">
+          <span className="w-fit rounded-full bg-[#c7f36b] px-3 py-2 font-black">
+            {t.pricing.proBadge}
+          </span>
+          <h2 className="m-0 text-3xl font-extrabold">{t.pricing.proTitle}</h2>
+          <p className="text-[#4b5c56]">{t.pricing.proCopy}</p>
+          <strong className="text-[clamp(3rem,8vw,7rem)] leading-[0.9]">
+            {t.pricing.proPrice}
+          </strong>
+          <button
+            type="button"
+            disabled
+            className="min-h-12 w-fit rounded-full border border-[rgba(16,24,23,0.12)] bg-[rgba(16,24,23,0.08)] px-5 font-extrabold text-[#56615e]"
+          >
+            {t.pricing.proCta}
+          </button>
+        </article>
+      </section>
+
+      <section id="faq" className="px-[clamp(18px,5vw,56px)] py-[clamp(36px,6vw,70px)]">
+        <h2 className="m-0 text-[clamp(2rem,4vw,3.5rem)] font-extrabold leading-none">
+          {t.faqTitle}
+        </h2>
+        <div className="mt-6 grid gap-3">
+          {t.faq.map((item) => (
+            <details
+              key={item.q}
+              className="rounded-2xl border border-[rgba(16,24,23,0.12)] bg-white/75 p-5"
+            >
+              <summary className="cursor-pointer text-[1rem] font-bold">{item.q}</summary>
+              <p className="m-0 pt-3 leading-7 text-[#4b5c56]">{item.a}</p>
+            </details>
+          ))}
+        </div>
+      </section>
+
+      <section className="grid min-h-[70vh] place-items-center px-[clamp(18px,5vw,56px)] py-[clamp(56px,8vw,110px)] text-center">
+        <div className="grid justify-items-center gap-5">
+          <p className="m-0 w-fit rounded-full border border-[rgba(15,118,110,0.24)] bg-white/75 px-3 py-2 text-[0.78rem] font-extrabold uppercase tracking-[0.06em] text-[#094b47]">
+            {t.finalEyebrow}
+          </p>
+          <h2 className="m-0 max-w-[980px] text-[clamp(2.2rem,5vw,4.5rem)] font-extrabold leading-none">
+            {t.finalTitle}
+          </h2>
+          <Link
+            href="/login"
+            className="inline-flex min-h-12 items-center justify-center rounded-full bg-[var(--ns-accent)] px-5 font-extrabold text-white shadow-[0_16px_34px_rgba(15,118,110,0.22)]"
+          >
+            {t.finalCta}
+          </Link>
         </div>
       </section>
     </main>

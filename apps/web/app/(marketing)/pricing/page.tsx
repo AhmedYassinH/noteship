@@ -3,15 +3,6 @@
 import { useMemo } from "react";
 import Link from "next/link";
 import { useMarketingLanguage } from "../../../components/marketing/MarketingShell";
-import { Button } from "../../../components/ui/Button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "../../../components/ui/Table";
 import pricingCopy from "../../../data/marketing-pricing";
 
 const PricingPage = () => {
@@ -21,137 +12,153 @@ const PricingPage = () => {
 
   return (
     <main
-      className="flex flex-col gap-16 text-left rtl:text-right"
+      className="px-[clamp(18px,5vw,56px)] py-[clamp(56px,8vw,100px)] text-left rtl:text-right"
       lang={lang}
       dir={isAr ? "rtl" : "ltr"}
     >
-      <section className="grid gap-4 border-b border-[rgba(15,23,42,0.12)] pb-10">
-        <p className="m-0 text-[0.75rem] font-semibold uppercase tracking-[0.2em] text-[var(--ns-muted)]">
-          {t.heroKicker}
-        </p>
-        <h1 className="m-0 max-w-[17ch] font-headline text-[clamp(2.2rem,4.2vw,3.15rem)] leading-[1.14]">
-          {t.heroTitle}
-        </h1>
-        <p className="m-0 max-w-[58ch] text-[1.02rem] text-[var(--ns-muted)] leading-[1.72] rtl:leading-[1.9]">
-          {t.heroSub}
-        </p>
-        <div className="flex flex-wrap gap-3">
-          <Button type="button" size="pill" asChild>
-            <Link href="/login">{t.primaryCta}</Link>
-          </Button>
-          <Button type="button" size="pill" variant="outline" asChild>
-            <Link href="/#how-it-works">{t.secondaryCta}</Link>
-          </Button>
-        </div>
-      </section>
-
-      <section className="flex flex-col gap-6">
-        <header className="grid gap-2">
-          <h2 className="m-0 font-headline text-[clamp(1.6rem,2.8vw,2.2rem)] leading-[1.2]">
-            {t.plansTitle}
-          </h2>
-          <p className="m-0 text-[1rem] text-[var(--ns-muted)] leading-[1.72] rtl:leading-[1.9]">
-            {t.plansLead}
+      <section className="grid max-w-[1180px] gap-12">
+        <header className="grid max-w-[800px] gap-5">
+          <p className="m-0 w-fit rounded-full border border-[rgba(15,118,110,0.24)] bg-white/75 px-3 py-2 text-[0.78rem] font-extrabold uppercase tracking-[0.06em] text-[#094b47]">
+            {t.heroEyebrow}
           </p>
-        </header>
-        <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(250px,1fr))]">
-          {t.plans.map((plan, index) => (
-            <article
-              key={plan.name}
-              className="grid gap-3 rounded-xl border border-[rgba(15,23,42,0.1)] bg-white p-6 shadow-[0_6px_20px_rgba(15,23,42,0.06)]"
+          <h1 className="m-0 text-[clamp(2.8rem,6vw,5.6rem)] font-extrabold leading-none">
+            {t.heroTitle}
+          </h1>
+          <p className="m-0 max-w-[680px] text-[1.1rem] leading-[1.65] text-[#3f4d48] rtl:leading-[1.9]">
+            {t.heroLead}
+          </p>
+          <div className="flex flex-wrap gap-3">
+            <Link
+              href="/login"
+              className="inline-flex min-h-12 items-center justify-center rounded-full bg-[var(--ns-accent)] px-5 font-extrabold text-white shadow-[0_16px_34px_rgba(15,118,110,0.22)]"
             >
-              {plan.badge ? (
-                <span className="inline-flex w-fit items-center rounded-full bg-[rgba(15,118,110,0.12)] px-2.5 py-1 text-[0.74rem] font-semibold tracking-[0.06em] text-[var(--ns-accent-strong)]">
-                  {plan.badge}
-                </span>
-              ) : null}
-              <div className="text-[1.05rem] font-semibold">{plan.name}</div>
-              <div className="text-[1.95rem] font-semibold">{plan.price}</div>
-              <p className="m-0 text-[0.95rem] text-[var(--ns-muted)] leading-[1.65] rtl:leading-[1.85]">
-                {plan.desc}
-              </p>
-              <ul className="m-0 grid list-disc gap-1.5 pl-4 text-[0.92rem] text-[var(--ns-muted)] rtl:pl-0 rtl:pr-4">
-                {plan.items.map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
-              <Button
-                type="button"
-                size="pill"
-                variant={index === 0 ? "outline" : "default"}
-                asChild
-              >
-                <Link href="/login">{plan.cta}</Link>
-              </Button>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section className="flex flex-col gap-6">
-        <header className="grid gap-2">
-          <h2 className="m-0 font-headline text-[clamp(1.6rem,2.8vw,2.2rem)] leading-[1.2]">
-            {t.comparisonTitle}
-          </h2>
-          <p className="m-0 text-[1rem] text-[var(--ns-muted)] leading-[1.72] rtl:leading-[1.9]">
-            {t.comparisonLead}
-          </p>
+              {t.primaryCta}
+            </Link>
+            <Link
+              href="/#workflow"
+              className="inline-flex min-h-12 items-center justify-center rounded-full border border-[rgba(16,24,23,0.14)] bg-white/80 px-5 font-extrabold text-[#101817]"
+            >
+              {t.secondaryCta}
+            </Link>
+          </div>
         </header>
-        <div className="overflow-hidden rounded-xl border border-[rgba(15,23,42,0.12)] bg-white">
-          <Table>
-            <TableHeader className="bg-[#f8f9fb]">
-              <TableRow>
-                <TableHead className="font-semibold">{isAr ? "الميزة" : "Feature"}</TableHead>
-                <TableHead className="font-semibold">{isAr ? "مجاني" : "Free"}</TableHead>
-                <TableHead className="font-semibold">Pro</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {t.comparison.map((row) => (
-                <TableRow key={row.feature}>
-                  <TableCell>{row.feature}</TableCell>
-                  <TableCell>{row.free}</TableCell>
-                  <TableCell>{row.pro}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      </section>
 
-      <section className="flex flex-col gap-5">
-        <h2 className="m-0 font-headline text-[clamp(1.6rem,2.8vw,2.2rem)] leading-[1.2]">
-          {t.faqTitle}
-        </h2>
-        <div className="grid gap-3">
-          {t.faq.map((item) => (
-            <details key={item.q} className="group border-b border-[rgba(15,23,42,0.1)] py-3">
-              <summary className="cursor-pointer list-none pe-6 text-[1rem] font-semibold">
-                {item.q}
-              </summary>
-              <p className="m-0 pt-2 text-[0.95rem] text-[var(--ns-muted)] leading-[1.65] rtl:leading-[1.85]">
-                {item.a}
-              </p>
-            </details>
-          ))}
-        </div>
-      </section>
+        <section className="grid gap-5">
+          <div className="max-w-[760px]">
+            <h2 className="m-0 text-[clamp(2.2rem,5vw,4.5rem)] font-extrabold leading-none">
+              {t.plansTitle}
+            </h2>
+            <p className="m-0 mt-3 text-[1.08rem] leading-[1.65] text-[#4b5c56]">{t.plansLead}</p>
+          </div>
+          <div className="grid grid-cols-2 gap-3.5 max-[900px]:grid-cols-1">
+            {t.plans.map((plan) => (
+              <article
+                key={plan.name}
+                className="grid gap-4 rounded-3xl border border-[rgba(16,24,23,0.12)] bg-white/75 p-[clamp(26px,5vw,44px)] shadow-[0_16px_50px_rgba(16,24,23,0.08)]"
+              >
+                {plan.badge ? (
+                  <span className="w-fit rounded-full bg-[#c7f36b] px-3 py-2 font-black">
+                    {plan.badge}
+                  </span>
+                ) : null}
+                <h3 className="m-0 text-3xl font-extrabold">{plan.name}</h3>
+                <strong className="text-[clamp(3rem,8vw,7rem)] leading-[0.9]">{plan.price}</strong>
+                <p className="m-0 leading-[1.65] text-[#4b5c56] rtl:leading-[1.9]">{plan.desc}</p>
+                <ul className="m-0 grid list-disc gap-2 ps-5 text-[#4b5c56]">
+                  {plan.items.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+                {plan.disabled ? (
+                  <button
+                    type="button"
+                    disabled
+                    className="min-h-12 w-fit rounded-full border border-[rgba(16,24,23,0.12)] bg-[rgba(16,24,23,0.08)] px-5 font-extrabold text-[#56615e]"
+                  >
+                    {plan.cta}
+                  </button>
+                ) : (
+                  <Link
+                    href="/login"
+                    className="inline-flex min-h-12 w-fit items-center justify-center rounded-full bg-[var(--ns-accent)] px-5 font-extrabold text-white"
+                  >
+                    {plan.cta}
+                  </Link>
+                )}
+              </article>
+            ))}
+          </div>
+        </section>
 
-      <section className="grid items-center gap-4 border border-[rgba(15,23,42,0.12)] bg-white px-6 py-7 [grid-template-columns:repeat(auto-fit,minmax(220px,1fr))]">
-        <div>
-          <h2 className="m-0 font-headline text-[1.55rem] leading-[1.22]">{t.finalTitle}</h2>
-          <p className="m-0 mt-2 text-[0.95rem] text-[var(--ns-muted)] leading-[1.65] rtl:leading-[1.85]">
-            {t.finalCopy}
-          </p>
-        </div>
-        <div className="flex flex-wrap justify-end gap-3 rtl:justify-start">
-          <Button type="button" size="pill" asChild>
-            <Link href="/login">{t.finalPrimary}</Link>
-          </Button>
-          <Button type="button" size="pill" variant="ghost" asChild>
-            <Link href="mailto:me@ahmedyassin.dev">{t.finalSecondary}</Link>
-          </Button>
-        </div>
+        <section className="grid gap-5">
+          <div className="max-w-[760px]">
+            <h2 className="m-0 text-[clamp(2rem,4vw,3.5rem)] font-extrabold leading-none">
+              {t.comparisonTitle}
+            </h2>
+            <p className="m-0 mt-3 leading-[1.65] text-[#4b5c56] rtl:leading-[1.9]">
+              {t.comparisonLead}
+            </p>
+          </div>
+          <div className="overflow-hidden rounded-3xl border border-[rgba(16,24,23,0.12)] bg-white/80 shadow-[0_16px_50px_rgba(16,24,23,0.08)]">
+            <div className="grid grid-cols-[1.4fr_0.8fr_0.8fr] border-b border-[rgba(16,24,23,0.1)] bg-white/80 px-5 py-4 text-[0.82rem] font-extrabold uppercase tracking-[0.06em] text-[#5f6b66]">
+              <span>{isAr ? "الميزة" : "Feature"}</span>
+              <span>{isAr ? "مجاني" : "Free"}</span>
+              <span>Pro</span>
+            </div>
+            {t.comparison.map((row) => (
+              <div
+                key={row.feature}
+                className="grid grid-cols-[1.4fr_0.8fr_0.8fr] gap-3 border-b border-[rgba(16,24,23,0.08)] px-5 py-4 last:border-b-0 max-[640px]:grid-cols-1"
+              >
+                <strong>{row.feature}</strong>
+                <span className="text-[#4b5c56]">{row.free}</span>
+                <span className="text-[#4b5c56]">{row.pro}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="grid gap-5">
+          <h2 className="m-0 text-[clamp(2rem,4vw,3.5rem)] font-extrabold leading-none">
+            {t.faqTitle}
+          </h2>
+          <div className="grid gap-3">
+            {t.faq.map((item) => (
+              <details
+                key={item.q}
+                className="rounded-2xl border border-[rgba(16,24,23,0.12)] bg-white/75 p-5"
+              >
+                <summary className="cursor-pointer text-[1rem] font-bold">{item.q}</summary>
+                <p className="m-0 pt-3 leading-7 text-[#4b5c56]">{item.a}</p>
+              </details>
+            ))}
+          </div>
+        </section>
+
+        <section className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-5 rounded-3xl border border-[rgba(16,24,23,0.12)] bg-[#101817] p-7 text-white shadow-[0_16px_50px_rgba(16,24,23,0.08)] max-[760px]:grid-cols-1">
+          <div>
+            <h2 className="m-0 text-[clamp(1.8rem,3vw,2.6rem)] font-extrabold leading-tight">
+              {t.finalTitle}
+            </h2>
+            <p className="m-0 mt-2 max-w-[650px] leading-[1.65] text-white/75 rtl:leading-[1.9]">
+              {t.finalCopy}
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            <Link
+              href="/login"
+              className="inline-flex min-h-12 items-center justify-center rounded-full bg-[var(--ns-accent)] px-5 font-extrabold text-white"
+            >
+              {t.finalPrimary}
+            </Link>
+            <Link
+              href="mailto:me@ahmedyassin.dev"
+              className="inline-flex min-h-12 items-center justify-center rounded-full border border-white/20 bg-white/10 px-5 font-extrabold"
+            >
+              {t.finalSecondary}
+            </Link>
+          </div>
+        </section>
       </section>
     </main>
   );
