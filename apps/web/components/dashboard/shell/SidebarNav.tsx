@@ -28,6 +28,7 @@ type SidebarNavProps = {
   recentNotes: NoteResponse[];
   recentStatus: "loading" | "ready" | "error";
   retryLabel: string;
+  showCollapseToggle?: boolean;
   sidebarAriaLabel: string;
   title: string;
 };
@@ -51,6 +52,7 @@ const SidebarNav = ({
   recentNotes,
   recentStatus,
   retryLabel,
+  showCollapseToggle = true,
   sidebarAriaLabel,
   title,
 }: SidebarNavProps) => {
@@ -95,7 +97,7 @@ const SidebarNav = ({
             <span className="text-[0.78rem] text-[#5b6474]">{brandTagline}</span>
           </span>
         ) : null}
-        {!collapsed ? (
+        {!collapsed && showCollapseToggle ? (
           <Button
             aria-label={toggleLabel}
             aria-pressed={collapsed}

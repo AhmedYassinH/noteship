@@ -17,6 +17,7 @@ import {
   FilePenLine,
   LayoutDashboard,
   NotebookPen,
+  X,
   Plug,
   Send,
   Settings,
@@ -157,6 +158,7 @@ const DashboardShellInner = ({ children }: { children: ReactNode }) => {
     "loading",
   );
   const [collapsed, setCollapsed] = useState(false);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [sidebarWidth, setSidebarWidth] = useState<number>(SIDEBAR_DEFAULT_WIDTH.desktop);
   const [viewportWidth, setViewportWidth] = useState<number>(1280);
   const [reducedMotion, setReducedMotion] = useState(false);
@@ -174,6 +176,7 @@ const DashboardShellInner = ({ children }: { children: ReactNode }) => {
   const isMobile = viewportWidth <= SHELL_BREAKPOINTS.mobileMax;
   const isTablet =
     viewportWidth > SHELL_BREAKPOINTS.mobileMax && viewportWidth <= SHELL_BREAKPOINTS.tabletMax;
+  const usesDrawerNavigation = isMobile || isTablet;
   const isWide = viewportWidth >= SHELL_BREAKPOINTS.wideMin;
   const sidebarMaxWidth = getSidebarMaxWidth(isWide);
   const canResizeSidebar = !isMobile && !isTablet && !collapsed;
@@ -241,6 +244,23 @@ const DashboardShellInner = ({ children }: { children: ReactNode }) => {
       void login(returnTo);
     }
   }, [isAuthenticated, isLoading, login, pathname, searchParams]);
+
+  useEffect(() => {
+    setMobileNavOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!mobileNavOpen) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setMobileNavOpen(false);
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [mobileNavOpen]);
 
   useEffect(() => {
     document.documentElement.lang = lang;
@@ -366,49 +386,51 @@ const DashboardShellInner = ({ children }: { children: ReactNode }) => {
             "flex h-screen overflow-hidden bg-[#f6f7fb] text-[var(--ns-ink)] font-body",
           )}
         >
-          <aside
-            className={cn(
-              "relative flex h-full shrink-0 flex-col overflow-y-auto bg-[#f8fafc] px-3 py-4 md:px-4 md:py-5",
-              isAr
-                ? "border-l border-[rgba(15,23,42,0.1)]"
-                : "border-r border-[rgba(15,23,42,0.1)]",
-              !reducedMotion && "transition-[width] duration-200",
-            )}
-            style={{ width: `${effectiveSidebarWidth}px` }}
-          >
-            <SidebarNav
-              brandTagline={shared.brandTagline}
-              collapseLabel={copy.shell.collapse}
-              collapsed={collapsed}
-              dir={isAr ? "rtl" : "ltr"}
-              errorLabel={copy.common.error}
-              expandLabel={copy.shell.expand}
-              navAriaLabel={copy.shell.navigationLabel}
-              navItems={navItems}
-              onRetryRecent={() => void refreshNotes()}
-              onToggleCollapsed={() => setCollapsed((prev) => !prev)}
-              recentEmptyLabel={copy.overview.emptyNotes}
-              recentLabel={copy.shell.recent}
-              recentNotes={recentNotes}
-              recentStatus={recentNotesStatus}
-              retryLabel={copy.common.retry}
-              sidebarAriaLabel={copy.shell.sidebarLabel}
-              title="Noteship"
-            />
-            {canResizeSidebar ? (
-              <ResizableHandle
+          {!usesDrawerNavigation ? (
+            <aside
+              className={cn(
+                "relative flex h-full shrink-0 flex-col overflow-y-auto bg-[#f8fafc] px-3 py-4 md:px-4 md:py-5",
+                isAr
+                  ? "border-l border-[rgba(15,23,42,0.1)]"
+                  : "border-r border-[rgba(15,23,42,0.1)]",
+                !reducedMotion && "transition-[width] duration-200",
+              )}
+              style={{ width: `${effectiveSidebarWidth}px` }}
+            >
+              <SidebarNav
+                brandTagline={shared.brandTagline}
+                collapseLabel={copy.shell.collapse}
+                collapsed={collapsed}
                 dir={isAr ? "rtl" : "ltr"}
-                max={sidebarMaxWidth}
-                min={SIDEBAR_MIN_WIDTH}
-                onChange={(nextWidth) => setSidebarWidth(nextWidth)}
-                onCommit={() =>
-                  setSidebarWidth((prev) => getSnappedSidebarWidth(prev, sidebarMaxWidth))
-                }
-                reducedMotion={reducedMotion}
-                value={sidebarWidth}
+                errorLabel={copy.common.error}
+                expandLabel={copy.shell.expand}
+                navAriaLabel={copy.shell.navigationLabel}
+                navItems={navItems}
+                onRetryRecent={() => void refreshNotes()}
+                onToggleCollapsed={() => setCollapsed((prev) => !prev)}
+                recentEmptyLabel={copy.overview.emptyNotes}
+                recentLabel={copy.shell.recent}
+                recentNotes={recentNotes}
+                recentStatus={recentNotesStatus}
+                retryLabel={copy.common.retry}
+                sidebarAriaLabel={copy.shell.sidebarLabel}
+                title="Noteship"
               />
-            ) : null}
-          </aside>
+              {canResizeSidebar ? (
+                <ResizableHandle
+                  dir={isAr ? "rtl" : "ltr"}
+                  max={sidebarMaxWidth}
+                  min={SIDEBAR_MIN_WIDTH}
+                  onChange={(nextWidth) => setSidebarWidth(nextWidth)}
+                  onCommit={() =>
+                    setSidebarWidth((prev) => getSnappedSidebarWidth(prev, sidebarMaxWidth))
+                  }
+                  reducedMotion={reducedMotion}
+                  value={sidebarWidth}
+                />
+              ) : null}
+            </aside>
+          ) : null}
 
           <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
             <Topbar
@@ -416,16 +438,75 @@ const DashboardShellInner = ({ children }: { children: ReactNode }) => {
               dir={isAr ? "rtl" : "ltr"}
               isMobile={isMobile}
               logoutLabel={copy.shell.logout}
+              menuLabel={copy.shell.menu}
               newNoteLabel={copy.topbar.newNote}
               onCreateNote={handleCreateNote}
+              onOpenNavigation={() => setMobileNavOpen(true)}
               onSearchSubmit={handleSearchSubmit}
               searchDefaultValue={searchParams?.get("q") ?? ""}
               searchInputRef={searchInputRef}
               searchPlaceholder={copy.topbar.searchPlaceholder}
+              showNavigationMenu={usesDrawerNavigation}
               userLabel={userLabel}
             />
             <ContentShell maxWidthClass={contentMaxWidthClass}>{children}</ContentShell>
           </div>
+
+          {usesDrawerNavigation && mobileNavOpen ? (
+            <div
+              className="fixed inset-0 z-50 bg-[rgba(15,23,42,0.38)]"
+              data-testid="dashboard-mobile-nav-backdrop"
+              onClick={() => setMobileNavOpen(false)}
+            >
+              <aside
+                aria-modal="true"
+                className={cn(
+                  "absolute inset-y-0 flex w-[min(86vw,320px)] flex-col overflow-y-auto bg-[#f8fafc] px-3 py-4 shadow-[0_24px_70px_rgba(15,23,42,0.28)]",
+                  isAr
+                    ? "right-0 border-l border-[rgba(15,23,42,0.1)]"
+                    : "left-0 border-r border-[rgba(15,23,42,0.1)]",
+                )}
+                data-testid="dashboard-mobile-nav-drawer"
+                dir={isAr ? "rtl" : "ltr"}
+                onClick={(event) => event.stopPropagation()}
+                role="dialog"
+              >
+                <button
+                  aria-label={copy.shell.close}
+                  className={cn(
+                    "absolute top-4 grid h-9 w-9 place-items-center rounded-full border border-[rgba(15,23,42,0.12)] bg-white text-[#0f172a] shadow-[0_8px_20px_rgba(15,23,42,0.1)]",
+                    isAr ? "left-3" : "right-3",
+                  )}
+                  onClick={() => setMobileNavOpen(false)}
+                  title={copy.shell.close}
+                  type="button"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+                <SidebarNav
+                  brandTagline={shared.brandTagline}
+                  className="pe-10"
+                  collapseLabel={copy.shell.collapse}
+                  collapsed={false}
+                  dir={isAr ? "rtl" : "ltr"}
+                  errorLabel={copy.common.error}
+                  expandLabel={copy.shell.expand}
+                  navAriaLabel={copy.shell.navigationLabel}
+                  navItems={navItems}
+                  onRetryRecent={() => void refreshNotes()}
+                  onToggleCollapsed={() => setMobileNavOpen(false)}
+                  recentEmptyLabel={copy.overview.emptyNotes}
+                  recentLabel={copy.shell.recent}
+                  recentNotes={recentNotes}
+                  recentStatus={recentNotesStatus}
+                  retryLabel={copy.common.retry}
+                  showCollapseToggle={false}
+                  sidebarAriaLabel={copy.shell.sidebarLabel}
+                  title="Noteship"
+                />
+              </aside>
+            </div>
+          ) : null}
         </div>
       </DirectionProvider>
     </DashboardContext.Provider>

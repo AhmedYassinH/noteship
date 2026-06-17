@@ -2,7 +2,7 @@
 
 import type { FormEvent, RefObject } from "react";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, LogOut, Plus } from "lucide-react";
+import { ChevronLeft, ChevronRight, LogOut, Menu, Plus } from "lucide-react";
 import { Button } from "../../ui/Button";
 import { Input } from "../../ui/Input";
 import { cn } from "@/lib/utils";
@@ -13,12 +13,15 @@ type TopbarProps = {
   dir: ShellDir;
   isMobile: boolean;
   logoutLabel: string;
+  menuLabel: string;
   newNoteLabel: string;
   onCreateNote: () => void;
+  onOpenNavigation: () => void;
   onSearchSubmit: (event: FormEvent<HTMLFormElement>) => void;
   searchDefaultValue: string;
   searchInputRef: RefObject<HTMLInputElement>;
   searchPlaceholder: string;
+  showNavigationMenu: boolean;
   userLabel: string;
 };
 
@@ -29,12 +32,15 @@ const Topbar = ({
   dir,
   isMobile,
   logoutLabel,
+  menuLabel,
   newNoteLabel,
   onCreateNote,
+  onOpenNavigation,
   onSearchSubmit,
   searchDefaultValue,
   searchInputRef,
   searchPlaceholder,
+  showNavigationMenu,
   userLabel,
 }: TopbarProps) => {
   const Separator = dir === "rtl" ? ChevronLeft : ChevronRight;
@@ -48,6 +54,19 @@ const Topbar = ({
       )}
     >
       <div className="flex flex-wrap items-center gap-3">
+        {showNavigationMenu ? (
+          <Button
+            aria-label={menuLabel}
+            className="h-10 w-10 rounded-full border-[rgba(15,23,42,0.12)] bg-white p-0"
+            onClick={onOpenNavigation}
+            size="icon"
+            title={menuLabel}
+            type="button"
+            variant="outline"
+          >
+            <Menu className="h-4 w-4" />
+          </Button>
+        ) : null}
         <div className="min-w-0 flex-1 md:flex-none">
           <nav
             aria-label="Breadcrumb"
