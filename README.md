@@ -55,7 +55,7 @@ Authoritative docs live in:
 - `docs/technical/noteship-low-level-design.md`
 - `docs/technical/index.md`
 
-## What Is Quietly Deliberate
+## What Is Deliberate
 
 - Canonical content lives in S3 as Markdown; DynamoDB stores metadata and counters, not giant content blobs.
 - API rate limits are plan-aware and backed by atomic DynamoDB buckets.
