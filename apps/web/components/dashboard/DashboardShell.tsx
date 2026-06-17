@@ -18,7 +18,6 @@ import {
   LayoutDashboard,
   NotebookPen,
   Plug,
-  Search,
   Send,
   Settings,
 } from "lucide-react";
@@ -75,7 +74,6 @@ export const useDashboard = () => {
 const navKeys = [
   "overview",
   "notes",
-  "search",
   "drafts",
   "publishing",
   "integrations",
@@ -86,7 +84,6 @@ const navKeys = [
 const navRoutes: Record<(typeof navKeys)[number], string> = {
   overview: "/dashboard",
   notes: "/dashboard/notes",
-  search: "/dashboard/search",
   drafts: "/dashboard/drafts",
   publishing: "/dashboard/publishing",
   integrations: "/dashboard/integrations",
@@ -97,7 +94,6 @@ const navRoutes: Record<(typeof navKeys)[number], string> = {
 const navIcons = {
   overview: LayoutDashboard,
   notes: NotebookPen,
-  search: Search,
   drafts: FilePenLine,
   publishing: Send,
   integrations: Plug,
@@ -131,11 +127,7 @@ const getSnappedSidebarWidth = (value: number, max: number) => {
 const getContentMaxWidthClass = (pathname: string | null) => {
   if (!pathname) return "max-w-[1280px]";
   if (pathname.startsWith("/dashboard/notes")) return "max-w-[1200px]";
-  if (
-    pathname.startsWith("/dashboard/search") ||
-    pathname.startsWith("/dashboard/drafts") ||
-    pathname.startsWith("/dashboard/publishing")
-  ) {
+  if (pathname.startsWith("/dashboard/drafts") || pathname.startsWith("/dashboard/publishing")) {
     return "max-w-[1400px]";
   }
   return "max-w-[1280px]";
@@ -332,9 +324,6 @@ const DashboardShellInner = ({ children }: { children: ReactNode }) => {
 
   const handleSearchSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const value = searchInputRef.current?.value?.trim();
-    if (!value) return;
-    router.push(`/dashboard/search?q=${encodeURIComponent(value)}`);
   };
 
   const handleCreateNote = async () => {

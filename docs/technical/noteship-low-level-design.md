@@ -388,6 +388,7 @@ Details: see `docs/technical/index.md`.
 #### Search
 
 - `POST /search` semantic search across notes (body: `{ query, limit? }`)
+- The search API stays available for platform readiness, but the current dashboard UI does not expose a dedicated Recall/search page.
 
 #### Generation
 

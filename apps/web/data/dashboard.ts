@@ -4,7 +4,6 @@ export type DashboardCopy = {
   nav: {
     overview: string;
     notes: string;
-    search: string;
     drafts: string;
     publishing: string;
     integrations: string;
@@ -68,13 +67,6 @@ export type DashboardCopy = {
     publishNow: string;
     schedule: string;
   };
-  search: {
-    title: string;
-    subtitle: string;
-    empty: string;
-    emptyQuery: string;
-    resultsLabel: string;
-  };
   drafts: {
     title: string;
     subtitle: string;
@@ -127,7 +119,6 @@ const dashboardCopy: Record<Lang, DashboardCopy> = {
     nav: {
       overview: "Overview",
       notes: "Notes",
-      search: "Recall",
       drafts: "Drafts",
       publishing: "Publishing",
       integrations: "Integrations",
@@ -195,13 +186,6 @@ const dashboardCopy: Record<Lang, DashboardCopy> = {
       publishNow: "Publish now",
       schedule: "Schedule",
     },
-    search: {
-      title: "Recall",
-      subtitle: "Find ideas by meaning, not keywords.",
-      empty: "Try a different query to see results.",
-      emptyQuery: "Enter a query to recall your notes.",
-      resultsLabel: "results",
-    },
     drafts: {
       title: "Drafts",
       subtitle: "Generated drafts ready to publish or refine.",
@@ -252,7 +236,6 @@ const dashboardCopy: Record<Lang, DashboardCopy> = {
     nav: {
       overview: "نظرة عامة",
       notes: "الملاحظات",
-      search: "استرجاع",
       drafts: "المسودات",
       publishing: "النشر",
       integrations: "التكاملات",
@@ -319,13 +302,6 @@ const dashboardCopy: Record<Lang, DashboardCopy> = {
       scheduleFailed: "تعذرت الجدولة. حاول مرة أخرى.",
       publishNow: "انشر الآن",
       schedule: "جدولة",
-    },
-    search: {
-      title: "استرجاع",
-      subtitle: "اعثر على الأفكار بالمعنى لا بالكلمات.",
-      empty: "جرّب عبارة مختلفة لعرض النتائج.",
-      emptyQuery: "أدخل عبارة لاسترجاع ملاحظاتك.",
-      resultsLabel: "نتائج",
     },
     drafts: {
       title: "المسودات",
