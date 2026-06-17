@@ -57,16 +57,22 @@ const MarketingShell = ({ children }: { children: ReactNode }) => {
     <MarketingLanguageContext.Provider value={{ lang, setLang }}>
       <DirectionProvider dir={isAr ? "rtl" : "ltr"}>
         <div
-          className="relative min-h-screen overflow-x-hidden bg-[#f7f8f4] text-[#101817] font-body text-left rtl:text-right"
+          className="relative isolate min-h-screen overflow-x-hidden bg-[#f7f8f4] text-[#101817] font-body text-left rtl:text-right"
           lang={lang}
           dir={isAr ? "rtl" : "ltr"}
         >
           <div
-            className="pointer-events-none fixed inset-0 -z-10 opacity-[0.55]"
+            data-testid="marketing-background-layer"
+            className="pointer-events-none fixed inset-0 z-0"
             style={{
-              backgroundImage:
-                "linear-gradient(rgba(16,24,23,0.11) 1px, transparent 1px), linear-gradient(90deg, rgba(16,24,23,0.11) 1px, transparent 1px)",
-              backgroundSize: "44px 44px",
+              backgroundImage: [
+                "radial-gradient(circle at 16% 18%, rgba(199,243,107,0.48), transparent 20%)",
+                "radial-gradient(circle at 86% 12%, rgba(153,233,255,0.38), transparent 24%)",
+                "radial-gradient(circle at 82% 86%, rgba(255,179,167,0.32), transparent 25%)",
+                "linear-gradient(rgba(16,24,23,0.11) 1px, transparent 1px)",
+                "linear-gradient(90deg, rgba(16,24,23,0.11) 1px, transparent 1px)",
+              ].join(", "),
+              backgroundSize: "auto, auto, auto, 44px 44px, 44px 44px",
             }}
           />
 
@@ -160,11 +166,11 @@ const MarketingShell = ({ children }: { children: ReactNode }) => {
             </div>
           </header>
 
-          {children}
+          <div className="relative z-10">{children}</div>
 
           <footer
             id="contact"
-            className="mx-auto grid w-full max-w-[1260px] gap-8 px-[clamp(18px,5vw,56px)] pb-10 pt-16"
+            className="relative z-10 mx-auto grid w-full max-w-[1260px] gap-8 px-[clamp(18px,5vw,56px)] pb-10 pt-16"
           >
             <div className="grid gap-3 border-t border-[rgba(16,24,23,0.12)] pt-8">
               <div className="flex items-center gap-2.5">
