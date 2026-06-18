@@ -82,8 +82,15 @@ const MarketingShell = ({ children }: { children: ReactNode }) => {
               className="inline-flex items-center gap-2.5 text-inherit no-underline"
               aria-label="Noteship home"
             >
-              <span className="grid h-10 w-10 place-items-center overflow-hidden rounded-xl border border-[rgba(16,24,23,0.12)] bg-white">
-                <Image src="/noteship-mark.svg" alt="" width={25} height={27} priority />
+              <span className="relative h-10 w-10 overflow-hidden rounded-xl border border-[rgba(16,24,23,0.12)] bg-white">
+                <Image
+                  src="/noteship-mark.svg"
+                  alt=""
+                  width={68}
+                  height={68}
+                  className="absolute left-1/2 top-1/2 max-w-none -translate-x-1/2 -translate-y-1/2"
+                  priority
+                />
               </span>
               <span className="grid">
                 <span className="text-[1rem] font-extrabold leading-tight">Noteship</span>
