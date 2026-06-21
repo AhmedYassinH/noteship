@@ -31,14 +31,15 @@ import { cn } from "@/lib/utils";
 import type { Lang } from "../../data/dashboard";
 import { editorUiCopy } from "../../data/note-editor";
 import {
-  BLOCK_CONTROL_OFFSET_PX,
+  BLOCK_CONTROL_COMPACT_HEIGHT_PX,
+  BLOCK_CONTROL_SIZE_PX,
   DRAG_BLOCK_MIME,
   deleteCurrentBlock,
   duplicateCurrentBlock,
   getBlockControlTop,
   getTopLevelBlockFromPos,
   getTopLevelBlockSelection,
-  moveBlockToIndex,
+  moveBlockToInsertionIndex,
   moveCurrentBlock,
   selectBlockByPos,
   selectCurrentBlock,
@@ -55,11 +56,11 @@ import {
   EditorStatusFooter,
   ImportExportToolbar,
   MobileBlockActionsSheet,
-  blockControlsBottom,
 } from "./editor/NoteEditorPanels";
 import { countWords, getCurrentMarkdown } from "./editor/editorText";
 import type {
   BlockCommand,
+  CommandMenuAnchor,
   EditorDirection,
   MenuMode,
   SlashRange,
@@ -82,6 +83,60 @@ type Props = {
   uploadingLabel: string;
   uploadFailedLabel: string;
   editorDirection: EditorDirection;
+};
+
+type BlockDropDestination = {
+  insertionIndex: number;
+  indicatorTop: number;
+};
+
+const getBlockDropDestination = (
+  editor: Editor,
+  position: number | null,
+  clientY: number,
+  shell: HTMLElement,
+): BlockDropDestination | null => {
+  const shellRect = shell.getBoundingClientRect();
+  let targetBlock = position === null ? null : getTopLevelBlockFromPos(editor, position);
+
+  if (!targetBlock && editor.state.doc.childCount > 0) {
+    const firstBlock = editor.view.nodeDOM(0) as HTMLElement | null;
+    const lastIndex = editor.state.doc.childCount - 1;
+    const lastPosition = topLevelChildPos(editor, lastIndex);
+    const lastBlock = editor.view.nodeDOM(lastPosition) as HTMLElement | null;
+    if (firstBlock && clientY <= firstBlock.getBoundingClientRect().top) {
+      targetBlock = { index: 0, pos: 0, size: editor.state.doc.child(0)?.nodeSize ?? 0 };
+    } else if (lastBlock && clientY >= lastBlock.getBoundingClientRect().bottom) {
+      const lastRect = lastBlock.getBoundingClientRect();
+      return {
+        insertionIndex: editor.state.doc.childCount,
+        indicatorTop: lastRect.bottom - shellRect.top + shell.scrollTop,
+      };
+    }
+  }
+
+  if (!targetBlock) return null;
+  const targetDom = editor.view.nodeDOM(targetBlock.pos) as HTMLElement | null;
+  if (!targetDom) return null;
+
+  const targetRect = targetDom.getBoundingClientRect();
+  const insertAfter = clientY >= targetRect.top + targetRect.height / 2;
+  const boundaryY = insertAfter ? targetRect.bottom : targetRect.top;
+  return {
+    insertionIndex: targetBlock.index + (insertAfter ? 1 : 0),
+    indicatorTop: boundaryY - shellRect.top + shell.scrollTop,
+  };
+};
+
+const scrollEditorDuringDrag = (shell: HTMLElement, clientY: number): void => {
+  const rect = shell.getBoundingClientRect();
+  const edgeSize = 56;
+  const step = 18;
+  if (clientY < rect.top + edgeSize) {
+    shell.scrollTop -= step;
+  } else if (clientY > rect.bottom - edgeSize) {
+    shell.scrollTop += step;
+  }
 };
 
 const NoteEditor = ({
@@ -108,7 +163,13 @@ const NoteEditor = ({
   const [menuQuery, setMenuQuery] = useState("");
   const [slashRange, setSlashRange] = useState<SlashRange | null>(null);
   const [insertAnchorBlock, setInsertAnchorBlock] = useState<TopLevelBlockSelection | null>(null);
-  const [menuTop, setMenuTop] = useState(52);
+  const [menuAnchor, setMenuAnchor] = useState<CommandMenuAnchor>({
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+  });
+  const [dropDestination, setDropDestination] = useState<BlockDropDestination | null>(null);
   const [selectionVersion, setSelectionVersion] = useState(0);
   const [isCoarsePointer, setIsCoarsePointer] = useState(false);
   const [hoverBlock, setHoverBlock] = useState<TopLevelBlockSelection | null>(null);
@@ -118,7 +179,7 @@ const NoteEditor = ({
   const [mobileSheetOpen, setMobileSheetOpen] = useState(false);
   const [mobileSheetBlock, setMobileSheetBlock] = useState<TopLevelBlockSelection | null>(null);
   const [isTyping, setIsTyping] = useState(false);
-  const [controlsOutsideEditor, setControlsOutsideEditor] = useState(false);
+  const [editorShellWidth, setEditorShellWidth] = useState(0);
   const draggingBlockRef = useRef<TopLevelBlockSelection | null>(null);
   const editorInstanceRef = useRef<Editor | null>(null);
   const menuModeRef = useRef<MenuMode>("insert");
@@ -159,32 +220,12 @@ const NoteEditor = ({
   useEffect(() => {
     const shell = editorShellRef.current;
     if (!shell) return;
-
-    const updateControlPlacement = () => {
-      const rect = shell.getBoundingClientRect();
-      const contentRect = shell.closest("main")?.getBoundingClientRect();
-      const gutter = BLOCK_CONTROL_OFFSET_PX + 8;
-      const inlineSpace = contentRect
-        ? editorDirection === "rtl"
-          ? contentRect.right - rect.right
-          : rect.left - contentRect.left
-        : editorDirection === "rtl"
-          ? window.innerWidth - rect.right
-          : rect.left;
-      const hasInlineSpace = inlineSpace >= gutter;
-      setControlsOutsideEditor(hasInlineSpace && window.innerWidth >= 768);
-    };
-
-    updateControlPlacement();
-    const observer = new ResizeObserver(updateControlPlacement);
+    const updateWidth = () => setEditorShellWidth(shell.getBoundingClientRect().width);
+    updateWidth();
+    const observer = new ResizeObserver(updateWidth);
     observer.observe(shell);
-    window.addEventListener("resize", updateControlPlacement);
-
-    return () => {
-      observer.disconnect();
-      window.removeEventListener("resize", updateControlPlacement);
-    };
-  }, [editorDirection]);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(
     () => () => {
@@ -233,7 +274,7 @@ const NoteEditor = ({
     editorProps: {
       attributes: {
         class: cn(
-          "h-full min-h-[460px] max-h-full overflow-y-auto rounded-[18px] border border-[rgba(15,23,42,0.12)] bg-[radial-gradient(circle_at_top,#ffffff_0%,#f8fafc_75%)] px-5 py-6 text-[1rem] leading-7 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)]",
+          "min-h-full py-6 text-[1rem] leading-7",
           "focus:outline-none",
           "[&_h1]:text-[1.6rem] [&_h1]:leading-[1.2] [&_h2]:text-[1.35rem] [&_h2]:leading-[1.25] [&_h3]:text-[1.2rem] [&_h3]:leading-[1.3]",
           "[&_blockquote]:border-s-4 [&_blockquote]:border-[rgba(15,118,110,0.35)] [&_blockquote]:ps-3 [&_blockquote]:text-[#5b6474]",
@@ -246,7 +287,28 @@ const NoteEditor = ({
         ),
       },
       handleDOMEvents: {
-        dragover: (_view, event) => {
+        dragstart: (view, event) => {
+          const dragEvent = event as DragEvent;
+          const activeEditor = editorInstanceRef.current;
+          if (!activeEditor || !dragEvent.dataTransfer) return false;
+          if (Array.from(dragEvent.dataTransfer.types).includes(DRAG_BLOCK_MIME)) return false;
+
+          const sourceBlock = getTopLevelBlockSelection(activeEditor);
+          const { selection } = view.state;
+          const selectedWholeBlock =
+            sourceBlock &&
+            selection.from === sourceBlock.pos &&
+            selection.to === sourceBlock.pos + sourceBlock.size;
+          if (!sourceBlock || !selectedWholeBlock) return false;
+
+          draggingBlockRef.current = sourceBlock;
+          setPinnedBlock(sourceBlock);
+          setDropDestination(null);
+          dragEvent.dataTransfer.effectAllowed = "move";
+          dragEvent.dataTransfer.setData(DRAG_BLOCK_MIME, String(sourceBlock.index));
+          return false;
+        },
+        dragover: (view, event) => {
           const dragEvent = event as DragEvent;
           const hasCustomDragType = Array.from(dragEvent.dataTransfer?.types ?? []).includes(
             DRAG_BLOCK_MIME,
@@ -255,6 +317,25 @@ const NoteEditor = ({
           dragEvent.preventDefault();
           if (dragEvent.dataTransfer) {
             dragEvent.dataTransfer.dropEffect = "move";
+          }
+
+          const activeEditor = editorInstanceRef.current;
+          const shell = editorShellRef.current;
+          if (activeEditor && shell) {
+            scrollEditorDuringDrag(shell, dragEvent.clientY);
+            const coords = view.posAtCoords({ left: dragEvent.clientX, top: dragEvent.clientY });
+            const destination = getBlockDropDestination(
+              activeEditor,
+              coords?.pos ?? null,
+              dragEvent.clientY,
+              shell,
+            );
+            setDropDestination((current) =>
+              current?.insertionIndex === destination?.insertionIndex &&
+              current?.indicatorTop === destination?.indicatorTop
+                ? current
+                : destination,
+            );
           }
           return true;
         },
@@ -277,19 +358,33 @@ const NoteEditor = ({
             return true;
           }
 
-          const coords = view.posAtCoords({ left: dragEvent.clientX, top: dragEvent.clientY });
           const activeEditor = editorInstanceRef.current;
-          const targetBlock =
-            coords && activeEditor ? getTopLevelBlockFromPos(activeEditor, coords.pos) : null;
-          if (targetBlock && activeEditor) {
-            const moved = moveBlockToIndex(activeEditor, sourceIndex, targetBlock.index);
+          const shell = editorShellRef.current;
+          const coords = view.posAtCoords({ left: dragEvent.clientX, top: dragEvent.clientY });
+          const destination =
+            activeEditor && shell
+              ? getBlockDropDestination(activeEditor, coords?.pos ?? null, dragEvent.clientY, shell)
+              : null;
+          if (destination && activeEditor) {
+            const moved = moveBlockToInsertionIndex(
+              activeEditor,
+              sourceIndex,
+              destination.insertionIndex,
+            );
             if (moved) {
               setStatusMessage(ui.blockReordered);
             }
           }
 
           draggingBlockRef.current = null;
+          setDropDestination(null);
           return true;
+        },
+        dragleave: (view, event) => {
+          const relatedTarget = event.relatedTarget as Node | null;
+          if (relatedTarget && view.dom.contains(relatedTarget)) return false;
+          setDropDestination(null);
+          return false;
         },
       },
     },
@@ -306,11 +401,13 @@ const NoteEditor = ({
         setMenuQuery(slash.query);
         setSlashRange(slash.range);
         setInsertAnchorBlock(null);
-        const shellRect = editorShellRef.current?.getBoundingClientRect();
         const slashCoords = currentEditor.view.coordsAtPos(slash.range.from);
-        if (shellRect) {
-          setMenuTop(Math.max(48, slashCoords.bottom - shellRect.top + 8));
-        }
+        setMenuAnchor({
+          top: slashCoords.top,
+          right: slashCoords.right,
+          bottom: slashCoords.bottom,
+          left: slashCoords.left,
+        });
       } else {
         setSlashRange(null);
         if (menuModeRef.current === "slash") {
@@ -586,13 +683,13 @@ const NoteEditor = ({
   );
 
   const openInsertMenuAt = useCallback(
-    (top: number, anchor: TopLevelBlockSelection | null) => {
+    (anchorRect: CommandMenuAnchor, anchorBlock: TopLevelBlockSelection | null) => {
       setMenuMode("insert");
       setMenuQuery("");
       setSlashRange(null);
-      setInsertAnchorBlock(anchor);
-      pinBlockControls(anchor);
-      setMenuTop(Math.max(48, top));
+      setInsertAnchorBlock(anchorBlock);
+      pinBlockControls(anchorBlock);
+      setMenuAnchor(anchorRect);
       setMenuOpen(true);
     },
     [pinBlockControls],
@@ -645,7 +742,7 @@ const NoteEditor = ({
 
   const handleDragHandle = useCallback(() => {
     if (!editor) return;
-    const targetBlock = hoverBlock ?? getTopLevelBlockSelection(editor);
+    const targetBlock = pinnedBlock ?? hoverBlock ?? getTopLevelBlockSelection(editor);
     if (isCoarsePointer) {
       if (!targetBlock) return;
       setMobileSheetBlock(targetBlock);
@@ -653,7 +750,9 @@ const NoteEditor = ({
       return;
     }
     pinBlockControls(targetBlock);
-    const selected = selectCurrentBlock(editor);
+    const selected = targetBlock
+      ? selectBlockByPos(editor, targetBlock.pos)
+      : selectCurrentBlock(editor);
     if (selected) {
       setStatusMessage(ui.blockSelectedForDrag);
     }
@@ -662,6 +761,7 @@ const NoteEditor = ({
     hoverBlock,
     isCoarsePointer,
     pinBlockControls,
+    pinnedBlock,
     setStatusMessage,
     ui.blockSelectedForDrag,
   ]);
@@ -672,7 +772,7 @@ const NoteEditor = ({
         event.preventDefault();
         return;
       }
-      const targetBlock = hoverBlock ?? getTopLevelBlockSelection(editor);
+      const targetBlock = pinnedBlock ?? hoverBlock ?? getTopLevelBlockSelection(editor);
       if (!targetBlock) {
         event.preventDefault();
         return;
@@ -683,15 +783,22 @@ const NoteEditor = ({
       }
       pinBlockControls(targetBlock);
       draggingBlockRef.current = targetBlock;
+      setDropDestination(null);
       event.dataTransfer.effectAllowed = "move";
       event.dataTransfer.setData(DRAG_BLOCK_MIME, String(targetBlock.index));
       event.dataTransfer.setData("text/plain", "");
+
+      const blockDom = editor.view.nodeDOM(targetBlock.pos) as HTMLElement | null;
+      if (blockDom) {
+        event.dataTransfer.setDragImage(blockDom, 16, 12);
+      }
     },
-    [editor, hoverBlock, isCoarsePointer, pinBlockControls],
+    [editor, hoverBlock, isCoarsePointer, pinBlockControls, pinnedBlock],
   );
 
   const handleGripDragEnd = useCallback(() => {
     draggingBlockRef.current = null;
+    setDropDestination(null);
   }, []);
 
   const handleEditorMouseDownCapture = useCallback(
@@ -710,7 +817,9 @@ const NoteEditor = ({
   const visibleBlock = isCoarsePointer
     ? currentBlock
     : ((menuOpen ? insertAnchorBlock : null) ?? pinnedBlock ?? hoverBlock ?? currentBlock);
-  const blockControlsVisible = embeddedAssetsReady && !!visibleBlock;
+  const usesDesktopBlockRail = !isCoarsePointer && editorShellWidth >= 640;
+  const blockControlsVisible =
+    embeddedAssetsReady && !!visibleBlock && (!isTyping || menuOpen || isCoarsePointer);
   const handleBlockControlsMouseEnter = useCallback(() => {
     const targetBlock = visibleBlock ?? currentBlock;
     pinBlockControls(targetBlock);
@@ -724,11 +833,21 @@ const NoteEditor = ({
     const shellRect = editorShellRef.current?.getBoundingClientRect();
     if (!blockDom || !shellRect) return 14;
     const blockRect = blockDom.getBoundingClientRect();
-    return getBlockControlTop(blockRect, shellRect, blockDom);
-  }, [editor, visibleBlock]);
+    return getBlockControlTop(
+      blockRect,
+      shellRect,
+      blockDom,
+      usesDesktopBlockRail ? BLOCK_CONTROL_SIZE_PX : BLOCK_CONTROL_COMPACT_HEIGHT_PX,
+      editorShellRef.current?.scrollTop ?? 0,
+      editorShellRef.current?.scrollHeight ?? shellRect.height,
+    );
+  }, [editor, usesDesktopBlockRail, visibleBlock]);
 
   return (
-    <div className="relative flex h-full min-h-0 flex-col gap-0 overflow-visible rounded-2xl border border-[rgba(15,23,42,0.12)] bg-white shadow-[0_16px_40px_rgba(15,23,42,0.08)]">
+    <div
+      className="relative flex h-full min-h-0 flex-col overflow-hidden rounded-2xl border border-[rgba(15,23,42,0.1)] bg-white shadow-[0_12px_32px_rgba(15,23,42,0.06)]"
+      data-testid="note-editor-workspace"
+    >
       <ImportExportToolbar
         currentMarkdown={currentMarkdown}
         noteId={noteId}
@@ -736,7 +855,7 @@ const NoteEditor = ({
         ui={ui}
       />
 
-      <div className="flex min-h-0 flex-1 flex-col gap-3 p-[18px]">
+      <div className="flex min-h-0 flex-1 flex-col">
         <input
           ref={fileInputRef}
           type="file"
@@ -756,16 +875,19 @@ const NoteEditor = ({
           }}
         />
         <Input
-          className="rounded-[12px] border border-[rgba(15,23,42,0.12)] bg-white text-[0.96rem]"
+          className="h-auto shrink-0 rounded-none border-0 border-b border-[rgba(15,23,42,0.08)] bg-white px-[clamp(20px,4vw,44px)] py-5 text-[clamp(1.65rem,2.5vw,2.25rem)] font-semibold leading-tight shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
           value={title}
           onChange={(event) => onTitleChange(event.target.value)}
           placeholder={titlePlaceholder}
           aria-label={titlePlaceholder}
+          data-testid="note-editor-title"
         />
 
         <div
           ref={editorShellRef}
-          className="relative min-h-0 flex-1 overflow-visible"
+          className="relative min-h-0 flex-1 overflow-y-auto bg-white"
+          data-block-rail={usesDesktopBlockRail ? "desktop" : "compact"}
+          data-testid="note-editor-scroll-region"
           onMouseDownCapture={handleEditorMouseDownCapture}
         >
           {editor && embeddedAssetsReady ? (
@@ -781,13 +903,28 @@ const NoteEditor = ({
               ui={ui}
             />
           ) : null}
+          {dropDestination ? (
+            <div
+              className="pointer-events-none absolute z-20 h-0.5 rounded-full bg-[#0f766e] shadow-[0_0_0_1px_rgba(255,255,255,0.9)]"
+              style={{
+                top: `${dropDestination.indicatorTop}px`,
+                insetInlineStart: usesDesktopBlockRail ? "84px" : "48px",
+                insetInlineEnd: "24px",
+              }}
+              data-testid="editor-block-drop-indicator"
+            />
+          ) : null}
           <BlockControls
             blockControlsTop={blockControlsTop}
-            controlsOutsideEditor={controlsOutsideEditor && !isCoarsePointer}
+            compact={!usesDesktopBlockRail}
             isCoarsePointer={isCoarsePointer}
-            onAddBlock={() =>
-              openInsertMenuAt(blockControlsBottom(blockControlsTop), visibleBlock ?? currentBlock)
-            }
+            onAddBlock={(event) => {
+              const rect = event.currentTarget.getBoundingClientRect();
+              openInsertMenuAt(
+                { top: rect.top, right: rect.right, bottom: rect.bottom, left: rect.left },
+                visibleBlock ?? currentBlock,
+              );
+            }}
             onDragEnd={handleGripDragEnd}
             onDragHandle={handleDragHandle}
             onDragStart={handleGripDragStart}
@@ -798,10 +935,11 @@ const NoteEditor = ({
           />
           {menuOpen ? (
             <CommandMenu
+              anchor={menuAnchor}
               commands={filteredCommands}
+              direction={editorDirection}
               menuMode={menuMode}
               menuQuery={menuQuery}
-              menuTop={menuTop}
               onQueryChange={setMenuQuery}
               onRunCommand={(command) => {
                 void runBlockCommand(command);
@@ -809,17 +947,20 @@ const NoteEditor = ({
               ui={ui}
             />
           ) : null}
-          <div className="h-full min-h-0" dir={editorDirection}>
+          <div className="min-h-full" dir={editorDirection}>
             {embeddedAssetsReady ? (
               <EditorContent
-                className="h-full"
+                className={cn(
+                  "min-h-full [&_.ProseMirror]:pe-6",
+                  usesDesktopBlockRail ? "[&_.ProseMirror]:ps-[84px]" : "[&_.ProseMirror]:ps-12",
+                )}
                 editor={editor}
                 aria-label={contentPlaceholder}
                 data-testid="note-editor-content"
               />
             ) : (
               <div
-                className="flex h-full min-h-[460px] items-center justify-center rounded-[18px] border border-[rgba(15,23,42,0.12)] bg-[#f8fafc] text-sm text-[#64748b]"
+                className="flex min-h-full items-center justify-center bg-white text-sm text-[#64748b]"
                 role="status"
                 aria-live="polite"
               >

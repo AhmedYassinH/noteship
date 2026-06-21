@@ -2,7 +2,7 @@ import type { Editor } from "@tiptap/react";
 import type { TopLevelBlockSelection } from "./editorTypes";
 
 export const BLOCK_CONTROL_SIZE_PX = 28;
-export const BLOCK_CONTROL_OFFSET_PX = 65;
+export const BLOCK_CONTROL_COMPACT_HEIGHT_PX = 58;
 export const DRAG_BLOCK_MIME = "application/x-noteship-block-index";
 
 const clampNumber = (value: number, min: number, max: number): number =>
@@ -12,12 +12,15 @@ export const getBlockControlTop = (
   blockRect: DOMRect,
   shellRect: DOMRect,
   blockDom: HTMLElement,
+  controlsHeight = BLOCK_CONTROL_SIZE_PX,
+  scrollTop = 0,
+  scrollHeight = shellRect.height,
 ): number => {
   const lineHeight = Number.parseFloat(window.getComputedStyle(blockDom).lineHeight);
   const safeLineHeight = Number.isFinite(lineHeight) ? lineHeight : 24;
   const rawTop =
-    blockRect.top - shellRect.top + Math.max((safeLineHeight - BLOCK_CONTROL_SIZE_PX) / 2, 0);
-  return clampNumber(rawTop, 8, Math.max(8, shellRect.height - BLOCK_CONTROL_SIZE_PX - 8));
+    blockRect.top - shellRect.top + scrollTop + Math.max((safeLineHeight - controlsHeight) / 2, 0);
+  return clampNumber(rawTop, 8, Math.max(8, scrollHeight - controlsHeight - 8));
 };
 
 export const getTopLevelBlockFromPos = (
@@ -98,21 +101,26 @@ export const moveCurrentBlock = (editor: Editor, direction: "up" | "down"): bool
   return true;
 };
 
-export const moveBlockToIndex = (editor: Editor, fromIndex: number, toIndex: number): boolean => {
+export const moveBlockToInsertionIndex = (
+  editor: Editor,
+  fromIndex: number,
+  insertionIndex: number,
+): boolean => {
   const { state, view } = editor;
   const { doc } = state;
-  if (fromIndex === toIndex) return false;
   if (fromIndex < 0 || fromIndex >= doc.childCount) return false;
-  if (toIndex < 0 || toIndex >= doc.childCount) return false;
+  if (insertionIndex < 0 || insertionIndex > doc.childCount) return false;
 
   const node = doc.child(fromIndex);
   if (!node) return false;
+
+  const targetIndex = insertionIndex > fromIndex ? insertionIndex - 1 : insertionIndex;
+  if (targetIndex === fromIndex) return false;
 
   const fromPos = topLevelChildPos(editor, fromIndex);
   const tr = state.tr;
   tr.delete(fromPos, fromPos + node.nodeSize);
 
-  const targetIndex = toIndex > fromIndex ? toIndex - 1 : toIndex;
   const boundedTarget = Math.max(0, Math.min(targetIndex, tr.doc.childCount));
 
   let insertPos = tr.doc.content.size;

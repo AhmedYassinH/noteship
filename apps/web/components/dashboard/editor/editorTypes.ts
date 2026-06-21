@@ -16,6 +16,13 @@ export type TopLevelBlockSelection = {
   size: number;
 };
 
+export type CommandMenuAnchor = {
+  top: number;
+  right: number;
+  bottom: number;
+  left: number;
+};
+
 export type BlockCommand = {
   id: string;
   label: string;

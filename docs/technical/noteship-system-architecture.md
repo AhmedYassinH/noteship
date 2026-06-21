@@ -91,6 +91,8 @@ Details: see `docs/technical/index.md`.
 
 - Auth UI and session handling
 - Rich text editing (TipTap)
+- A single full-height note workspace where the writing body scrolls independently and title, actions, metrics, and status remain visible
+- Attached dashboard navigation with a persisted compact icon-rail mode, plus a visibility-persisted Drafts column that uses an edge drawer on smaller screens
 - Markdown import/export workflows (including compatibility export mode)
 - Language-driven direction for site and editor defaults (EN -> LTR, AR -> RTL), sourced from user settings (`/me`) and cached in local storage
 - Calling API endpoints for notes, search, posts, scheduling

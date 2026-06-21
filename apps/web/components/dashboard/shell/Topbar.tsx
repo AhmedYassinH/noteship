@@ -106,7 +106,13 @@ const Topbar = ({
         </form>
 
         <div className="ml-auto flex shrink-0 items-center gap-2 rtl:ml-0 rtl:mr-auto">
-          <Button onClick={onCreateNote} size="pill" type="button" variant="outline">
+          <Button
+            aria-label={newNoteLabel}
+            onClick={onCreateNote}
+            size="pill"
+            type="button"
+            variant="outline"
+          >
             <Plus className="h-4 w-4" />
             <span className="max-[1100px]:hidden">{newNoteLabel}</span>
           </Button>

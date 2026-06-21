@@ -656,6 +656,9 @@ Details: see `docs/technical/index.md`.
 - Layout: use CSS logical properties (`padding-inline`, `text-align: start|end`) and set `lang`/`dir` at the root per locale; mirror nav and directional icons for RTL.
 - shadcn/ui: enable RTL support in shadcn config; keep `dir` set on `html` or page root and use the Radix `DirectionProvider` where a component needs explicit direction (menus, popovers, dialogs).
 - TipTap/editor:
+  - Render the note editor as one full-height workspace with a single editable title; keep actions, title, metrics, and status outside the independently scrolling writing region.
+  - Keep desktop block controls in a logical-start editor rail so they never overlap text or external panels; mirror the rail for RTL and use the compact tap/actions-sheet flow on narrow or coarse-pointer layouts.
+  - Reorder top-level blocks by insertion boundary (before or after the hovered block), show a visible drop boundary, and auto-scroll near writing-region edges. Render block command menus in a viewport-level portal that flips above constrained anchors so editor overflow and the metrics footer cannot clip them.
   - Keep global layout direction language-driven (`en` -> LTR, `ar` -> RTL) from user settings (`/me`), with local-storage cache for fallback.
   - Keep editor block direction controls in the block bubble menu; LTR/RTL toggles apply only to the active block and never change global site direction.
   - Default new block direction to the current note session preference (initialized from site direction and updated when user toggles/enters explicit block direction).

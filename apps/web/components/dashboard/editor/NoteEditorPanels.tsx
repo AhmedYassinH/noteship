@@ -1,4 +1,5 @@
-import type { DragEvent as ReactDragEvent } from "react";
+import type { DragEvent as ReactDragEvent, MouseEvent as ReactMouseEvent } from "react";
+import { createPortal } from "react-dom";
 import type { Editor } from "@tiptap/react";
 import { BubbleMenu } from "@tiptap/react";
 import {
@@ -26,12 +27,12 @@ import type { EditorUiStrings } from "../../../data/note-editor";
 import { cn } from "@/lib/utils";
 import type {
   BlockCommand,
+  CommandMenuAnchor,
   EditorDirection,
   MenuMode,
   TopLevelBlockSelection,
 } from "./editorTypes";
 import { bytesForText, formatBytes, triggerDownload } from "./editorText";
-import { BLOCK_CONTROL_OFFSET_PX, BLOCK_CONTROL_SIZE_PX } from "./blockOperations";
 import { toObsidianMarkdown, type BlockAlign } from "./richNodes";
 
 type ImportExportToolbarProps = {
@@ -47,7 +48,7 @@ export const ImportExportToolbar = ({
   onImportClick,
   ui,
 }: ImportExportToolbarProps) => (
-  <div className="flex flex-wrap items-center gap-2 border-b border-[rgba(15,23,42,0.1)] bg-[linear-gradient(180deg,#fbfdff_0%,#f5f8fc_100%)] px-4 py-3">
+  <div className="flex shrink-0 flex-wrap items-center gap-2 border-b border-[rgba(15,23,42,0.08)] bg-[#fbfcfd] px-4 py-3">
     <Button
       type="button"
       variant="outline"
@@ -200,9 +201,9 @@ export const BubbleToolbar = ({
 
 type BlockControlsProps = {
   blockControlsTop: number;
-  controlsOutsideEditor: boolean;
+  compact: boolean;
   isCoarsePointer: boolean;
-  onAddBlock: () => void;
+  onAddBlock: (event: ReactMouseEvent<HTMLButtonElement>) => void;
   onDragEnd: () => void;
   onDragHandle: () => void;
   onDragStart: (event: ReactDragEvent<HTMLButtonElement>) => void;
@@ -214,7 +215,7 @@ type BlockControlsProps = {
 
 export const BlockControls = ({
   blockControlsTop,
-  controlsOutsideEditor,
+  compact,
   isCoarsePointer,
   onAddBlock,
   onDragEnd,
@@ -230,19 +231,22 @@ export const BlockControls = ({
   return (
     <div
       data-editor-block-controls="true"
-      className="absolute z-20 flex items-center gap-1"
+      className={cn(
+        "absolute z-20 flex",
+        compact ? "flex-col items-center gap-0.5 pe-3" : "items-center gap-0.5 pe-[18px]",
+      )}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
       style={{
         top: `${blockControlsTop}px`,
-        insetInlineStart: controlsOutsideEditor ? `-${BLOCK_CONTROL_OFFSET_PX}px` : "8px",
+        insetInlineStart: "8px",
       }}
     >
       <Button
         type="button"
-        variant="outline"
+        variant="ghost"
         size="icon"
-        className="h-8 w-8 rounded-full border-[rgba(15,23,42,0.14)] bg-white shadow-sm [&_svg]:h-3.5 [&_svg]:w-3.5"
+        className="h-7 w-7 rounded-md bg-white/90 text-[#64748b] shadow-none hover:bg-[#eef2f4] hover:text-[#0f172a] [&_svg]:h-3.5 [&_svg]:w-3.5"
         onClick={onAddBlock}
         data-testid="editor-side-add-block"
       >
@@ -250,9 +254,9 @@ export const BlockControls = ({
       </Button>
       <Button
         type="button"
-        variant="outline"
+        variant="ghost"
         size="icon"
-        className="h-8 w-8 cursor-grab rounded-full border-[rgba(15,23,42,0.14)] bg-white shadow-sm active:cursor-grabbing [&_svg]:h-3.5 [&_svg]:w-3.5"
+        className="h-7 w-7 cursor-grab rounded-md bg-white/90 text-[#64748b] shadow-none hover:bg-[#eef2f4] hover:text-[#0f172a] active:cursor-grabbing [&_svg]:h-3.5 [&_svg]:w-3.5"
         onClick={onDragHandle}
         draggable={!isCoarsePointer}
         onDragStart={onDragStart}
@@ -267,56 +271,87 @@ export const BlockControls = ({
 };
 
 type CommandMenuProps = {
+  anchor: CommandMenuAnchor;
   commands: BlockCommand[];
+  direction: EditorDirection;
   menuMode: MenuMode;
   menuQuery: string;
-  menuTop: number;
   onQueryChange: (query: string) => void;
   onRunCommand: (command: BlockCommand) => void;
   ui: EditorUiStrings;
 };
 
 export const CommandMenu = ({
+  anchor,
   commands,
+  direction,
   menuMode,
   menuQuery,
-  menuTop,
   onQueryChange,
   onRunCommand,
   ui,
-}: CommandMenuProps) => (
-  <div
-    className="absolute z-30 max-h-[280px] w-[260px] overflow-auto rounded-xl border border-[rgba(15,23,42,0.14)] bg-white p-2 shadow-[0_22px_55px_rgba(15,23,42,0.2)]"
-    style={{ top: `${menuTop}px`, insetInlineStart: "8px" }}
-    data-testid="editor-command-menu"
-  >
-    <Input
-      className="mb-2 h-8 rounded-md border-[rgba(15,23,42,0.12)] px-2 text-xs"
-      value={menuQuery}
-      onChange={(event) => onQueryChange(event.target.value)}
-      placeholder={menuMode === "slash" ? ui.filterSlashCommands : ui.findBlock}
-      aria-label={ui.filterBlockMenuAria}
-    />
-    <div className="grid gap-1">
-      {commands.length === 0 ? (
-        <span className="px-2 py-1 text-xs text-[#64748b]">{ui.noMatchingBlocks}</span>
-      ) : (
-        commands.map((command) => (
-          <button
-            key={command.id}
-            type="button"
-            className="flex items-center gap-2 rounded-md px-2 py-1 text-left text-xs text-[#1e293b] hover:bg-[rgba(15,118,110,0.1)]"
-            onClick={() => onRunCommand(command)}
-            data-testid={`editor-command-${command.id}`}
-          >
-            <command.icon className="h-3.5 w-3.5 text-[#0f766e]" />
-            {command.label}
-          </button>
-        ))
-      )}
-    </div>
-  </div>
-);
+}: CommandMenuProps) => {
+  if (typeof document === "undefined") return null;
+
+  const edgeGap = 8;
+  const anchorGap = 8;
+  const menuWidth = 260;
+  const preferredHeight = 280;
+  const availableAbove = Math.max(0, anchor.top - anchorGap - edgeGap);
+  const availableBelow = Math.max(0, window.innerHeight - anchor.bottom - anchorGap - edgeGap);
+  const placement =
+    availableBelow >= preferredHeight || availableBelow >= availableAbove ? "bottom" : "top";
+  const availableHeight = placement === "bottom" ? availableBelow : availableAbove;
+  const maxHeight = Math.min(preferredHeight, availableHeight);
+  const preferredLeft = direction === "rtl" ? anchor.right - menuWidth : anchor.left;
+  const left = Math.min(
+    Math.max(edgeGap, preferredLeft),
+    Math.max(edgeGap, window.innerWidth - menuWidth - edgeGap),
+  );
+
+  return createPortal(
+    <div
+      className="fixed z-[80] flex w-[260px] flex-col overflow-hidden rounded-xl border border-[rgba(15,23,42,0.14)] bg-white p-2 shadow-[0_22px_55px_rgba(15,23,42,0.2)]"
+      style={{
+        left: `${left}px`,
+        maxHeight: `${maxHeight}px`,
+        ...(placement === "bottom"
+          ? { top: `${anchor.bottom + anchorGap}px` }
+          : { bottom: `${window.innerHeight - anchor.top + anchorGap}px` }),
+      }}
+      data-placement={placement}
+      data-testid="editor-command-menu"
+      dir={direction}
+    >
+      <Input
+        className="mb-2 h-8 shrink-0 rounded-md border-[rgba(15,23,42,0.12)] px-2 text-xs"
+        value={menuQuery}
+        onChange={(event) => onQueryChange(event.target.value)}
+        placeholder={menuMode === "slash" ? ui.filterSlashCommands : ui.findBlock}
+        aria-label={ui.filterBlockMenuAria}
+      />
+      <div className="grid min-h-0 gap-1 overflow-y-auto">
+        {commands.length === 0 ? (
+          <span className="px-2 py-1 text-xs text-[#64748b]">{ui.noMatchingBlocks}</span>
+        ) : (
+          commands.map((command) => (
+            <button
+              key={command.id}
+              type="button"
+              className="flex items-center gap-2 rounded-md px-2 py-1 text-start text-xs text-[#1e293b] hover:bg-[rgba(15,118,110,0.1)]"
+              onClick={() => onRunCommand(command)}
+              data-testid={`editor-command-${command.id}`}
+            >
+              <command.icon className="h-3.5 w-3.5 text-[#0f766e]" />
+              {command.label}
+            </button>
+          ))
+        )}
+      </div>
+    </div>,
+    document.body,
+  );
+};
 
 type MobileBlockActionsSheetProps = {
   onClose: () => void;
@@ -400,7 +435,10 @@ export const EditorStatusFooter = ({
 
   return (
     <>
-      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[rgba(15,23,42,0.08)] bg-[#f9fbfd] px-4 py-2 text-xs text-[#5b6474]">
+      <div
+        className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-t border-[rgba(15,23,42,0.08)] bg-[#f9fbfd] px-4 py-2 text-xs text-[#5b6474]"
+        data-testid="editor-metrics-footer"
+      >
         <span data-testid="editor-metric-words">{`${ui.words}: ${wordCount.toLocaleString(lang)}`}</span>
         <span data-testid="editor-metric-size">{`${ui.size}: ${formatBytes(
           sizeBytes,
@@ -408,7 +446,7 @@ export const EditorStatusFooter = ({
         )} (${sizeBytes.toLocaleString(lang)} ${ui.bytesLabel})`}</span>
       </div>
       {uploadState !== "idle" || statusMessage ? (
-        <div className="border-t border-[rgba(15,23,42,0.08)] bg-[#fcfdff] px-4 py-2">
+        <div className="shrink-0 border-t border-[rgba(15,23,42,0.08)] bg-[#fcfdff] px-4 py-2">
           <span
             className="text-xs text-[#5b6474]"
             role="status"
@@ -426,5 +464,3 @@ export const EditorStatusFooter = ({
     </>
   );
 };
-
-export const blockControlsBottom = (top: number): number => top + BLOCK_CONTROL_SIZE_PX + 8;
