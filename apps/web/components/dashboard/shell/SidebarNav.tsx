@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import type { NoteResponse } from "../../../lib/api/types";
+import { noteHref } from "../../../lib/routes";
 import { Button } from "../../ui/Button";
 import { cn } from "@/lib/utils";
 import type { ShellDir, SidebarNavItem } from "./types";
@@ -182,7 +183,7 @@ const SidebarNav = ({
             recentNotes.map((note) => (
               <Link
                 className="grid gap-0.5 rounded-[12px] border border-[rgba(15,23,42,0.08)] bg-white px-3 py-2.5 text-inherit outline-none transition-shadow hover:shadow-[0_10px_24px_rgba(15,23,42,0.08)] focus-visible:ring-2 focus-visible:ring-[var(--ns-accent)] focus-visible:ring-offset-2"
-                href={`/dashboard/notes?noteId=${encodeURIComponent(note.noteId)}`}
+                href={noteHref(note.noteId)}
                 key={note.noteId}
               >
                 <span className="truncate text-[0.84rem] font-medium">{note.title}</span>

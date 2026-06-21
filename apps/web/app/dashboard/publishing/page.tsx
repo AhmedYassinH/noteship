@@ -17,6 +17,7 @@ import {
 } from "../../../components/ui/Table";
 import { listPosts } from "../../../lib/api/notes";
 import type { PostResponse } from "../../../lib/api/types";
+import { noteHref } from "../../../lib/routes";
 
 const PublishingPage = () => {
   const { lang, isAr, entitlements } = useDashboard();
@@ -110,7 +111,7 @@ const PublishingPage = () => {
               {posts.map((post) => (
                 <TableRow key={post.postId}>
                   <TableCell>
-                    <Link href={`/dashboard/notes/${post.noteId}`}>{post.noteId}</Link>
+                    <Link href={noteHref(post.noteId)}>{post.noteId}</Link>
                   </TableCell>
                   <TableCell>{post.provider}</TableCell>
                   <TableCell>

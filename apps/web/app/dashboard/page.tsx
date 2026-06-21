@@ -17,6 +17,7 @@ import {
 } from "../../components/ui/Table";
 import { listPosts } from "../../lib/api/notes";
 import type { PostResponse } from "../../lib/api/types";
+import { noteHref } from "../../lib/routes";
 
 const DashboardPage = () => {
   const { lang, isAr, recentNotes, recentNotesStatus, refreshNotes } = useDashboard();
@@ -115,7 +116,7 @@ const DashboardPage = () => {
                 {recentNotes.map((note) => (
                   <TableRow key={note.noteId}>
                     <TableCell>
-                      <Link href={`/dashboard/notes/${note.noteId}`}>{note.title}</Link>
+                      <Link href={noteHref(note.noteId)}>{note.title}</Link>
                     </TableCell>
                     <TableCell>{new Date(note.updatedAt).toLocaleDateString()}</TableCell>
                   </TableRow>

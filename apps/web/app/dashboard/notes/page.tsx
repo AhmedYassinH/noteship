@@ -19,6 +19,7 @@ import {
 import NoteDetail from "../../../components/dashboard/NoteDetail";
 import { createNote, listNotes } from "../../../lib/api/notes";
 import type { NoteResponse } from "../../../lib/api/types";
+import { noteHref } from "../../../lib/routes";
 
 const NotesPage = () => {
   const { lang, isAr, refreshNotes } = useDashboard();
@@ -62,7 +63,7 @@ const NotesPage = () => {
         editorFormat: "tiptap",
       });
       await refreshNotes();
-      router.push(`/dashboard/notes?noteId=${encodeURIComponent(response.noteId)}`);
+      router.push(noteHref(response.noteId));
     } catch {
       // ignore for now
     }
@@ -123,9 +124,7 @@ const NotesPage = () => {
               {notes.map((note) => (
                 <TableRow key={note.noteId}>
                   <TableCell>
-                    <Link href={`/dashboard/notes?noteId=${encodeURIComponent(note.noteId)}`}>
-                      {note.title}
-                    </Link>
+                    <Link href={noteHref(note.noteId)}>{note.title}</Link>
                   </TableCell>
                   <TableCell>
                     <Badge

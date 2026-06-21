@@ -32,6 +32,7 @@ import { createContentSession, createNote, listNotes } from "../../lib/api/notes
 import { updateMeSettings } from "../../lib/api/users";
 import type { NoteResponse } from "../../lib/api/types";
 import { getStoredLang, persistLang } from "../../lib/language";
+import { noteHref } from "../../lib/routes";
 import { cn } from "@/lib/utils";
 import { useAuth } from "../auth/AuthProvider";
 import LoadingScreen from "../ui/LoadingScreen";
@@ -361,7 +362,7 @@ const DashboardShellInner = ({ children }: { children: ReactNode }) => {
         editorFormat: "tiptap",
       });
       await refreshNotes();
-      router.push(`/dashboard/notes?noteId=${encodeURIComponent(response.noteId)}`);
+      router.push(noteHref(response.noteId));
     } catch {
       // Keep the user in place; page-level retry handles failures.
     }

@@ -16,6 +16,7 @@ import {
 } from "../../../components/ui/Table";
 import { listPosts } from "../../../lib/api/notes";
 import type { PostResponse } from "../../../lib/api/types";
+import { noteHref } from "../../../lib/routes";
 
 const DraftsPage = () => {
   const { lang, isAr, entitlements } = useDashboard();
@@ -99,7 +100,7 @@ const DraftsPage = () => {
               {drafts.map((draft) => (
                 <TableRow key={draft.postId}>
                   <TableCell>
-                    <Link href={`/dashboard/notes/${draft.noteId}`}>{draft.noteId}</Link>
+                    <Link href={noteHref(draft.noteId)}>{draft.noteId}</Link>
                   </TableCell>
                   <TableCell>{draft.provider}</TableCell>
                   <TableCell>{new Date(draft.updatedAt).toLocaleDateString()}</TableCell>
