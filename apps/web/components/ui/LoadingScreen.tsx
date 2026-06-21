@@ -29,7 +29,8 @@ const LoadingScreen = ({
   state = "loading",
   surface = "dashboard",
 }: LoadingScreenProps) => {
-  const [activeLang, setActiveLang] = useState<Lang>(() => lang ?? getStoredLang());
+  // Keep the server and hydration pass deterministic, then apply the persisted locale.
+  const [activeLang, setActiveLang] = useState<Lang>("en");
   const [messageIndex, setMessageIndex] = useState(0);
   const reactId = useId().replace(/:/g, "");
   const pathId = `noteship-loading-mark-${reactId}`;

@@ -151,7 +151,8 @@ const DashboardShellInner = ({ children }: { children: ReactNode }) => {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [lang, setLangState] = useState<Lang>(() => getStoredLang());
+  const [lang, setLangState] = useState<Lang>("en");
+  const [languageHydrated, setLanguageHydrated] = useState(false);
   const [me, setMe] = useState<MeResponse["user"] | null>(null);
   const [recentNotes, setRecentNotes] = useState<NoteResponse[]>([]);
   const [recentNotesStatus, setRecentNotesStatus] = useState<"loading" | "ready" | "error">(
@@ -223,6 +224,11 @@ const DashboardShellInner = ({ children }: { children: ReactNode }) => {
   );
 
   useEffect(() => {
+    setLangState(getStoredLang());
+    setLanguageHydrated(true);
+  }, []);
+
+  useEffect(() => {
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
     const onChange = () => setReducedMotion(media.matches);
     onChange();
@@ -263,13 +269,14 @@ const DashboardShellInner = ({ children }: { children: ReactNode }) => {
   }, [mobileNavOpen]);
 
   useEffect(() => {
+    if (!languageHydrated) return;
     document.documentElement.lang = lang;
     document.documentElement.dir = isAr ? "rtl" : "ltr";
     persistLang(lang);
     window.localStorage.removeItem("noteship-site-direction");
     window.localStorage.removeItem("noteship-editor-direction");
     window.localStorage.removeItem("noteship-editor-direction-linked");
-  }, [isAr, lang]);
+  }, [isAr, lang, languageHydrated]);
 
   useEffect(() => {
     if (didLoadSidebarPrefsRef.current) return;

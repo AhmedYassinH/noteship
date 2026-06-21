@@ -651,6 +651,7 @@ Cover only business-critical flows:
 Details: see `docs/technical/index.md`.
 
 - Languages: English (LTR) and Arabic (RTL) with user toggle; default from browser language, persist in local storage.
+- Hydration: server-rendered and initial client locale state must use the same deterministic fallback (`en`); apply persisted/browser locale and update root `lang`/`dir` only after mount to prevent localized text mismatches.
 - Apply brand rules: see `docs/brand/noteship-language-guidelines.md`, `docs/brand/noteship-layout-rtl-ltr.md`, `docs/brand/noteship-typography.md` for tone, mirroring, and font stacks (IBM Plex Sans + IBM Plex Sans Arabic for app UI; Lora/Noto Naskh for marketing headlines).
 - Layout: use CSS logical properties (`padding-inline`, `text-align: start|end`) and set `lang`/`dir` at the root per locale; mirror nav and directional icons for RTL.
 - shadcn/ui: enable RTL support in shadcn config; keep `dir` set on `html` or page root and use the Radix `DirectionProvider` where a component needs explicit direction (menus, popovers, dialogs).

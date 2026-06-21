@@ -27,7 +27,8 @@ export const useMarketingLanguage = () => {
 };
 
 const MarketingShell = ({ children }: { children: ReactNode }) => {
-  const [lang, setLang] = useState<Lang>(() => getStoredLang());
+  const [lang, setLang] = useState<Lang>("en");
+  const [languageHydrated, setLanguageHydrated] = useState(false);
   const pathname = usePathname();
   const copy = useMemo(() => sharedCopy[lang], [lang]);
   const isAr = lang === "ar";
@@ -35,10 +36,16 @@ const MarketingShell = ({ children }: { children: ReactNode }) => {
   const langMenuRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
+    setLang(getStoredLang());
+    setLanguageHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    if (!languageHydrated) return;
     document.documentElement.lang = lang;
     document.documentElement.dir = isAr ? "rtl" : "ltr";
     persistLang(lang);
-  }, [lang, isAr]);
+  }, [lang, isAr, languageHydrated]);
 
   useEffect(() => {
     if (!isLangMenuOpen) return;
