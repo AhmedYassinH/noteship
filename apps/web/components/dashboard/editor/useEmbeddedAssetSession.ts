@@ -16,7 +16,9 @@ export const useEmbeddedAssetSession = (markdown: string): boolean => {
       };
     }
 
-    setIsReady(false);
+    // Do not unmount an EditorContent that ProseMirror already owns. Uploads add the
+    // first protected URL after mount, and tearing down during that transaction can
+    // make React and ProseMirror remove the same DOM node.
     void createContentSession().finally(() => {
       if (!cancelled) {
         setIsReady(true);
