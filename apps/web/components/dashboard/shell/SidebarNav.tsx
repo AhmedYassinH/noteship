@@ -74,6 +74,7 @@ const SidebarNav = ({
                 "absolute inset-0 h-10 w-10 rounded-[14px] border border-[rgba(15,23,42,0.1)] bg-white p-0 shadow-[0_8px_20px_rgba(15,23,42,0.1)]",
                 "opacity-0 pointer-events-none transition-opacity duration-150 group-hover:opacity-100 group-hover:pointer-events-auto group-focus-within:opacity-100 group-focus-within:pointer-events-auto",
               )}
+              data-testid="dashboard-sidebar-toggle"
               onClick={onToggleCollapsed}
               size="icon"
               title={toggleLabel}
@@ -105,6 +106,7 @@ const SidebarNav = ({
               "rounded-full border-[rgba(15,23,42,0.12)] bg-white ml-auto rtl:ml-0 rtl:mr-auto",
               "h-9 w-9 px-0",
             )}
+            data-testid="dashboard-sidebar-toggle"
             onClick={onToggleCollapsed}
             size="icon"
             title={toggleLabel}

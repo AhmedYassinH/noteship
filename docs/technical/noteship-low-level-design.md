@@ -659,6 +659,7 @@ Details: see `docs/technical/index.md`.
   - Render the note editor as one full-height workspace with a single editable title; keep actions, title, metrics, and status outside the independently scrolling writing region.
   - Keep desktop block controls in a logical-start editor rail so they never overlap text or external panels; mirror the rail for RTL and use the compact tap/actions-sheet flow on narrow or coarse-pointer layouts.
   - Reorder top-level blocks by insertion boundary (before or after the hovered block), show a visible drop boundary, and auto-scroll near writing-region edges. Render block command menus in a viewport-level portal that flips above constrained anchors so editor overflow and the metrics footer cannot clip them.
+  - Keep dashboard navigation attached on desktop with a persisted compact icon-rail mode and a standard drawer on smaller screens. Persist only Drafts visibility: render it as a 360px inline desktop column and a focus-contained logical-end drawer below the desktop breakpoint.
   - Keep global layout direction language-driven (`en` -> LTR, `ar` -> RTL) from user settings (`/me`), with local-storage cache for fallback.
   - Keep editor block direction controls in the block bubble menu; LTR/RTL toggles apply only to the active block and never change global site direction.
   - Default new block direction to the current note session preference (initialized from site direction and updated when user toggles/enters explicit block direction).

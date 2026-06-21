@@ -402,6 +402,7 @@ const DashboardShellInner = ({ children }: { children: ReactNode }) => {
                   : "border-r border-[rgba(15,23,42,0.1)]",
                 !reducedMotion && "transition-[width] duration-200",
               )}
+              data-testid="dashboard-sidebar"
               style={{ width: `${effectiveSidebarWidth}px` }}
             >
               <SidebarNav

@@ -66,6 +66,8 @@ export type DashboardCopy = {
     scheduleFailed: string;
     publishNow: string;
     schedule: string;
+    hideDrafts: string;
+    showDrafts: string;
   };
   drafts: {
     title: string;
@@ -185,6 +187,8 @@ const dashboardCopy: Record<Lang, DashboardCopy> = {
       scheduleFailed: "Could not schedule. Please try again.",
       publishNow: "Publish now",
       schedule: "Schedule",
+      hideDrafts: "Hide Drafts",
+      showDrafts: "Show Drafts",
     },
     drafts: {
       title: "Drafts",
@@ -302,6 +306,8 @@ const dashboardCopy: Record<Lang, DashboardCopy> = {
       scheduleFailed: "تعذرت الجدولة. حاول مرة أخرى.",
       publishNow: "انشر الآن",
       schedule: "جدولة",
+      hideDrafts: "إخفاء المسودات",
+      showDrafts: "إظهار المسودات",
     },
     drafts: {
       title: "المسودات",
